@@ -218,7 +218,21 @@
             <div style="font-size:1rem;font-weight:800;color:var(--primary)">Rp {{ number_format($bid->amount, 0, ',', '.') }}</div>
             <div style="display:flex;gap:.4rem;align-items:center">
               <!-- IMK: Chat button for negotiation -->
-              <button onclick="openChat({{ $project->id }}, {{ $bid->programmer->id }}, '{{ addslashes($bid->programmer->name) }}', 'umkm')" class="btn btn-ghost btn-sm" style="font-size:.75rem;padding:4px 10px">💬 Chat</button>
+              @php
+                $unreadBidChatCount = \App\Models\Message::where('project_id', $project->id)
+                    ->where('sender_id', $bid->programmer->id)
+                    ->where('receiver_id', auth()->id())
+                    ->where('is_read', false)
+                    ->count();
+              @endphp
+              <button onclick="openChat({{ $project->id }}, {{ $bid->programmer->id }}, '{{ addslashes($bid->programmer->name) }}', 'umkm')" class="btn btn-ghost btn-sm" style="font-size:.75rem;padding:4px 10px;display:inline-flex;align-items:center;gap:4px">
+                💬 Chat
+                @if($unreadBidChatCount > 0)
+                  <span style="background:#EF4444;color:#fff;font-size:0.68rem;font-weight:800;padding:1px 5px;border-radius:10px;line-height:1">
+                    {{ $unreadBidChatCount }}
+                  </span>
+                @endif
+              </button>
               
               @if(($bid->rejection_count === 0 || $bid->is_revised) && $bid->status !== 'rejected')
                 <!-- IMK: Accept button with confirmation -->
@@ -251,7 +265,21 @@
           @endif
         </div>
         <div style="display:flex;gap:.5rem;align-items:center">
-          <button onclick="openChat({{ $project->id }}, {{ $project->programmer->id }}, '{{ addslashes($project->programmer->name) }}', 'umkm')" class="btn btn-ghost btn-sm">💬 Chat Programmer</button>
+          @php
+            $unreadInProgressChatCount = \App\Models\Message::where('project_id', $project->id)
+                ->where('sender_id', $project->programmer->id)
+                ->where('receiver_id', auth()->id())
+                ->where('is_read', false)
+                ->count();
+          @endphp
+          <button onclick="openChat({{ $project->id }}, {{ $project->programmer->id }}, '{{ addslashes($project->programmer->name) }}', 'umkm')" class="btn btn-ghost btn-sm" style="display:inline-flex;align-items:center;gap:4px">
+            💬 Chat Programmer
+            @if($unreadInProgressChatCount > 0)
+              <span style="background:#EF4444;color:#fff;font-size:0.68rem;font-weight:800;padding:1px 5px;border-radius:10px;line-height:1">
+                {{ $unreadInProgressChatCount }}
+              </span>
+            @endif
+          </button>
           <form method="POST" action="{{ route('umkm.project.complete', $project) }}" onsubmit="return confirm('Tandai project sebagai selesai? Dana akan dikirim ke programmer.')">
             @csrf
             <button type="submit" class="btn btn-success btn-sm" aria-label="Selesaikan project">✅ Selesai & Bayar</button>
@@ -558,6 +586,7 @@ function closeChat() {
   document.getElementById('chatModal').style.display = 'none';
   if (chatPollInterval) clearInterval(chatPollInterval);
   chatPollInterval = null;
+  location.reload();
 }
 
 document.getElementById('chatInput')?.addEventListener('keydown', e => {

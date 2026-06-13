@@ -296,6 +296,12 @@ footer { background: var(--dark); color: rgba(255,255,255,0.7); padding: 5rem 2r
   align-items: flex-end;
   font-family: inherit;
   pointer-events: none;
+  transition: transform 1.2s cubic-bezier(0.6, -0.28, 0.735, 0.045), opacity 0.8s ease-in;
+}
+.buddy-mascot-container.buddy-fallen {
+  transform: translateY(500px) rotate(15deg);
+  opacity: 0;
+  pointer-events: none;
 }
 .buddy-bubble {
   background: #ffffff;
@@ -685,6 +691,7 @@ function initBuddyTour() {
 }
 
 function toggleBuddy() {
+  if (sessionStorage.getItem('ai_tour_finished') === 'true') return;
   const bubble = document.getElementById('buddyBubble');
   if (bubble.classList.contains('active') && document.getElementById('buddyStep').textContent !== '') {
     closeBuddy();
@@ -748,7 +755,7 @@ function buddyNext() {
     buddyCurrentStep++;
     showBuddyStep();
   } else {
-    closeBuddy();
+    finishBuddyTour();
   }
 }
 
@@ -775,8 +782,30 @@ function closeBuddy() {
   });
 }
 
+function finishBuddyTour() {
+  sessionStorage.setItem('ai_tour_finished', 'true');
+  const container = document.getElementById('buddyMascot');
+  if (container) {
+    container.classList.add('buddy-fallen');
+    setTimeout(() => {
+      container.style.display = 'none';
+    }, 1200);
+  }
+  document.querySelectorAll('.buddy-highlight').forEach(el => {
+    el.style.outline = '';
+    el.style.outlineOffset = '';
+    el.classList.remove('buddy-highlight');
+  });
+}
+
 // Automatically welcome user with a tiny floating tip after 3 seconds
 window.addEventListener('load', () => {
+  if (sessionStorage.getItem('ai_tour_finished') === 'true') {
+    const container = document.getElementById('buddyMascot');
+    if (container) container.style.display = 'none';
+    return;
+  }
+  
   setTimeout(() => {
     const bubble = document.getElementById('buddyBubble');
     if (bubble && !bubble.classList.contains('active')) {
@@ -794,6 +823,13 @@ window.addEventListener('load', () => {
       bubble.classList.add('active');
     }
   }, 3000);
+});
+
+// Intercept logout forms and clear sessionStorage to reset tour guide
+document.addEventListener('submit', function(e) {
+  if (e.target && e.target.action && e.target.action.includes('logout')) {
+    sessionStorage.removeItem('ai_tour_finished');
+  }
 });
 </script>
 @endauth

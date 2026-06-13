@@ -259,7 +259,20 @@
                   <!-- Normal Edit button -->
                   <button onclick="openEditBidModal({{ $bid->id }}, {{ $bid->amount }}, {{ $bid->timeline_days }}, '{{ addslashes($bid->message) }}', '{{ addslashes($bid->project->title) }}', {{ max(1, (int)now()->startOfDay()->diffInDays($bid->project->deadline->startOfDay())) }})" class="btn btn-ghost btn-sm" style="font-size:.78rem;color:var(--primary);border-color:var(--primary);background:#fff">✏️ Ubah Penawaran</button>
                 @endif
-                <button onclick="openChat({{ $bid->project_id }}, {{ $bid->project->umkm_id }}, '{{ addslashes($bid->project->umkm->business_name ?? $bid->project->umkm->name) }}', 'programmer')" class="btn btn-primary btn-sm" style="font-size:.78rem">💬 Diskusi / Chat</button>
+                @php
+                  $unreadChatCount = \App\Models\Message::where('project_id', $bid->project_id)
+                      ->where('receiver_id', auth()->id())
+                      ->where('is_read', false)
+                      ->count();
+                @endphp
+                <button onclick="openChat({{ $bid->project_id }}, {{ $bid->project->umkm_id }}, '{{ addslashes($bid->project->umkm->business_name ?? $bid->project->umkm->name) }}', 'programmer')" class="btn btn-primary btn-sm" style="font-size:.78rem;display:inline-flex;align-items:center;gap:6px">
+                  💬 Diskusi / Chat
+                  @if($unreadChatCount > 0)
+                    <span style="background:#EF4444;color:#fff;font-size:0.7rem;font-weight:800;padding:2px 6px;border-radius:10px;line-height:1;box-shadow:0 2px 5px rgba(239,68,68,0.4)">
+                      {{ $unreadChatCount }}
+                    </span>
+                  @endif
+                </button>
               </div>
             </div>
           </div>
@@ -762,7 +775,7 @@ function sendChatMessage(role) {
     .then(r => r.json()).then(data => { if(data.ok){input.value='';loadMessages(role);} else alert(data.error||'Gagal.'); })
     .catch(() => alert('Gagal mengirim.'));
 }
-function closeChat() { document.getElementById('chatModal').style.display='none'; if(chatPollInterval) clearInterval(chatPollInterval); chatPollInterval=null; }
+function closeChat() { document.getElementById('chatModal').style.display='none'; if(chatPollInterval) clearInterval(chatPollInterval); chatPollInterval=null; location.reload(); }
 document.getElementById('chatInput')?.addEventListener('keydown', e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChatMessage('programmer');} });
 
 // ===== PORTFOLIO EDIT SYSTEM =====
