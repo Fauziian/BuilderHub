@@ -145,10 +145,32 @@
 
   <!-- MY COURSES TAB -->
   <div id="pane-my-courses" role="tabpanel">
-    <div style="display:grid;grid-template-columns:1fr;gap:1rem">
+    <!-- Search & Filter Bar for My Courses -->
+    <div class="glass-card" style="margin-bottom:1.5rem;padding:1.25rem;display:flex;gap:1rem;flex-wrap:wrap;align-items:center;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02)">
+      <div style="flex:1;min-width:260px;position:relative">
+        <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:0.9rem;color:var(--text3)">🔍</span>
+        <input type="text" id="myCoursesSearch" placeholder="Cari berdasarkan judul atau pengajar..." style="width:100%;padding:0.6rem 0.6rem 0.6rem 2.2rem;border-radius:var(--radius-sm);background:var(--bg2);border:1px solid var(--border);color:var(--text);font-size:0.85rem">
+      </div>
+      <div style="min-width:160px">
+        <select id="myCoursesLevelFilter" style="width:100%;padding:0.6rem;border-radius:var(--radius-sm);background:var(--bg2);border:1px solid var(--border);color:var(--text);font-size:0.85rem">
+          <option value="">Semua Tingkat</option>
+          <option value="beginner">Pemula</option>
+          <option value="intermediate">Menengah</option>
+          <option value="advanced">Mahir</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Empty Search Result Alert -->
+    <div id="myCoursesEmptySearch" class="card glass-card" style="display:none;text-align:center;padding:3rem;color:var(--text3)">
+      <div style="font-size:2rem;margin-bottom:0.5rem">🔍</div>
+      <div>Tidak ada course yang sesuai dengan pencarian Anda.</div>
+    </div>
+
+    <div id="myCoursesList" style="display:grid;grid-template-columns:1fr;gap:1rem">
       @forelse($enrollments as $enroll)
       @php $c = $enroll->course; @endphp
-      <div class="card glass-card" style="display:flex;gap:1.5rem;align-items:center;padding:1.5rem;flex-wrap:wrap">
+      <div class="card glass-card my-course-item" data-title="{{ strtolower($c->title) }}" data-instructor="{{ strtolower($c->instructor->name) }}" data-level="{{ $c->level }}" style="display:flex;gap:1.5rem;align-items:center;padding:1.5rem;flex-wrap:wrap">
         <div style="width:100px;height:80px;background:linear-gradient(135deg,#3B82F6,#8B5CF6);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;box-shadow:0 8px 16px rgba(59,130,246,0.3)">
           <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:38px;height:38px;filter:drop-shadow(0 2px 4px rgba(255,255,255,0.4))">
             <path d="M 16 48 L 32 16 L 48 48 Z" stroke="#FFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
@@ -210,12 +232,44 @@
 
   <!-- EXPLORE COURSES TAB -->
   <div id="pane-explore" style="display:none" role="tabpanel">
-    <div class="course-grid">
+    <!-- Search & Filter Bar for Explore Courses -->
+    <div class="glass-card" style="margin-bottom:1.5rem;padding:1.25rem;display:flex;gap:1rem;flex-wrap:wrap;align-items:center;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02)">
+      <div style="flex:1;min-width:260px;position:relative">
+        <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:0.9rem;color:var(--text3)">🔍</span>
+        <input type="text" id="exploreSearch" placeholder="Cari berdasarkan judul, pengajar, kategori..." style="width:100%;padding:0.6rem 0.6rem 0.6rem 2.2rem;border-radius:var(--radius-sm);background:var(--bg2);border:1px solid var(--border);color:var(--text);font-size:0.85rem">
+      </div>
+      <div style="min-width:150px">
+        <select id="exploreLevelFilter" style="width:100%;padding:0.6rem;border-radius:var(--radius-sm);background:var(--bg2);border:1px solid var(--border);color:var(--text);font-size:0.85rem">
+          <option value="">Semua Tingkat</option>
+          <option value="beginner">Pemula</option>
+          <option value="intermediate">Menengah</option>
+          <option value="advanced">Mahir</option>
+        </select>
+      </div>
+      <div style="min-width:150px">
+        <select id="exploreCategoryFilter" style="width:100%;padding:0.6rem;border-radius:var(--radius-sm);background:var(--bg2);border:1px solid var(--border);color:var(--text);font-size:0.85rem">
+          <option value="">Semua Kategori</option>
+          @foreach($availableCourses->pluck('category')->unique() as $cat)
+            @if($cat)
+              <option value="{{ strtolower($cat) }}">{{ $cat }}</option>
+            @endif
+          @endforeach
+        </select>
+      </div>
+    </div>
+
+    <!-- Empty Search Result Alert -->
+    <div id="exploreEmptySearch" class="card glass-card" style="grid-column:1/-1;display:none;text-align:center;padding:3rem;color:var(--text3)">
+      <div style="font-size:2rem;margin-bottom:0.5rem">🔍</div>
+      <div>Tidak ada course yang sesuai dengan pencarian Anda.</div>
+    </div>
+
+    <div id="exploreCoursesList" class="course-grid">
       @forelse($availableCourses as $course)
       @php
         $isEnrolled = $enrollments->contains('course_id', $course->id);
       @endphp
-      <article class="course-card" style="display:flex;flex-direction:column;justify-content:space-between">
+      <article class="course-card explore-course-item" data-title="{{ strtolower($course->title) }}" data-instructor="{{ strtolower($course->instructor->name) }}" data-category="{{ strtolower($course->category) }}" data-level="{{ $course->level }}" style="display:flex;flex-direction:column;justify-content:space-between">
         <div>
           <div class="course-thumb" style="background:linear-gradient(135deg,#1E1260,#6C38FF)">
             <span style="font-size:2.5rem">💻</span>
@@ -884,6 +938,84 @@ window.addEventListener('load', () => {
   );
 });
 @endif
+
+// Real-time Search & Filter for Student Courses
+document.addEventListener('DOMContentLoaded', function() {
+  // 1. My Courses Pane filtering
+  const myCoursesSearch = document.getElementById('myCoursesSearch');
+  const myCoursesLevelFilter = document.getElementById('myCoursesLevelFilter');
+  const myCourseItems = document.querySelectorAll('.my-course-item');
+  const myCoursesEmptySearch = document.getElementById('myCoursesEmptySearch');
+  
+  function filterMyCourses() {
+    const query = myCoursesSearch ? myCoursesSearch.value.toLowerCase().trim() : '';
+    const level = myCoursesLevelFilter ? myCoursesLevelFilter.value : '';
+    let visibleCount = 0;
+    
+    myCourseItems.forEach(item => {
+      const title = item.getAttribute('data-title') || '';
+      const instructor = item.getAttribute('data-instructor') || '';
+      const itemLevel = item.getAttribute('data-level') || '';
+      
+      const matchesQuery = !query || title.includes(query) || instructor.includes(query);
+      const matchesLevel = !level || itemLevel === level;
+      
+      if (matchesQuery && matchesLevel) {
+        item.style.setProperty('display', 'flex', 'important');
+        visibleCount++;
+      } else {
+        item.style.setProperty('display', 'none', 'important');
+      }
+    });
+    
+    if (myCoursesEmptySearch) {
+      myCoursesEmptySearch.style.display = (visibleCount === 0 && myCourseItems.length > 0) ? 'block' : 'none';
+    }
+  }
+  
+  if (myCoursesSearch) myCoursesSearch.addEventListener('input', filterMyCourses);
+  if (myCoursesLevelFilter) myCoursesLevelFilter.addEventListener('change', filterMyCourses);
+
+  // 2. Explore Courses Pane filtering
+  const exploreSearch = document.getElementById('exploreSearch');
+  const exploreLevelFilter = document.getElementById('exploreLevelFilter');
+  const exploreCategoryFilter = document.getElementById('exploreCategoryFilter');
+  const exploreCourseItems = document.querySelectorAll('.explore-course-item');
+  const exploreEmptySearch = document.getElementById('exploreEmptySearch');
+  
+  function filterExploreCourses() {
+    const query = exploreSearch ? exploreSearch.value.toLowerCase().trim() : '';
+    const level = exploreLevelFilter ? exploreLevelFilter.value : '';
+    const category = exploreCategoryFilter ? exploreCategoryFilter.value : '';
+    let visibleCount = 0;
+    
+    exploreCourseItems.forEach(item => {
+      const title = item.getAttribute('data-title') || '';
+      const instructor = item.getAttribute('data-instructor') || '';
+      const cat = item.getAttribute('data-category') || '';
+      const itemLevel = item.getAttribute('data-level') || '';
+      
+      const matchesQuery = !query || title.includes(query) || instructor.includes(query) || cat.includes(query);
+      const matchesLevel = !level || itemLevel === level;
+      const matchesCategory = !category || cat === category;
+      
+      if (matchesQuery && matchesLevel && matchesCategory) {
+        item.style.setProperty('display', 'flex', 'important');
+        visibleCount++;
+      } else {
+        item.style.setProperty('display', 'none', 'important');
+      }
+    });
+    
+    if (exploreEmptySearch) {
+      exploreEmptySearch.style.display = (visibleCount === 0 && exploreCourseItems.length > 0) ? 'block' : 'none';
+    }
+  }
+  
+  if (exploreSearch) exploreSearch.addEventListener('input', filterExploreCourses);
+  if (exploreLevelFilter) exploreLevelFilter.addEventListener('change', filterExploreCourses);
+  if (exploreCategoryFilter) exploreCategoryFilter.addEventListener('change', filterExploreCourses);
+});
 </script>
 @endpush
 @endsection
