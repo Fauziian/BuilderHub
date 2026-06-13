@@ -3,7 +3,8 @@
 @section('content')
 <div style="background:linear-gradient(135deg,#1E1260,#3D1FAF);color:#fff;padding:2.5rem 2rem;position:relative">
   <div style="position:absolute;inset:0;background:radial-gradient(ellipse 50% 50% at 80% 50%,rgba(255,255,255,.1) 0%,transparent 60%)"></div>
-  <div style="max-width:1200px;margin:0 auto;display:flex;justify-content:flex-end;margin-bottom:1rem;position:relative;z-index:2">
+  <div style="max-width:1200px;margin:0 auto;display:flex;justify-content:flex-end;align-items:center;gap:.75rem;margin-bottom:1rem;position:relative;z-index:2">
+    <a href="{{ route('messages.index') }}" class="btn btn-ghost btn-sm" style="border-color:rgba(255,255,255,.25);color:#fff;background:rgba(255,255,255,.1);font-weight:600;display:inline-flex;align-items:center;gap:6px">💬 Pesan / Chat</a>
     <form method="POST" action="{{ route('logout') }}" style="display:inline">
       @csrf
       <button type="submit" class="btn btn-ghost btn-sm" style="border-color:rgba(255,255,255,.25);color:#fff;background:rgba(255,255,255,.1);font-weight:600" aria-label="Keluar dari akun">Keluar 🚪</button>
@@ -215,7 +216,7 @@
             @endif
           @else
             <div style="margin-bottom:.5rem;font-size:.8rem;color:var(--text3)">Status: <strong style="color:var(--orange)">Belajar</strong></div>
-            <button onclick="openLearningRoom({{ $c->id }}, '{{ addslashes($c->title) }}', {{ json_encode($c->videos) }}, {{ $c->id }})" class="btn btn-3d btn-sm">▶ Mulai Belajar</button>
+            <button onclick="openLearningRoom({{ $c->id }}, '{{ addslashes($c->title) }}', {{ json_encode($c->videos) }}, {{ $c->id }}, {{ $c->instructor_id }})" class="btn btn-3d btn-sm">▶ Mulai Belajar</button>
           @endif
         </div>
       </div>
@@ -479,7 +480,10 @@
         </div>
       </div>
     </div>
-    <button onclick="closeLearningRoom()" class="btn-3d" style="background:#EF4444;box-shadow:0 3px 0 #B91C1C;color:#fff;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;border:none;cursor:pointer">&times;</button>
+    <div style="display:flex;align-items:center;gap:12px">
+      <button id="chatInstructorBtn" class="btn btn-primary btn-sm" style="display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:700;padding:6px 12px">💬 Tanya Instruktur</button>
+      <button onclick="closeLearningRoom()" class="btn-3d" style="background:#EF4444;box-shadow:0 3px 0 #B91C1C;color:#fff;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;border:none;cursor:pointer">&times;</button>
+    </div>
   </div>
 
   <!-- Main Grid -->
@@ -813,12 +817,17 @@ function closeCheckoutModal(){
 }
 
 // Learning room logic
-function openLearningRoom(id, title, videos, courseId){
+function openLearningRoom(id, title, videos, courseId, instructorId){
   const mascot = document.getElementById('buddyMascot');
   if(mascot) mascot.style.setProperty('display', 'none', 'important');
 
   document.getElementById('learnCourseTitle').textContent = title;
   document.getElementById('completeCourseForm').action = `${window.APP_URL}/course-manager/course/${courseId}/complete`;
+  
+  // Bind chat instructor button action
+  document.getElementById('chatInstructorBtn').onclick = () => {
+    window.location.href = `${window.APP_URL}/messages?contact_id=${instructorId}&course_id=${courseId}`;
+  };
   
   const container = document.getElementById('videoListContainer');
   container.innerHTML = '';

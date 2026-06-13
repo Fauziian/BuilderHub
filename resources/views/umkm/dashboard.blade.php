@@ -16,6 +16,7 @@
     </div>
     <div style="display:flex;gap:.75rem;align-items:center">
       <button onclick="showUTab('posting')" class="btn btn-orange btn-sm" aria-label="Buat project baru">+ Posting Project Baru</button>
+      <a href="{{ route('messages.index') }}" class="btn btn-ghost btn-sm" style="border-color:var(--accent);color:var(--accent);background:rgba(16,185,129,0.1);font-weight:600;display:inline-flex;align-items:center;gap:6px">💬 Pesan / Chat</a>
       <form method="POST" action="{{ route('logout') }}" style="display:inline">
         @csrf
         <button type="submit" class="btn btn-ghost btn-sm" style="border-color:var(--red);color:var(--red);background:var(--red-light)" aria-label="Keluar dari akun">Keluar 🚪</button>

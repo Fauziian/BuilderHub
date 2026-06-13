@@ -40,6 +40,7 @@
       @if($user->is_verified)
       <a href="{{ route('projects') }}" class="btn btn-primary btn-sm">🔍 Cari Project</a>
       @endif
+      <a href="{{ route('messages.index') }}" class="btn btn-ghost btn-sm" style="border-color:var(--primary);color:var(--primary);background:var(--primary-light);font-weight:600;display:inline-flex;align-items:center;gap:6px">💬 Pesan / Chat</a>
       <form method="POST" action="{{ route('logout') }}" style="display:inline">
         @csrf
         <button type="submit" class="btn btn-ghost btn-sm" style="border-color:var(--red);color:var(--red);background:var(--red-light)" aria-label="Keluar dari akun">Keluar 🚪</button>

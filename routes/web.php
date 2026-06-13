@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProgrammerController;
@@ -28,6 +29,14 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 
 // Dashboard redirect
 Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard')->middleware('auth');
+
+// Messenger / Central Chat system (for all roles)
+Route::middleware('auth')->group(function () {
+    Route::get('/messages', [ChatController::class, 'index'])->name('messages.index');
+    Route::get('/api/chat/threads', [ChatController::class, 'getThreads'])->name('chat.threads');
+    Route::get('/api/chat/messages/{contact}', [ChatController::class, 'getMessages'])->name('chat.messages');
+    Route::post('/api/chat/send', [ChatController::class, 'sendMessage'])->name('chat.send');
+});
 
 // Programmer routes
 Route::prefix('programmer')->name('programmer.')->middleware('auth')->group(function () {

@@ -8,6 +8,7 @@ class Message extends Model
 {
     protected $fillable = [
         'project_id',
+        'course_id',
         'sender_id',
         'receiver_id',
         'message',
@@ -17,6 +18,11 @@ class Message extends Model
     public function project()
     {
         return $this->belongsTo(Project::class);
+    }
+
+    public function course()
+    {
+        return $this->belongsTo(Course::class);
     }
 
     public function sender()
