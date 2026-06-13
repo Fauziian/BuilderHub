@@ -390,7 +390,7 @@ footer { background: var(--dark); color: rgba(255,255,255,0.7); padding: 5rem 2r
 </style>
 <script>
   window.APP_URL = "{{ url('/') }}";
-  window.USER_ROLE = "@auth{{ Auth::user()->role }}@elseguestguest@endauth";
+  window.USER_ROLE = "{{ Auth::check() ? Auth::user()->role : 'guest' }}";
 </script>
 @stack('styles')
 </head>
