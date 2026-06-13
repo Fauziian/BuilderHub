@@ -138,7 +138,7 @@
   </div>
 
   <!-- PENDING PROJECTS (ACC ACTION) -->
-  <div class="card" style="margin-bottom:1.5rem;border-left:4px solid var(--orange)">
+  <div id="adminPendingProjectsCard" class="card" style="margin-bottom:1.5rem;border-left:4px solid var(--orange)">
     <div class="card-header" style="border-bottom:1px solid var(--border);padding-bottom:.75rem;margin-bottom:.75rem">
       <span class="card-title" style="color:var(--orange)">⏳ Persetujuan Project UMKM Baru (ACC)</span>
       <span style="font-size:.78rem;font-weight:600;background:var(--orange-light);color:#92400E;padding:3px 10px;border-radius:99px">
@@ -182,7 +182,7 @@
     </div>
   </div>
 
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.5rem">
+  <div id="adminPendingVerificationsGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.5rem">
     <!-- Pending Programmer Verifications -->
     <div class="card">
       <div class="card-header">

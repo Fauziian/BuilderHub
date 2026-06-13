@@ -647,7 +647,7 @@ function initBuddyTour() {
       },
       {
         text: "Klik **Posting Project Baru** untuk membuat tawaran pekerjaan. Deskripsikan kebutuhan sistem Anda dengan jelas agar programmer tertarik mengajukan tawaran. 📝",
-        target: "[onclick*='posting']",
+        target: "#utab-posting",
         face: "💡"
       },
       {
@@ -665,12 +665,12 @@ function initBuddyTour() {
       },
       {
         text: "Periksa daftar **Persetujuan Project UMKM Baru**. Klik *ACC & Publikasikan* untuk meloloskan project agar dapat dilamar oleh Programmer! 📋",
-        target: ".card",
+        target: "#adminPendingProjectsCard",
         face: "🔍"
       },
       {
         text: "Periksa juga **Verifikasi Programmer & UMKM** yang tertunda. Verifikasi mereka jika dokumen yang dilampirkan sudah valid dan lengkap. ✅",
-        target: ".card:nth-of-type(2)",
+        target: "#adminPendingVerificationsGrid",
         face: "🛡️"
       }
     ];
