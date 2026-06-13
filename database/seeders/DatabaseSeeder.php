@@ -96,14 +96,14 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Portfolios
-        Portfolio::create(['programmer_id' => $rizky->id, 'title' => 'Toko Online UMKM Batik', 'description' => 'Website toko online batik khas Yogyakarta dengan fitur lengkap', 'tags' => ['React', 'Laravel', 'MySQL']]);
-        Portfolio::create(['programmer_id' => $rizky->id, 'title' => 'Sistem POS Warung', 'description' => 'Point of Sale untuk warung makan dengan tracking real-time', 'tags' => ['Vue.js', 'PHP', 'MySQL']]);
-        Portfolio::create(['programmer_id' => $rizky->id, 'title' => 'Marketplace Kerajinan', 'description' => 'Multi-vendor marketplace kerajinan lokal Indonesia', 'tags' => ['Next.js', 'Node.js', 'PostgreSQL']]);
+        Portfolio::create(['programmer_id' => $rizky->id, 'title' => 'Toko Online UMKM Batik', 'description' => 'Website toko online batik khas Yogyakarta dengan fitur lengkap', 'tags' => ['React', 'Laravel', 'MySQL'], 'status' => 'approved']);
+        Portfolio::create(['programmer_id' => $rizky->id, 'title' => 'Sistem POS Warung', 'description' => 'Point of Sale untuk warung makan dengan tracking real-time', 'tags' => ['Vue.js', 'PHP', 'MySQL'], 'status' => 'approved']);
+        Portfolio::create(['programmer_id' => $rizky->id, 'title' => 'Marketplace Kerajinan', 'description' => 'Multi-vendor marketplace kerajinan lokal Indonesia', 'tags' => ['Next.js', 'Node.js', 'PostgreSQL'], 'status' => 'approved']);
 
         // Certificates
-        Certificate::create(['programmer_id' => $rizky->id, 'name' => 'Laravel Certified Developer', 'issuer' => 'Laravel', 'issue_date' => '2023-03-15']);
-        Certificate::create(['programmer_id' => $rizky->id, 'name' => 'Google Professional Cloud Developer', 'issuer' => 'Google', 'issue_date' => '2022-09-01']);
-        Certificate::create(['programmer_id' => $rizky->id, 'name' => 'React Certification', 'issuer' => 'Meta', 'issue_date' => '2021-07-20']);
+        Certificate::create(['programmer_id' => $rizky->id, 'name' => 'Laravel Certified Developer', 'issuer' => 'Laravel', 'issue_date' => '2023-03-15', 'status' => 'approved']);
+        Certificate::create(['programmer_id' => $rizky->id, 'name' => 'Google Professional Cloud Developer', 'issuer' => 'Google', 'issue_date' => '2022-09-01', 'status' => 'approved']);
+        Certificate::create(['programmer_id' => $rizky->id, 'name' => 'React Certification', 'issuer' => 'Meta', 'issue_date' => '2021-07-20', 'status' => 'approved']);
 
         // Projects
         $project1 = Project::create([

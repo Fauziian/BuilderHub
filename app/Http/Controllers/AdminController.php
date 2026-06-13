@@ -7,6 +7,8 @@ use App\Models\Course;
 use App\Models\CourseEnrollment;
 use App\Models\Project;
 use App\Models\User;
+use App\Models\Portfolio;
+use App\Models\Certificate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -37,7 +39,7 @@ class AdminController extends Controller
 
         $recentUsers = User::latest()->take(5)->get();
         $recentProjects = Project::with('umkm')->latest()->take(5)->get();
-        $pendingProgrammers = User::where('role', 'programmer')->where('is_verified', false)->take(5)->get();
+        $pendingProgrammers = User::where('role', 'programmer')->where('is_verified', false)->with(['portfolios', 'certificates'])->take(5)->get();
         $pendingUmkms = User::where('role', 'umkm')->where('umkm_verified', false)->take(5)->get();
         $pendingProjects = Project::where('status', 'pending')->with('umkm')->latest()->get();
 
@@ -50,7 +52,7 @@ class AdminController extends Controller
         $query = User::query();
         if ($request->role) $query->where('role', $request->role);
         if ($request->search) $query->where('name', 'like', '%' . $request->search . '%')->orWhere('email', 'like', '%' . $request->search . '%');
-        $users = $query->latest()->paginate(15);
+        $users = $query->with(['portfolios', 'certificates'])->latest()->paginate(15);
         return view('admin.users', compact('users'));
     }
 
@@ -121,5 +123,51 @@ class AdminController extends Controller
         $this->checkAccess();
         $course->delete();
         return back()->with('success', "Course \"{$course->title}\" berhasil dihapus.");
+    }
+
+    private function recalculateBadges(User $user)
+    {
+        $approvedCertCount = $user->certificates()->where('status', 'approved')->count();
+        $approvedPortCount = $user->portfolios()->where('status', 'approved')->count();
+        $user->update([
+            'is_verified'      => $user->is_verified ? true : ($approvedCertCount >= 2 && $approvedPortCount >= 1),
+            'is_top_programmer' => $user->is_top_programmer ? true : ($approvedCertCount >= 3 && $approvedPortCount >= 3),
+        ]);
+    }
+
+    public function approvePortfolio(Portfolio $portfolio)
+    {
+        $this->checkAccess();
+        $portfolio->status = 'approved';
+        $portfolio->save();
+        $this->recalculateBadges($portfolio->programmer);
+        return back()->with('success', '✅ Portofolio berhasil disetujui!');
+    }
+
+    public function rejectPortfolio(Portfolio $portfolio)
+    {
+        $this->checkAccess();
+        $portfolio->status = 'rejected';
+        $portfolio->save();
+        $this->recalculateBadges($portfolio->programmer);
+        return back()->with('success', '❌ Portofolio telah ditolak.');
+    }
+
+    public function approveCertificate(Certificate $certificate)
+    {
+        $this->checkAccess();
+        $certificate->status = 'approved';
+        $certificate->save();
+        $this->recalculateBadges($certificate->programmer);
+        return back()->with('success', '✅ Sertifikat berhasil disetujui!');
+    }
+
+    public function rejectCertificate(Certificate $certificate)
+    {
+        $this->checkAccess();
+        $certificate->status = 'rejected';
+        $certificate->save();
+        $this->recalculateBadges($certificate->programmer);
+        return back()->with('success', '❌ Sertifikat telah ditolak.');
     }
 }

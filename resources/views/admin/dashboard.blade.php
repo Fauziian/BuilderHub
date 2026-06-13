@@ -101,8 +101,29 @@
         <div style="display:flex;align-items:center;gap.5rem">
           <div style="width:32px;height:32px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.8rem;margin-right:.5rem">{{ strtoupper(substr($prog->name,0,1)) }}</div>
           <div>
-            <div style="font-size:.875rem;font-weight:600">{{ $prog->name }}</div>
-            <div style="font-size:.75rem;color:var(--text3)">{{ $prog->certificates()->count() }} sert · {{ $prog->portfolios()->count() }} porto</div>
+            <div style="font-size:.875rem;font-weight:700">{{ $prog->name }}</div>
+            <!-- Portofolio list -->
+            <div style="margin-top: 0.35rem;">
+              <span style="font-size:.78rem;font-weight:600;color:var(--primary)">🗂 Portofolio ({{ $prog->portfolios->count() }}):</span>
+              <ul style="margin: 2px 0 0 10px; padding: 0; font-size: .75rem; color: var(--text2); list-style-type: disc;">
+                @forelse($prog->portfolios as $p)
+                  <li><strong>{{ $p->title }}</strong>: {{ Str::limit($p->description, 50) }}</li>
+                @empty
+                  <li style="color: var(--text3); list-style-type: none; margin-left: -10px;">Belum ada portofolio</li>
+                @endforelse
+              </ul>
+            </div>
+            <!-- Sertifikat list -->
+            <div style="margin-top: 0.35rem;">
+              <span style="font-size:.78rem;font-weight:600;color:var(--green)">📜 Sertifikat ({{ $prog->certificates->count() }}):</span>
+              <ul style="margin: 2px 0 0 10px; padding: 0; font-size: .75rem; color: var(--text2); list-style-type: disc;">
+                @forelse($prog->certificates as $c)
+                  <li><strong>{{ $c->name }}</strong> (oleh {{ $c->issuer }})</li>
+                @empty
+                  <li style="color: var(--text3); list-style-type: none; margin-left: -10px;">Belum ada sertifikat</li>
+                @endforelse
+              </ul>
+            </div>
           </div>
         </div>
         <form method="POST" action="{{ route('admin.verify-programmer', $prog) }}">
@@ -137,6 +158,86 @@
       @empty
       <p style="color:var(--text3);font-size:.875rem">Tidak ada pending verifikasi. 🎉</p>
       @endforelse
+    </div>
+  </div>
+
+  <!-- Pending Portfolios & Certificates Verifications -->
+  <div class="card" style="margin-bottom:1.25rem">
+    <div class="card-header" style="border-bottom:1px solid var(--border);padding-bottom:.75rem;margin-bottom:.75rem">
+      <span class="card-title" style="color:var(--primary)">🗂 Verifikasi Portofolio & Sertifikat Pending</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:.75rem">
+      @php
+        $pendingPorts = \App\Models\Portfolio::where('status', 'pending')->with('programmer')->get();
+        $pendingCerts = \App\Models\Certificate::where('status', 'pending')->with('programmer')->get();
+      @endphp
+
+      @forelse($pendingPorts as $p)
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:.85rem;background:var(--bg2);border-radius:var(--radius);border:1px solid var(--border)">
+        <div style="flex:1;padding-right:1.5rem">
+          <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.25rem">
+            <span class="badge" style="background:var(--primary-light);color:var(--primary);font-size:.7rem;font-weight:700">PORTOFOLIO</span>
+            <strong style="font-size:.92rem;color:var(--text)">{{ $p->title }}</strong>
+            <span style="font-size:.75rem;color:var(--text3)">oleh {{ $p->programmer->name }}</span>
+          </div>
+          <p style="font-size:.82rem;color:var(--text2);margin-bottom:.25rem;line-height:1.5">{{ $p->description }}</p>
+          @if($p->tags)
+            <div style="display:flex;gap:.25rem;flex-wrap:wrap">
+              @foreach($p->tags as $tag)
+                <span style="font-size:.7rem;padding:2px 6px;background:var(--bg3);border-radius:4px;color:var(--text2)">{{ $tag }}</span>
+              @endforeach
+            </div>
+          @endif
+          @if($p->project_url)
+            <div style="font-size:.75rem;color:var(--primary);margin-top:4px"><a href="{{ $p->project_url }}" target="_blank">🔗 Lihat Project</a></div>
+          @endif
+        </div>
+        <div style="flex-shrink:0;display:flex;gap:.5rem;align-items:center">
+          <form method="POST" action="{{ route('admin.portfolio.approve', $p) }}">
+            @csrf
+            <button type="submit" class="btn btn-primary btn-sm" style="background:var(--green);border-color:var(--green);font-weight:600">Setujui ✅</button>
+          </form>
+          <form method="POST" action="{{ route('admin.portfolio.reject', $p) }}">
+            @csrf
+            <button type="submit" class="btn btn-sm btn-ghost" style="color:var(--red);border-color:var(--red);background:var(--red-light);padding:6px 12px">❌ Tolak</button>
+          </form>
+        </div>
+      </div>
+      @empty
+      @endforelse
+
+      @forelse($pendingCerts as $c)
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:.85rem;background:var(--bg2);border-radius:var(--radius);border:1px solid var(--border)">
+        <div style="flex:1;padding-right:1.5rem">
+          <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.25rem">
+            <span class="badge" style="background:var(--green-light);color:var(--green);font-size:.7rem;font-weight:700">SERTIFIKAT</span>
+            <strong style="font-size:.92rem;color:var(--text)">{{ $c->name }}</strong>
+            <span style="font-size:.75rem;color:var(--text3)">oleh {{ $c->programmer->name }}</span>
+          </div>
+          <p style="font-size:.82rem;color:var(--text2);margin-bottom:.25rem;line-height:1.5">Penerbit: <strong>{{ $c->issuer }}</strong> @if($c->issue_date) · Tanggal: {{ $c->issue_date->format('M Y') }} @endif</p>
+          @if($c->credential_url)
+            <div style="font-size:.75rem;color:var(--primary);margin-top:4px"><a href="{{ $c->credential_url }}" target="_blank">🔗 Lihat Kredensial</a></div>
+          @endif
+        </div>
+        <div style="flex-shrink:0;display:flex;gap:.5rem;align-items:center">
+          <form method="POST" action="{{ route('admin.certificate.approve', $c) }}">
+            @csrf
+            <button type="submit" class="btn btn-primary btn-sm" style="background:var(--green);border-color:var(--green);font-weight:600">Setujui ✅</button>
+          </form>
+          <form method="POST" action="{{ route('admin.certificate.reject', $c) }}">
+            @csrf
+            <button type="submit" class="btn btn-sm btn-ghost" style="color:var(--red);border-color:var(--red);background:var(--red-light);padding:6px 12px">❌ Tolak</button>
+          </form>
+        </div>
+      </div>
+      @empty
+      @endforelse
+
+      @if($pendingPorts->isEmpty() && $pendingCerts->isEmpty())
+      <div style="text-align:center;padding:1.5rem;color:var(--text3);font-size:.875rem">
+        Tidak ada portofolio atau sertifikat baru yang menunggu verifikasi.
+      </div>
+      @endif
     </div>
   </div>
 

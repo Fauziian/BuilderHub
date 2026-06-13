@@ -11,7 +11,7 @@ class User extends Authenticatable
 
     protected $fillable = [
         'name', 'email', 'password', 'role', 'phone', 'city', 'bio', 'avatar',
-        'is_verified', 'is_top_programmer', 'rating', 'total_projects', 'total_earnings',
+        'is_verified', 'is_top_programmer', 'rating', 'course_rating', 'total_projects', 'total_earnings',
         'business_name', 'business_type', 'legal_doc', 'umkm_verified', 'expertise'
     ];
 
@@ -63,6 +63,16 @@ class User extends Authenticatable
     public function notifications()
     {
         return $this->hasMany(Notification::class);
+    }
+
+    public function receivedReviews()
+    {
+        return $this->hasMany(Review::class, 'reviewed_id');
+    }
+
+    public function givenReviews()
+    {
+        return $this->hasMany(Review::class, 'reviewer_id');
     }
 
     public function getAvatarInitialAttribute()

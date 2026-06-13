@@ -17,7 +17,9 @@
       </div>
     </div>
     <div style="display:flex;gap:.75rem;align-items:center">
+      @if($user->is_verified)
       <a href="{{ route('projects') }}" class="btn btn-primary btn-sm">🔍 Cari Project</a>
+      @endif
       <form method="POST" action="{{ route('logout') }}" style="display:inline">
         @csrf
         <button type="submit" class="btn btn-ghost btn-sm" style="border-color:var(--red);color:var(--red);background:var(--red-light)" aria-label="Keluar dari akun">Keluar 🚪</button>
@@ -27,10 +29,15 @@
 
   <!-- IMK: Tab navigation makes feature discoverability clear -->
   <div class="tab-bar" role="tablist" aria-label="Menu Dashboard Programmer">
+    @php
+      $hasFilledThree = !empty($user->bio) && $portfolios->count() >= 1 && $certificates->count() >= 1;
+      $showAllTabs = $user->is_verified || $hasFilledThree;
+    @endphp
     <button class="tab-btn active" onclick="showTab('overview')" role="tab" aria-selected="true" id="tab-overview">📊 Overview</button>
-    <button class="tab-btn" onclick="showTab('projects')" role="tab" id="tab-projects">🔍 Cari Project</button>
-    <button class="tab-btn" onclick="showTab('courses')" role="tab" id="tab-courses">📚 Course Saya</button>
-    <button class="tab-btn" onclick="showTab('portfolio')" role="tab" id="tab-portfolio">🗂 Portofolio</button>
+    @if($showAllTabs)
+      <button class="tab-btn" onclick="showTab('projects')" role="tab" id="tab-projects">🔍 Cari Project</button>
+      <button class="tab-btn" onclick="showTab('courses')" role="tab" id="tab-courses">📚 Course Saya</button>
+    @endif
     <button class="tab-btn" onclick="showTab('verify')" role="tab" id="tab-verify">✅ Verifikasi</button>
   </div>
 
@@ -40,7 +47,14 @@
       <div class="stat-card"><div class="stat-card-icon">💰</div><div class="stat-card-value">Rp {{ number_format($user->total_earnings / 1000000, 1) }}M</div><div class="stat-card-label">Total Pendapatan</div></div>
       <div class="stat-card"><div class="stat-card-icon">⏳</div><div class="stat-card-value">{{ $activeProjects->count() }}</div><div class="stat-card-label">Project Berjalan</div></div>
       <div class="stat-card"><div class="stat-card-icon">✅</div><div class="stat-card-value">{{ $completedProjects }}</div><div class="stat-card-label">Project Selesai</div></div>
-      <div class="stat-card"><div class="stat-card-icon">⭐</div><div class="stat-card-value">{{ number_format($user->rating, 1) }} ★</div><div class="stat-card-label">Rating</div></div>
+      <div class="stat-card">
+        <div class="stat-card-icon">⭐</div>
+        <div class="stat-card-value" style="font-size:1.15rem;display:flex;flex-direction:column;gap:4px;margin-top:4px">
+          <span style="font-weight:800;color:var(--text)">🏢 {{ number_format($user->rating ?: 5.0, 1) }} ★ <span style="font-size:0.75rem;font-weight:normal;color:var(--text2)">Project</span></span>
+          <span style="font-weight:800;color:var(--text)">🎓 {{ number_format($user->course_rating ?: 5.0, 1) }} ★ <span style="font-size:0.75rem;font-weight:normal;color:var(--text2)">Course</span></span>
+        </div>
+        <div class="stat-card-label" style="margin-top:6px">Rating Saya</div>
+      </div>
     </div>
 
     <!-- IMK: Progress bar shows user completion status with clear goal -->
@@ -50,7 +64,9 @@
           @php
             $certCount = $certificates->count();
             $portCount = $portfolios->count();
-            $progress = min(100, (int)(($certCount / 3 + $portCount / 3) / 2 * 100));
+            $approvedCertCount = $certificates->where('status', 'approved')->count();
+            $approvedPortCount = $portfolios->where('status', 'approved')->count();
+            $progress = min(100, (int)(($approvedCertCount / 3 + $approvedPortCount / 3) / 2 * 100));
           @endphp
           {{ $progress }}%
         </span>
@@ -59,10 +75,10 @@
       <div style="display:flex;flex-direction:column;gap:.4rem">
         @foreach([
           ['Skill/Bio ditambahkan', !empty($user->bio)],
-          ['Minimal 1 sertifikat', $certCount >= 1],
-          ['Minimal 1 portofolio', $portCount >= 1],
-          ['Terverifikasi (2+ sertifikat + 1+ portofolio)', $user->is_verified],
-          ['Top Programmer (3+ sertifikat + 3+ portofolio)', $user->is_top_programmer],
+          ['Minimal 1 sertifikat (Disetujui)', $approvedCertCount >= 1],
+          ['Minimal 1 portofolio (Disetujui)', $approvedPortCount >= 1],
+          ['Terverifikasi (2+ sertifikat + 1+ portofolio)', $user->is_verified && $approvedCertCount >= 2 && $approvedPortCount >= 1],
+          ['Top Programmer (3+ sertifikat + 3+ portofolio)', $user->is_top_programmer && $approvedCertCount >= 3 && $approvedPortCount >= 3],
           ['Hak Membuat Course (Top Programmer)', $user->is_top_programmer],
         ] as [$label, $done])
         <div style="display:flex;align-items:center;gap:.75rem;padding:.5rem 0;border-bottom:1px solid var(--border)">
@@ -99,13 +115,36 @@
 
       @if($myBids->count())
       <div class="card" style="margin-bottom:1.25rem">
-        <div class="card-header"><span class="card-title">⏳ Penawaran Menunggu Persetujuan UMKM</span></div>
+        <div class="card-header"><span class="card-title">⏳ Status Penawaran Anda</span></div>
         <div style="display:flex;flex-direction:column;gap:.5rem">
           @foreach($myBids as $bid)
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:.75rem;background:var(--orange-light);border-radius:var(--radius);border:1px solid rgba(245,158,11,.2)">
+          @php
+            $isRejectedOnce = ($bid->rejection_count === 1 && !$bid->is_revised);
+            $isRejectedPermanently = ($bid->status === 'rejected' || $bid->rejection_count >= 2);
+            $isPendingReversion = ($bid->rejection_count === 1 && $bid->is_revised);
+            
+            $bg = 'var(--orange-light)';
+            $border = 'rgba(245,158,11,.2)';
+            $statusText = 'Menunggu Persetujuan UMKM ⏳';
+            if ($isRejectedOnce) {
+              $bg = '#FEF3C7'; // soft yellow-orange
+              $border = 'rgba(245,158,11,.3)';
+              $statusText = 'Penawaran Ditolak (Silakan Ajukan Penawaran Kembali)';
+            } elseif ($isRejectedPermanently) {
+              $bg = '#FEE2E2'; // soft red
+              $border = 'rgba(239,68,68,.3)';
+              $statusText = 'Ditolak! ❌';
+            } elseif ($isPendingReversion) {
+              $statusText = 'Menunggu Persetujuan UMKM (Revisi Ke-1) ⏳';
+            }
+          @endphp
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:.75rem;background:{{ $bg }};border-radius:var(--radius);border:1px solid {{ $border }}">
             <div>
               <div style="font-size:.9rem;font-weight:700">{{ $bid->project->title }}</div>
-              <div style="font-size:.8rem;color:var(--text3);margin-top:2px">{{ $bid->project->umkm->business_name ?? $bid->project->umkm->name }}</div>
+              <div style="font-size:.8rem;color:var(--text3);margin-top:2px">
+                {{ $bid->project->umkm->business_name ?? $bid->project->umkm->name }} · 
+                <span style="font-weight:600">{{ $statusText }}</span>
+              </div>
             </div>
             <div style="text-align:right;display:flex;align-items:center;gap:.75rem">
               <div>
@@ -113,7 +152,13 @@
                 <div style="font-size:.75rem;color:var(--text3)">{{ $bid->timeline_days }} hari pengerjaan</div>
               </div>
               <div style="display:flex;gap:.35rem;align-items:center">
-                <button onclick="openEditBidModal({{ $bid->id }}, {{ $bid->amount }}, {{ $bid->timeline_days }}, '{{ addslashes($bid->message) }}', '{{ addslashes($bid->project->title) }}', {{ max(1, (int)now()->startOfDay()->diffInDays($bid->project->deadline->startOfDay())) }})" class="btn btn-ghost btn-sm" style="font-size:.78rem;color:var(--primary);border-color:var(--primary);background:#fff">✏️ Ubah Penawaran</button>
+                @if($isRejectedOnce)
+                  <!-- Ajukan Penawaran Kembali button -->
+                  <button onclick="openEditBidModal({{ $bid->id }}, {{ $bid->amount }}, {{ $bid->timeline_days }}, '{{ addslashes($bid->message) }}', '{{ addslashes($bid->project->title) }}', {{ max(1, (int)now()->startOfDay()->diffInDays($bid->project->deadline->startOfDay())) }})" class="btn btn-primary btn-sm" style="font-size:.78rem;background:var(--accent);border-color:var(--accent)">🔁 Ajukan Penawaran Kembali</button>
+                @elseif(!$isRejectedPermanently)
+                  <!-- Normal Edit button -->
+                  <button onclick="openEditBidModal({{ $bid->id }}, {{ $bid->amount }}, {{ $bid->timeline_days }}, '{{ addslashes($bid->message) }}', '{{ addslashes($bid->project->title) }}', {{ max(1, (int)now()->startOfDay()->diffInDays($bid->project->deadline->startOfDay())) }})" class="btn btn-ghost btn-sm" style="font-size:.78rem;color:var(--primary);border-color:var(--primary);background:#fff">✏️ Ubah Penawaran</button>
+                @endif
                 <button onclick="openChat({{ $bid->project_id }}, {{ $bid->project->umkm_id }}, '{{ addslashes($bid->project->umkm->business_name ?? $bid->project->umkm->name) }}', 'programmer')" class="btn btn-primary btn-sm" style="font-size:.78rem">💬 Diskusi / Chat</button>
               </div>
             </div>
@@ -123,10 +168,97 @@
       </div>
       @endif
     @endif
+
+    {{-- ULASAN & RATING DITERIMA --}}
+    @if($receivedReviews->count())
+    <div class="card" style="margin-bottom:1.25rem">
+      <div class="card-header">
+        <span class="card-title">⭐ Ulasan & Rating Saya ({{ $receivedReviews->count() }})</span>
+        <span style="font-size:.8rem;color:var(--text3)">
+          Project: <strong style="color:var(--text)">{{ number_format($user->rating ?: 5.0, 1) }} ★</strong> &nbsp;·&nbsp;
+          Course: <strong style="color:var(--text)">{{ number_format($user->course_rating ?: 5.0, 1) }} ★</strong>
+        </span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:.75rem">
+        @foreach($receivedReviews as $review)
+        <div style="padding:.85rem 1rem;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--bg2);display:flex;gap:1rem;align-items:flex-start">
+          {{-- Badge tipe rating --}}
+          <div style="flex-shrink:0;text-align:center">
+            @if($review->type === 'umkm')
+              <div style="background:#FFF7ED;color:#C2410C;font-size:.65rem;font-weight:700;padding:3px 8px;border-radius:99px;border:1px solid rgba(194,65,12,.2);white-space:nowrap">🏢 UMKM</div>
+            @else
+              <div style="background:#EDE9FE;color:#6D28D9;font-size:.65rem;font-weight:700;padding:3px 8px;border-radius:99px;border:1px solid rgba(109,40,217,.2);white-space:nowrap">🎓 Pelajar</div>
+            @endif
+          </div>
+          <div style="flex:1;min-width:0">
+            {{-- Stars --}}
+            <div style="display:flex;gap:2px;margin-bottom:.35rem;align-items:center">
+              @for($s=1;$s<=5;$s++)
+                <span style="font-size:1rem;color:{{ $s<=$review->rating ? '#F59E0B' : '#D1D5DB' }}">★</span>
+              @endfor
+              <span style="font-size:.78rem;color:var(--text3);margin-left:.4rem">{{ $review->rating }}/5</span>
+            </div>
+            {{-- Context (project/course title) --}}
+            <div style="font-size:.75rem;color:var(--text3);margin-bottom:.25rem">
+              @if($review->type === 'umkm' && $review->project)
+                Project: <strong>{{ $review->project->title }}</strong>
+              @elseif($review->type === 'course' && $review->course)
+                Course: <strong>{{ $review->course->title }}</strong>
+              @endif
+            </div>
+            {{-- Comment --}}
+            @if($review->comment)
+            <p style="font-size:.85rem;color:var(--text2);font-style:italic;margin-bottom:.35rem">"{{ $review->comment }}"</p>
+            @else
+            <p style="font-size:.82rem;color:var(--text3);font-style:italic;margin-bottom:.35rem">— Tidak ada komentar —</p>
+            @endif
+            {{-- Reviewer + date --}}
+            <div style="font-size:.72rem;color:var(--text3)">
+              Oleh: <strong>{{ $review->reviewer->name }}</strong> · {{ $review->created_at->format('d M Y') }}
+            </div>
+          </div>
+        </div>
+        @endforeach
+      </div>
+    </div>
+    @endif
   </div>
 
+  @if($showAllTabs)
   <!-- PROJECTS TAB -->
   <div id="pane-projects" style="display:none" role="tabpanel">
+    @php
+      $approvedPortCount = $user->portfolios()->where('status', 'approved')->count();
+      $approvedCertCount = $user->certificates()->where('status', 'approved')->count();
+      $totalPortCount = $user->portfolios()->count();
+      $totalCertCount = $user->certificates()->count();
+    @endphp
+
+    @if(!$user->is_verified)
+    <div class="imk-guide" style="margin-bottom:1.5rem;background:#FEF3C7;border-color:#F59E0B">
+      <div class="imk-guide-icon">⏳</div>
+      <div>
+        <div class="imk-guide-title" style="color:#B45309">Menunggu Verifikasi Akun oleh Admin</div>
+        <div class="imk-guide-text" style="color:#D97706">Akun Anda sedang dalam proses peninjauan oleh admin. Akses fitur "Cari Project" akan terbuka sepenuhnya setelah admin menyetujui verifikasi akun Anda.</div>
+      </div>
+    </div>
+    @elseif($totalPortCount === 0 && $totalCertCount === 0)
+    <div class="imk-guide" style="margin-bottom:1.5rem">
+      <div class="imk-guide-icon">🔒</div>
+      <div>
+        <div class="imk-guide-title">Fitur Belum Terbuka</div>
+        <div class="imk-guide-text">Anda belum memenuhi syarat untuk mencari project, penuhi kriteria dengan mengisi portofolio atau sertifikat agar anda mendapatkan akses fitur ini (cari project).</div>
+      </div>
+    </div>
+    @elseif($approvedPortCount === 0 && $approvedCertCount === 0)
+    <div class="imk-guide" style="margin-bottom:1.5rem;background:#FEF3C7;border-color:#F59E0B">
+      <div class="imk-guide-icon">⏳</div>
+      <div>
+        <div class="imk-guide-title" style="color:#B45309">Menunggu Verifikasi Oleh Admin</div>
+        <div class="imk-guide-text" style="color:#D97706">Portofolio atau sertifikat yang Anda unggah sedang dalam proses peninjauan oleh admin. Akses fitur "Cari Project" akan terbuka setelah verifikasi disetujui.</div>
+      </div>
+    </div>
+    @else
     <div style="background:linear-gradient(135deg,#1E1260,#6C38FF);border-radius:var(--radius-lg);padding:1.5rem;margin-bottom:1.5rem;color:#fff">
       <h2 style="color:#fff;font-size:1.25rem;margin-bottom:.25rem">{{ $availableProjects->count() }} project tersedia untuk Anda</h2>
       <p style="color:rgba(255,255,255,.7);font-size:.875rem">Klik "Ajukan Penawaran" untuk mengirim bid ke UMKM</p>
@@ -157,6 +289,8 @@
           <span style="font-size:.78rem;color:var(--text3)">⏰ Deadline: {{ $p->deadline->format('d M Y') }}</span>
           @if($p->bids->contains('programmer_id', $user->id))
             <button class="btn btn-sm" style="background:var(--orange-light);color:#92400E;border-color:rgba(245,158,11,.3);cursor:default;font-weight:600" disabled>Menunggu Persetujuan UMKM ⏳</button>
+          @elseif($approvedPortCount === 0 && $approvedCertCount === 0)
+            <button class="btn btn-sm" style="background:var(--bg3);color:var(--text3);border-color:var(--border);cursor:not-allowed" title="Tambahkan minimal 1 Portofolio atau Sertifikat yang disetujui terlebih dahulu" disabled>Kunci Penawaran 🔒</button>
           @else
             <button onclick="openBidModal({{ $p->id }}, '{{ addslashes($p->title) }}', {{ $p->budget }}, {{ max(1, (int)now()->startOfDay()->diffInDays($p->deadline->startOfDay())) }})" class="btn btn-primary btn-sm" aria-label="Ajukan penawaran untuk {{ $p->title }}">Ajukan Penawaran →</button>
           @endif
@@ -167,11 +301,22 @@
     <div style="text-align:center;margin-top:1rem">
       <a href="{{ route('projects') }}" class="btn btn-ghost">Lihat Semua Project →</a>
     </div>
+    @endif
   </div>
+  @endif
 
+  @if($showAllTabs)
   <!-- COURSES TAB -->
   <div id="pane-courses" style="display:none" role="tabpanel">
-    @if(!$user->is_top_programmer)
+    @if(!$user->is_verified)
+    <div class="imk-guide" style="margin-bottom:1.5rem;background:#FEF3C7;border-color:#F59E0B">
+      <div class="imk-guide-icon">⏳</div>
+      <div>
+        <div class="imk-guide-title" style="color:#B45309">Menunggu Verifikasi Akun oleh Admin</div>
+        <div class="imk-guide-text" style="color:#D97706">Akun Anda sedang dalam proses peninjauan oleh admin. Akses fitur "Course Saya" akan terbuka sepenuhnya setelah admin menyetujui verifikasi akun Anda.</div>
+      </div>
+    </div>
+    @elseif(!$user->is_top_programmer)
     <!-- IMK: Clear explanation of what user needs to unlock feature -->
     <div class="imk-guide">
       <div class="imk-guide-icon">🔒</div>
@@ -214,18 +359,56 @@
     <div style="text-align:center;padding:2rem;color:var(--text3)">Belum ada course. Buat course pertama Anda!</div>
     @endforelse
   </div>
+  @endif
 
-  <!-- PORTFOLIO TAB -->
-  <div id="pane-portfolio" style="display:none" role="tabpanel">
-    <div class="card" style="margin-bottom:1.25rem">
-      <div class="card-header"><span class="card-title">🗂 Portofolio ({{ $portfolios->count() }})</span></div>
+
+
+  <!-- VERIFY TAB -->
+  <div id="pane-verify" style="display:none" role="tabpanel">
+    <div class="card">
+      <div class="card-header"><span class="card-title">🏅 Badge & Status Verifikasi</span></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem">
+        @foreach([['✅ Terverifikasi', $user->is_verified, '#ECFDF5', '#059669'],['🏆 Top Programmer', $user->is_top_programmer, '#FFF7ED', '#C2410C'],['💎 Pemateri', $user->is_top_programmer, '#EDE9FE', '#6D28D9']] as [$b, $has, $bg, $c])
+        <div style="border:1px solid var(--border);border-radius:var(--radius);padding:1rem;text-align:center;opacity:{{ $has ? '1' : '.5' }}">
+          <div style="font-size:.82rem;font-weight:600;padding:3px 9px;border-radius:99px;background:{{ $bg }};color:{{ $c }};display:inline-block;margin-bottom:.4rem">{{ $b }}</div>
+          <div style="font-size:.75rem;color:var(--text3)">{{ $has ? 'Aktif ✓' : 'Belum' }}</div>
+        </div>
+        @endforeach
+      </div>
+
+      <!-- 0. BIO & SKILLS -->
+      <h4 style="font-size:.9rem;font-weight:700;margin-bottom:.75rem">📝 Bio & Keahlian</h4>
+      <form method="POST" action="{{ route('programmer.profile.update') }}" style="margin-bottom:1.5rem">
+        @csrf
+        <div class="form-group" style="margin-bottom:.75rem">
+          <label style="display:block;font-size:.78rem;font-weight:600;margin-bottom:.25rem;color:var(--text2)">Bio / Deskripsi Diri</label>
+          <textarea name="bio" class="form-textarea" placeholder="Ceritakan tentang keahlian dan pengalaman Anda..." required style="min-height:80px">{{ $user->bio }}</textarea>
+        </div>
+        <div class="form-group" style="margin-bottom:.75rem">
+          <label style="display:block;font-size:.78rem;font-weight:600;margin-bottom:.25rem;color:var(--text2)">Keahlian (pisahkan dengan koma)</label>
+          <input name="expertise" class="form-input" placeholder="Contoh: Laravel, React, Vue, Python" value="{{ $user->expertise }}">
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm">Simpan Profil 💾</button>
+      </form>
+
+      <hr style="margin:1.5rem 0;border:none;border-top:1px solid var(--border)">
+
+      <!-- 1. PORTOFOLIO -->
+      <h4 style="font-size:.9rem;font-weight:700;margin-bottom:.75rem">🗂 Portofolio ({{ $portfolios->count() }})</h4>
       @forelse($portfolios as $p)
-      <div style="display:flex;align-items:center;gap:.75rem;padding:.75rem;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.5rem">
+      <div style="display:flex;align-items:center;gap:.75rem;padding:.75rem;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.5rem;background:var(--bg2)">
         <div style="width:36px;height:36px;background:var(--primary-light);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:.8rem;flex-shrink:0">&lt;/&gt;</div>
         <div style="flex:1">
           <div style="font-size:.9rem;font-weight:600">{{ $p->title }}</div>
           <div style="font-size:.78rem;color:var(--text3)">{{ Str::limit($p->description, 60) }}</div>
           <div class="tag-list" style="margin-top:.25rem">@foreach(($p->tags ?? []) as $tag)<span class="tag">{{ $tag }}</span>@endforeach</div>
+          @if($p->status === 'pending')
+          <div style="font-size:.78rem;color:var(--accent);font-weight:600;margin-top:6px">⚠️ portofolio sedang ditinjau admin, tunggu 1x24 jam</div>
+          @elseif($p->status === 'rejected')
+          <div style="font-size:.78rem;color:var(--red);font-weight:600;margin-top:6px">❌ portofolio ditolak admin</div>
+          @elseif($p->status === 'approved')
+          <div style="font-size:.78rem;color:var(--green);font-weight:600;margin-top:6px">✅ portofolio telah disetujui admin</div>
+          @endif
         </div>
         <div style="display:flex;gap:.25rem;align-items:center">
           <button onclick="openEditPortfolioModal({{ $p->id }}, '{{ addslashes($p->title) }}', '{{ addslashes($p->description) }}', '{{ addslashes(implode(', ', $p->tags ?? [])) }}', '{{ addslashes($p->project_url) }}')" class="btn btn-ghost btn-sm" aria-label="Edit portofolio {{ $p->title }}">✏️</button>
@@ -247,30 +430,25 @@
         <div class="form-group"><textarea name="description" class="form-textarea" placeholder="Deskripsi singkat project..." required aria-label="Deskripsi portofolio"></textarea></div>
         <div class="form-group"><input name="tags" class="form-input" placeholder="Tags (pisahkan koma): React, Laravel..." aria-label="Tags portofolio"><div class="form-hint">Contoh: React, Laravel, MySQL</div></div>
         <div class="form-group"><input name="project_url" type="url" class="form-input" placeholder="Link project (opsional)" aria-label="URL portofolio"></div>
-        <button type="submit" class="btn btn-primary btn-sm">+ Tambah Portofolio</button>
+        <button type="submit" class="btn btn-primary btn-sm" style="margin-bottom:1.5rem">+ Tambah Portofolio</button>
       </form>
-    </div>
-  </div>
 
-  <!-- VERIFY TAB -->
-  <div id="pane-verify" style="display:none" role="tabpanel">
-    <div class="card">
-      <div class="card-header"><span class="card-title">🏅 Badge & Status Verifikasi</span></div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem">
-        @foreach([['✅ Terverifikasi', $user->is_verified, '#ECFDF5', '#059669'],['🏆 Top Programmer', $user->is_top_programmer, '#FFF7ED', '#C2410C'],['💎 Pemateri', $user->is_top_programmer, '#EDE9FE', '#6D28D9']] as [$b, $has, $bg, $c])
-        <div style="border:1px solid var(--border);border-radius:var(--radius);padding:1rem;text-align:center;opacity:{{ $has ? '1' : '.5' }}">
-          <div style="font-size:.82rem;font-weight:600;padding:3px 9px;border-radius:99px;background:{{ $bg }};color:{{ $c }};display:inline-block;margin-bottom:.4rem">{{ $b }}</div>
-          <div style="font-size:.75rem;color:var(--text3)">{{ $has ? 'Aktif ✓' : 'Belum' }}</div>
-        </div>
-        @endforeach
-      </div>
+      <hr style="margin:1.5rem 0;border:none;border-top:1px solid var(--border)">
 
+      <!-- 2. SERTIFIKAT -->
       <h4 style="font-size:.9rem;font-weight:700;margin-bottom:.75rem">📜 Sertifikat ({{ $certificates->count() }})</h4>
       @forelse($certificates as $cert)
       <div style="display:flex;justify-content:space-between;align-items:center;padding:.75rem;background:var(--bg2);border-radius:var(--radius);margin-bottom:.5rem">
         <div>
           <div style="font-size:.875rem;font-weight:600">{{ $cert->name }}</div>
           <div style="font-size:.78rem;color:var(--text3)">{{ $cert->issuer }} · {{ $cert->issue_date?->format('M Y') }}</div>
+          @if($cert->status === 'pending')
+          <div style="font-size:.78rem;color:var(--accent);font-weight:600;margin-top:6px">⚠️ sertifikat sedang ditinjau admin, tunggu 1x24 jam</div>
+          @elseif($cert->status === 'rejected')
+          <div style="font-size:.78rem;color:var(--red);font-weight:600;margin-top:6px">❌ sertifikat ditolak admin</div>
+          @elseif($cert->status === 'approved')
+          <div style="font-size:.78rem;color:var(--green);font-weight:600;margin-top:6px">✅ sertifikat telah disetujui admin</div>
+          @endif
         </div>
         <div style="display:flex;align-items:center;gap:.5rem">
           <form method="POST" action="{{ route('programmer.certificate.delete', $cert) }}" onsubmit="return confirm('Hapus sertifikat ini?')">
@@ -363,20 +541,37 @@
 @push('scripts')
 <script>
 function showTab(name){
-  ['overview','projects','courses','portfolio','verify'].forEach(t=>{
-    document.getElementById('pane-'+t).style.display = 'none';
-    document.getElementById('tab-'+t).classList.remove('active');
-    document.getElementById('tab-'+t).setAttribute('aria-selected','false');
+  ['overview','projects','courses','verify'].forEach(t=>{
+    const p = document.getElementById('pane-'+t);
+    const tb = document.getElementById('tab-'+t);
+    if(p) p.style.display = 'none';
+    if(tb) {
+      tb.classList.remove('active');
+      tb.setAttribute('aria-selected','false');
+    }
   });
-  document.getElementById('pane-'+name).style.display = 'block';
-  document.getElementById('tab-'+name).classList.add('active');
-  document.getElementById('tab-'+name).setAttribute('aria-selected','true');
+  const ap = document.getElementById('pane-'+name);
+  const atb = document.getElementById('tab-'+name);
+  if(ap) ap.style.display = 'block';
+  if(atb) {
+    atb.classList.add('active');
+    atb.setAttribute('aria-selected','true');
+  }
   history.replaceState(null,'','#'+name);
 }
 
 // IMK: Restore tab from URL hash
 const hash = location.hash.replace('#','');
-if(['overview','projects','courses','portfolio','verify'].includes(hash)) showTab(hash);
+const allowedTabs = [
+  'overview',
+  @if($showAllTabs) 'projects','courses', @endif
+  'verify'
+];
+if(hash && allowedTabs.includes(hash)) {
+  showTab(hash);
+} else {
+  showTab('overview');
+}
 
 let bidProjectId, bidBudget;
 function openBidModal(id, title, budget, daysRemaining){

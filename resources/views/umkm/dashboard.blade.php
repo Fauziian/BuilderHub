@@ -118,6 +118,13 @@
             <div style="flex:1">
               <div style="font-size:.9rem;font-weight:700">{{ $bid->programmer->name }}
                 @if($bid->programmer->is_verified)<span style="font-size:.7rem;color:var(--green)"> ✅</span>@endif
+                @if($bid->rejection_count === 1 && !$bid->is_revised)
+                  <span style="font-size:.72rem;color:var(--orange);font-weight:600;margin-left:.5rem;background:var(--orange-light);padding:2px 8px;border-radius:99px">Ditolak 1x (Menunggu Revisi)</span>
+                @elseif($bid->rejection_count === 1 && $bid->is_revised)
+                  <span style="font-size:.72rem;color:var(--primary);font-weight:600;margin-left:.5rem;background:var(--primary-light);padding:2px 8px;border-radius:99px">Penawaran Revisi</span>
+                @elseif($bid->status === 'rejected' || $bid->rejection_count >= 2)
+                  <span style="font-size:.72rem;color:var(--red);font-weight:600;margin-left:.5rem;background:var(--red-light);padding:2px 8px;border-radius:99px">Ditolak! ❌</span>
+                @endif
               </div>
               <div style="font-size:.82rem;color:var(--text2);margin-top:2px">{{ Str::limit($bid->message, 80) }}</div>
               <div style="font-size:.75rem;color:var(--text3);margin-top:2px">⏱ {{ $bid->timeline_days }} hari pengerjaan</div>
@@ -125,15 +132,25 @@
           </div>
           <div style="text-align:right;flex-shrink:0;margin-left:1rem;display:flex;flex-direction:column;align-items:flex-end;gap:.4rem">
             <div style="font-size:1rem;font-weight:800;color:var(--primary)">Rp {{ number_format($bid->amount, 0, ',', '.') }}</div>
-            <div style="display:flex;gap:.4rem">
+            <div style="display:flex;gap:.4rem;align-items:center">
               <!-- IMK: Chat button for negotiation -->
               <button onclick="openChat({{ $project->id }}, {{ $bid->programmer->id }}, '{{ addslashes($bid->programmer->name) }}', 'umkm')" class="btn btn-ghost btn-sm" style="font-size:.75rem;padding:4px 10px">💬 Chat</button>
-              <!-- IMK: Accept button with confirmation -->
-              @php $confirmMsg = "Terima penawaran Rp " . number_format($bid->amount, 0, ',', '.') . " dari {$bid->programmer->name}? Budget project akan otomatis disesuaikan."; @endphp
-              <form method="POST" action="{{ route('umkm.bid.accept', $bid) }}" onsubmit="return confirm('{{ addslashes($confirmMsg) }}')">
-                @csrf
-                <button type="submit" class="btn btn-success btn-sm" style="font-size:.75rem;padding:4px 10px">Terima ✅</button>
-              </form>
+              
+              @if(($bid->rejection_count === 0 || $bid->is_revised) && $bid->status !== 'rejected')
+                <!-- IMK: Accept button with confirmation -->
+                @php $confirmMsg = "Terima penawaran Rp " . number_format($bid->amount, 0, ',', '.') . " dari {$bid->programmer->name}? Budget project akan otomatis disesuaikan."; @endphp
+                <form method="POST" action="{{ route('umkm.bid.accept', $bid) }}" onsubmit="return confirm('{{ addslashes($confirmMsg) }}')">
+                  @csrf
+                  <button type="submit" class="btn btn-success btn-sm" style="font-size:.75rem;padding:4px 10px">Terima ✅</button>
+                </form>
+
+                <!-- Tolak button -->
+                @php $rejectMsg = "Tolak penawaran Rp " . number_format($bid->amount, 0, ',', '.') . " dari {$bid->programmer->name}?"; @endphp
+                <form method="POST" action="{{ route('umkm.bid.reject', $bid) }}" onsubmit="return confirm('{{ addslashes($rejectMsg) }}')">
+                  @csrf
+                  <button type="submit" class="btn btn-ghost btn-sm" style="font-size:.75rem;padding:4px 10px;color:var(--red);border-color:var(--red);background:none">Tolak ❌</button>
+                </form>
+              @endif
             </div>
           </div>
         </div>
@@ -156,6 +173,67 @@
             <button type="submit" class="btn btn-success btn-sm" aria-label="Selesaikan project">✅ Selesai & Bayar</button>
           </form>
         </div>
+      </div>
+      @endif
+
+      {{-- RATING SECTION: Tampil hanya ketika project completed & ada programmer --}}
+      @if($project->status === 'completed' && $project->assigned_programmer_id)
+      @php $existingReview = $givenReviews->get($project->id); @endphp
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem;margin-bottom:.75rem">
+        @if($existingReview)
+          {{-- Sudah memberikan rating --}}
+          <div style="display:flex;align-items:flex-start;gap:1rem">
+            <div style="font-size:1.5rem">⭐</div>
+            <div style="flex:1">
+              <div style="font-size:.8rem;font-weight:700;color:var(--green);margin-bottom:.25rem">Rating Anda untuk {{ $project->programmer->name ?? 'Programmer' }}</div>
+              <div style="display:flex;gap:2px;margin-bottom:.35rem">
+                @for($s=1;$s<=5;$s++)
+                  <span style="font-size:1.2rem;color:{{ $s<=$existingReview->rating ? '#F59E0B' : '#D1D5DB' }}">★</span>
+                @endfor
+                <span style="font-size:.8rem;color:var(--text3);margin-left:.4rem">({{ $existingReview->rating }}/5)</span>
+              </div>
+              @if($existingReview->comment)
+              <p style="font-size:.82rem;color:var(--text2);font-style:italic">"{{ $existingReview->comment }}"</p>
+              @endif
+              <div style="font-size:.72rem;color:var(--text3)">Diberikan: {{ $existingReview->created_at->format('d M Y') }}</div>
+            </div>
+          </div>
+        @else
+          {{-- Belum memberikan rating --}}
+          <div style="font-size:.85rem;font-weight:700;margin-bottom:.75rem;color:var(--text)">⭐ Berikan Rating untuk {{ $project->programmer->name ?? 'Programmer' }}</div>
+          <p style="font-size:.8rem;color:var(--text2);margin-bottom:.75rem">Project telah selesai! Bagikan pengalaman Anda bekerja sama dengan programmer ini.</p>
+          <form method="POST" action="{{ route('umkm.project.rate', $project) }}" id="ratingFormProject-{{ $project->id }}">
+            @csrf
+            {{-- Star Rating --}}
+            <div style="display:flex;gap:.4rem;margin-bottom:.75rem;align-items:center">
+              <span style="font-size:.8rem;font-weight:600;color:var(--text2);margin-right:.4rem">Rating:</span>
+              @for($s=1;$s<=5;$s++)
+              <label style="cursor:pointer;font-size:1.5rem;line-height:1" title="{{ $s }} Bintang">
+                <input type="radio" name="rating" value="{{ $s }}" required style="display:none" onchange="updateStars({{ $project->id }}, {{ $s }})">
+                <span class="star-icon-{{ $project->id }}-{{ $s }}" style="color:#D1D5DB;transition:color .15s">★</span>
+              </label>
+              @endfor
+              <span id="ratingLabel-{{ $project->id }}" style="font-size:.8rem;color:var(--text3);margin-left:.4rem"></span>
+            </div>
+            <div style="margin-bottom:.75rem">
+              <textarea name="comment" placeholder="Ceritakan pengalaman Anda (opsional)..." style="width:100%;min-height:70px;padding:.6rem .75rem;border:1px solid var(--border);border-radius:var(--radius);font-size:.85rem;color:var(--text);background:var(--bg);resize:vertical;font-family:inherit" maxlength="1000"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm" id="submitRatingBtn-{{ $project->id }}" disabled>Kirim Rating ⭐</button>
+          </form>
+          <script>
+          function updateStars(projectId, rating) {
+            const labels = ['','Sangat Buruk','Buruk','Cukup','Bagus','Sangat Bagus'];
+            for (let i = 1; i <= 5; i++) {
+              const star = document.querySelector('.star-icon-' + projectId + '-' + i);
+              if (star) star.style.color = i <= rating ? '#F59E0B' : '#D1D5DB';
+            }
+            const label = document.getElementById('ratingLabel-' + projectId);
+            if (label) label.textContent = '(' + labels[rating] + ')';
+            const btn = document.getElementById('submitRatingBtn-' + projectId);
+            if (btn) btn.disabled = false;
+          }
+          </script>
+        @endif
       </div>
       @endif
 

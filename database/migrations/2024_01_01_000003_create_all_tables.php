@@ -16,6 +16,8 @@ return new class extends Migration
             $table->text('message');
             $table->integer('timeline_days');
             $table->enum('status', ['pending', 'accepted', 'rejected'])->default('pending');
+            $table->integer('rejection_count')->default(0);
+            $table->boolean('is_revised')->default(false);
             $table->timestamps();
         });
 
@@ -63,6 +65,7 @@ return new class extends Migration
             $table->text('description');
             $table->json('tags')->nullable();
             $table->string('project_url')->nullable();
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->timestamps();
         });
 
@@ -73,6 +76,7 @@ return new class extends Migration
             $table->string('issuer');
             $table->date('issue_date')->nullable();
             $table->string('credential_url')->nullable();
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->timestamps();
         });
 

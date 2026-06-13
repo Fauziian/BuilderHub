@@ -92,7 +92,9 @@
         @if($course->instructor->is_verified)<span style="font-size:.75rem;font-weight:600;padding:2px 8px;border-radius:99px;background:#ECFDF5;color:#059669">✅ Terverifikasi</span>@endif
         @if($course->instructor->is_top_programmer)<span style="font-size:.75rem;font-weight:600;padding:2px 8px;border-radius:99px;background:#FFF7ED;color:#C2410C;margin-left:.25rem">🏆 Top Programmer</span>@endif
         <p style="font-size:.875rem;color:var(--text2);margin-top:.5rem;line-height:1.6">{{ $course->instructor->bio ?? 'Programmer profesional terverifikasi dengan pengalaman nyata di berbagai project UMKM Indonesia.' }}</p>
-        <div style="font-size:.82rem;color:var(--text3);margin-top:.4rem">{{ $course->instructor->total_projects }} project selesai · ⭐ {{ number_format($course->instructor->rating, 1) }} rating</div>
+        <div style="font-size:.82rem;color:var(--text3);margin-top:.4rem">
+          {{ $course->instructor->total_projects }} project selesai · ⭐ {{ number_format($course->instructor->rating ?: 5.0, 1) }} rating UMKM · 🎓 {{ number_format($course->instructor->course_rating ?: 5.0, 1) }} rating mengajar
+        </div>
       </div>
     </div>
   </div>

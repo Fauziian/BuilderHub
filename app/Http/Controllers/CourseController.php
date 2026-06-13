@@ -31,7 +31,13 @@ class CourseController extends Controller
                 ->with('instructor')
                 ->get();
 
-            return view('course.student_dashboard', compact('user', 'enrollments', 'availableCourses'));
+            // Review yang sudah diberikan pelajar ini (keyed by course_id)
+            $givenCourseReviews = \App\Models\Review::where('reviewer_id', $user->id)
+                ->where('type', 'course')
+                ->get()
+                ->keyBy('course_id');
+
+            return view('course.student_dashboard', compact('user', 'enrollments', 'availableCourses', 'givenCourseReviews'));
         }
 
         $courses = Course::with(['instructor', 'enrollments', 'videos'])->latest()->paginate(10);
@@ -136,7 +142,18 @@ class CourseController extends Controller
     public function complete(Course $course)
     {
         $enrollment = CourseEnrollment::where('user_id', Auth::id())->where('course_id', $course->id)->firstOrFail();
+
+        if ($enrollment->status === 'completed') {
+            return back()->with('info', 'Course ini sudah selesai sebelumnya.');
+        }
+
         $enrollment->update(['status' => 'completed']);
-        return back()->with('success', '🎉 Selamat! Anda telah menyelesaikan course ini. Sertifikat Anda kini tersedia.');
+
+        return redirect()
+            ->route('course.dashboard')
+            ->with('success', '🎉 Selamat! Anda telah menyelesaikan course ini. Sertifikat Anda kini tersedia.')
+            ->with('prompt_rating_course_id', $course->id)
+            ->with('prompt_rating_course_title', $course->title)
+            ->with('prompt_rating_instructor', $course->instructor->name);
     }
 }

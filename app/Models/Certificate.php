@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Certificate extends Model
 {
-    protected $fillable = ['programmer_id', 'name', 'issuer', 'issue_date', 'credential_url'];
+    protected $fillable = ['programmer_id', 'name', 'issuer', 'issue_date', 'credential_url', 'status'];
 
     protected $casts = ['issue_date' => 'date'];
 

@@ -27,7 +27,13 @@ class UmkmController extends Controller
         $totalBudget = $projects->where('status', 'completed')->sum('budget');
         $programmers = \App\Models\User::where('role', 'programmer')->latest()->get();
 
-        return view('umkm.dashboard', compact('user', 'projects', 'totalBudget', 'programmers'));
+        // Rating yang sudah diberikan UMKM ini (keyed by project_id)
+        $givenReviews = \App\Models\Review::where('reviewer_id', $user->id)
+            ->where('type', 'umkm')
+            ->get()
+            ->keyBy('project_id');
+
+        return view('umkm.dashboard', compact('user', 'projects', 'totalBudget', 'programmers', 'givenReviews'));
     }
 
     public function storeProject(Request $request)
@@ -133,6 +139,26 @@ class UmkmController extends Controller
         ]);
 
         return back()->with('success', "✅ Penawaran Rp " . number_format($bid->amount, 0, ',', '.') . " dari {$bid->programmer->name} diterima! Project sekarang berstatus Berjalan.");
+    }
+
+    public function rejectBid(Bid $bid)
+    {
+        $this->checkAccess();
+        $project = $bid->project;
+        if ($project->umkm_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $bid->increment('rejection_count');
+        $bid->update(['is_revised' => false]);
+
+        if ($bid->rejection_count >= 2) {
+            $bid->update(['status' => 'rejected']);
+            return back()->with('success', "Penawaran dari {$bid->programmer->name} ditolak secara permanen (Ditolak!).");
+        } else {
+            $bid->update(['status' => 'pending']);
+            return back()->with('success', "Penawaran dari {$bid->programmer->name} ditolak. Programmer dapat mengajukan penawaran kembali.");
+        }
     }
 
     public function completeProject(Project $project)

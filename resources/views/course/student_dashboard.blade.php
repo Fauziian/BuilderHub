@@ -89,15 +89,33 @@
           </div>
         </div>
         <div style="text-align:right;flex-shrink:0;min-width:180px">
-          @if($enroll->status === 'completed')
+      @if($enroll->status === 'completed')
             <div style="color:var(--green);font-weight:700;font-size:.9rem;margin-bottom:.5rem;display:flex;align-items:center;justify-content:flex-end;gap:4px">
               <span>✓ Selesai & Lulus</span>
             </div>
             <button onclick="viewCertificate('{{ $user->name }}', '{{ addslashes($c->title) }}', '{{ addslashes($c->instructor->name) }}', '{{ $enroll->updated_at->format('d M Y') }}')" class="btn btn-ghost btn-sm" style="color:var(--primary);border-color:var(--primary)">📜 Lihat Sertifikat</button>
+            {{-- Rating block --}}
+            @php $existingCourseReview = $givenCourseReviews->get($c->id); @endphp
+            @if($existingCourseReview)
+              <div style="margin-top:.5rem;padding:.5rem .75rem;background:var(--bg2);border-radius:var(--radius);border:1px solid var(--border)">
+                <div style="font-size:.72rem;font-weight:600;color:var(--green);margin-bottom:.2rem">Rating Anda:</div>
+                <div style="display:flex;gap:1px">
+                  @for($s=1;$s<=5;$s++)
+                    <span style="font-size:1rem;color:{{ $s<=$existingCourseReview->rating ? '#F59E0B' : '#D1D5DB' }}">★</span>
+                  @endfor
+                </div>
+                @if($existingCourseReview->comment)
+                <p style="font-size:.72rem;color:var(--text2);margin-top:.25rem;font-style:italic">"{{ Str::limit($existingCourseReview->comment, 60) }}"</p>
+                @endif
+              </div>
+            @else
+              <button onclick="openCourseRatingModal({{ $c->id }}, '{{ addslashes($c->title) }}', '{{ addslashes($c->instructor->name) }}')" class="btn btn-sm" style="margin-top:.4rem;background:#FFF7ED;color:#C2410C;border:1px solid rgba(194,65,12,.2);font-size:.78rem">⭐ Beri Rating</button>
+            @endif
           @else
             <div style="margin-bottom:.5rem;font-size:.8rem;color:var(--text3)">Status: <strong style="color:var(--orange)">Belajar</strong></div>
             <button onclick="openLearningRoom({{ $c->id }}, '{{ addslashes($c->title) }}', {{ json_encode($c->videos) }}, {{ $c->id }})" class="btn btn-primary btn-sm">▶ Mulai Belajar</button>
           @endif
+
         </div>
       </div>
       @empty
@@ -272,7 +290,53 @@
   </div>
 </div>
 
-<!-- BEAUTIFUL CERTIFICATE PREVIEW MODAL (PRINT-READY) -->
+<!-- ===== COURSE RATING MODAL (muncul setelah Selesaikan Kelas) ===== -->
+<div id="courseRatingModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99998;align-items:center;justify-content:center;padding:1rem">
+  <div style="background:var(--bg);border-radius:var(--radius-xl);padding:2rem;max-width:480px;width:100%;box-shadow:var(--shadow-lg)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+      <h3 style="font-size:1.1rem;font-weight:800;color:var(--text)">⭐ Berikan Rating & Ulasan</h3>
+      <button onclick="closeCourseRatingModal()" style="font-size:1.5rem;color:var(--text3);background:none;border:none;cursor:pointer">&times;</button>
+    </div>
+
+    <div style="background:var(--bg2);border-radius:var(--radius);padding:.85rem 1rem;margin-bottom:1.25rem">
+      <div style="font-size:.75rem;color:var(--text3);margin-bottom:2px">Course</div>
+      <strong id="ratingModalCourseTitle" style="font-size:.95rem;color:var(--text)">-</strong>
+      <div style="font-size:.75rem;color:var(--text3);margin-top:.4rem">Instruktur / Programmer</div>
+      <span id="ratingModalInstructor" style="font-size:.875rem;color:var(--text2)">-</span>
+    </div>
+
+    <form id="courseRatingForm" method="POST">
+      @csrf
+      <!-- Star selector -->
+      <div style="margin-bottom:1rem">
+        <label style="display:block;font-size:.85rem;font-weight:600;margin-bottom:.6rem;color:var(--text)">Pilih Rating Bintang <span style="color:var(--red)">*</span></label>
+        <div style="display:flex;gap:.5rem;align-items:center">
+          @for($s=1;$s<=5;$s++)
+          <label style="cursor:pointer;font-size:2rem;line-height:1" title="{{ $s }} Bintang">
+            <input type="radio" name="rating" value="{{ $s }}" required style="display:none" onchange="updateModalStars({{ $s }})">
+            <span class="modal-star modal-star-{{ $s }}" style="color:#D1D5DB;transition:color .15s">★</span>
+          </label>
+          @endfor
+          <span id="modalRatingLabel" style="font-size:.85rem;color:var(--text3);margin-left:.5rem"></span>
+        </div>
+      </div>
+
+      <!-- Comment -->
+      <div style="margin-bottom:1.25rem">
+        <label style="display:block;font-size:.85rem;font-weight:600;margin-bottom:.4rem;color:var(--text)">Ulasan / Komentar <span style="font-weight:400;color:var(--text3)">(opsional)</span></label>
+        <textarea name="comment" id="ratingModalComment" placeholder="Ceritakan pengalaman belajar Anda di course ini..." style="width:100%;min-height:90px;padding:.75rem;border:1px solid var(--border);border-radius:var(--radius);font-size:.875rem;color:var(--text);background:var(--bg);resize:vertical;font-family:inherit;outline:none" maxlength="1000"></textarea>
+        <div style="font-size:.72rem;color:var(--text3);margin-top:.25rem">Maksimal 1000 karakter</div>
+      </div>
+
+      <div style="display:flex;gap:.75rem">
+        <button type="submit" id="submitCourseRatingBtn" class="btn btn-primary" style="flex:1;justify-content:center" disabled>Kirim Rating ⭐</button>
+        <button type="button" onclick="closeCourseRatingModal()" class="btn btn-ghost">Lewati</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
 <div id="certificateModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;align-items:center;justify-content:center;padding:2rem;overflow-y:auto">
   <div style="background:#fff;border-radius:var(--radius-lg);padding:2rem;max-width:850px;width:100%;box-shadow:var(--shadow-lg);position:relative">
     <button onclick="closeCertificate()" style="position:absolute;top:1rem;right:1rem;background:var(--bg3);border-radius:50%;width:36px;height:36px;font-size:1.25rem;color:var(--text);border:none">&times;</button>
@@ -420,6 +484,48 @@ document.getElementById('checkoutModal')?.addEventListener('click', e => {
 document.getElementById('certificateModal')?.addEventListener('click', e => {
   if(e.target === e.currentTarget) closeCertificate();
 });
+document.getElementById('courseRatingModal')?.addEventListener('click', e => {
+  if(e.target === e.currentTarget) closeCourseRatingModal();
+});
+
+// ===== COURSE RATING MODAL =====
+const ratingLabels = ['','Sangat Buruk 😞','Buruk 😕','Cukup 😐','Bagus 😊','Sangat Bagus 🤩'];
+
+function openCourseRatingModal(courseId, courseTitle, instructor) {
+  document.getElementById('ratingModalCourseTitle').textContent = courseTitle;
+  document.getElementById('ratingModalInstructor').textContent = instructor;
+  document.getElementById('courseRatingForm').action = `${window.APP_URL}/course-manager/course/${courseId}/rate`;
+  // Reset form
+  document.getElementById('courseRatingForm').reset();
+  document.getElementById('ratingModalComment').value = '';
+  document.getElementById('submitCourseRatingBtn').disabled = true;
+  document.getElementById('modalRatingLabel').textContent = '';
+  document.querySelectorAll('.modal-star').forEach(s => s.style.color = '#D1D5DB');
+  document.getElementById('courseRatingModal').style.display = 'flex';
+}
+
+function closeCourseRatingModal() {
+  document.getElementById('courseRatingModal').style.display = 'none';
+}
+
+function updateModalStars(rating) {
+  document.querySelectorAll('.modal-star').forEach((star, i) => {
+    star.style.color = i < rating ? '#F59E0B' : '#D1D5DB';
+  });
+  document.getElementById('modalRatingLabel').textContent = ratingLabels[rating] || '';
+  document.getElementById('submitCourseRatingBtn').disabled = false;
+}
+
+// Auto-popup rating modal jika baru saja selesaikan course
+@if(session('prompt_rating_course_id'))
+window.addEventListener('load', () => {
+  openCourseRatingModal(
+    {{ session('prompt_rating_course_id') }},
+    '{{ addslashes(session('prompt_rating_course_title', '')) }}',
+    '{{ addslashes(session('prompt_rating_instructor', '')) }}'
+  );
+});
+@endif
 </script>
 @endpush
 @endsection

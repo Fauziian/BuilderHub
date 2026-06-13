@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProgrammerController;
+use App\Http\Controllers\RatingController;
 use App\Http\Controllers\UmkmController;
 use Illuminate\Support\Facades\Route;
 
@@ -34,6 +35,7 @@ Route::prefix('programmer')->name('programmer.')->middleware('auth')->group(func
     Route::get('/projects', [ProgrammerController::class, 'projects'])->name('projects');
     Route::post('/projects/{project}/bid', [ProgrammerController::class, 'submitBid'])->name('bid');
     Route::post('/bid/{bid}/update', [ProgrammerController::class, 'updateBid'])->name('bid.update');
+    Route::post('/profile', [ProgrammerController::class, 'updateProfile'])->name('profile.update');
 
     // Portfolio CRUD
     Route::post('/portfolio', [ProgrammerController::class, 'addPortfolio'])->name('portfolio.store');
@@ -68,7 +70,11 @@ Route::prefix('umkm')->name('umkm.')->middleware('auth')->group(function () {
     Route::delete('/project/{project}', [UmkmController::class, 'deleteProject'])->name('project.delete');
 
     Route::post('/bid/{bid}/accept', [UmkmController::class, 'acceptBid'])->name('bid.accept');
+    Route::post('/bid/{bid}/reject', [UmkmController::class, 'rejectBid'])->name('bid.reject');
     Route::post('/project/{project}/complete', [UmkmController::class, 'completeProject'])->name('project.complete');
+
+    // Rating Programmer (oleh UMKM, setelah project selesai)
+    Route::post('/project/{project}/rate', [RatingController::class, 'rateProject'])->name('project.rate');
 
     // Chat with Programmer
     Route::post('/project/{project}/message', [UmkmController::class, 'sendMessage'])->name('project.message');
@@ -84,6 +90,9 @@ Route::prefix('course-manager')->name('course.')->middleware('auth')->group(func
     Route::delete('/video/{video}', [CourseController::class, 'deleteVideo'])->name('video.delete');
     Route::post('/course/{course}/enroll', [CourseController::class, 'enroll'])->name('enroll');
     Route::post('/course/{course}/complete', [CourseController::class, 'complete'])->name('complete');
+
+    // Rating Programmer (oleh Pelajar, setelah course selesai)
+    Route::post('/course/{course}/rate', [RatingController::class, 'rateCourse'])->name('course.rate');
 });
 
 // Admin routes
@@ -99,4 +108,8 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::get('/courses', [AdminController::class, 'courses'])->name('courses');
     Route::post('/courses/{course}/publish', [AdminController::class, 'publishCourse'])->name('publish-course');
     Route::delete('/courses/{course}', [AdminController::class, 'deleteCourse'])->name('delete-course');
+    Route::post('/portfolio/{portfolio}/approve', [AdminController::class, 'approvePortfolio'])->name('portfolio.approve');
+    Route::post('/portfolio/{portfolio}/reject', [AdminController::class, 'rejectPortfolio'])->name('portfolio.reject');
+    Route::post('/certificate/{certificate}/approve', [AdminController::class, 'approveCertificate'])->name('certificate.approve');
+    Route::post('/certificate/{certificate}/reject', [AdminController::class, 'rejectCertificate'])->name('certificate.reject');
 });

@@ -45,6 +45,23 @@
                 <div>
                   <strong style="font-size:.875rem">{{ $u->name }}</strong>
                   @if($u->business_name)<div style="font-size:.75rem;color:var(--text3)">{{ $u->business_name }}</div>@endif
+                  
+                  @if($u->role === 'programmer')
+                  <div style="margin-top:.25rem;font-size:.75rem">
+                    <span style="color:var(--primary)">🗂 {{ $u->portfolios->count() }} Porto</span> · 
+                    <span style="color:var(--green)">📜 {{ $u->certificates->count() }} Sert</span>
+                  </div>
+                  @if($u->portfolios->count() || $u->certificates->count())
+                  <div style="margin-top:.25rem;max-width:300px;font-size:.72rem;color:var(--text3)">
+                    @if($u->portfolios->count())
+                    <div style="margin-bottom:2px"><strong>Porto:</strong> {{ implode(', ', $u->portfolios->pluck('title')->toArray()) }}</div>
+                    @endif
+                    @if($u->certificates->count())
+                    <div><strong>Sert:</strong> {{ implode(', ', $u->certificates->pluck('name')->toArray()) }}</div>
+                    @endif
+                  </div>
+                  @endif
+                  @endif
                 </div>
               </div>
             </td>

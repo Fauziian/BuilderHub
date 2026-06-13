@@ -32,10 +32,14 @@ class ProgrammerController extends Controller
         $myCourses = Course::where('instructor_id', $user->id)->get();
         $portfolios = $user->portfolios;
         $certificates = $user->certificates;
+        $receivedReviews = \App\Models\Review::where('reviewed_id', $user->id)
+            ->with(['reviewer', 'project', 'course'])
+            ->latest()
+            ->get();
 
         return view('programmer.dashboard', compact(
             'user', 'myBids', 'activeBids', 'activeProjects', 'completedProjects',
-            'availableProjects', 'myCourses', 'portfolios', 'certificates'
+            'availableProjects', 'myCourses', 'portfolios', 'certificates', 'receivedReviews'
         ));
     }
 
@@ -48,6 +52,11 @@ class ProgrammerController extends Controller
     {
         $this->checkAccess();
         
+        $user = Auth::user();
+        if ($user->portfolios()->where('status', 'approved')->count() === 0 && $user->certificates()->where('status', 'approved')->count() === 0) {
+            return back()->with('error', 'Anda harus memiliki minimal 1 Portofolio atau 1 Sertifikat yang telah disetujui/diverifikasi oleh admin terlebih dahulu untuk mengajukan penawaran.');
+        }
+
         $daysRemaining = max(1, (int)now()->startOfDay()->diffInDays($project->deadline->startOfDay()));
 
         $request->validate([
@@ -110,6 +119,7 @@ class ProgrammerController extends Controller
             'amount' => $request->amount,
             'message' => $request->message,
             'timeline_days' => $request->timeline_days,
+            'is_revised' => true,
         ]);
 
         return back()->with('success', '✅ Penawaran berhasil diperbarui! Perubahan harga dan estimasi telah disimpan.');
@@ -162,6 +172,7 @@ class ProgrammerController extends Controller
             'description' => $request->description,
             'tags'        => $tags,
             'project_url' => $request->project_url,
+            'status'      => 'pending',
         ]);
         return back()->with('success', '✅ Portofolio berhasil diperbarui!');
     }
@@ -205,14 +216,35 @@ class ProgrammerController extends Controller
         return back()->with('success', 'Sertifikat dihapus.');
     }
 
+    public function updateProfile(Request $request)
+    {
+        $this->checkAccess();
+        $user = Auth::user();
+
+        $request->validate([
+            'bio' => 'required|string|min:10',
+            'expertise' => 'nullable|string|max:255',
+        ], [
+            'bio.required' => 'Bio wajib diisi',
+            'bio.min' => 'Bio minimal 10 karakter',
+        ]);
+
+        $user->update([
+            'bio' => $request->bio,
+            'expertise' => $request->expertise,
+        ]);
+
+        return back()->with('success', '✅ Profil (Bio & Keahlian) berhasil diperbarui!');
+    }
+
     private function checkBadges()
     {
         $user = Auth::user();
-        $certCount = $user->certificates()->count();
-        $portCount = $user->portfolios()->count();
+        $approvedCertCount = $user->certificates()->where('status', 'approved')->count();
+        $approvedPortCount = $user->portfolios()->where('status', 'approved')->count();
         $user->update([
-            'is_verified'      => $certCount >= 2 && $portCount >= 1,
-            'is_top_programmer' => $certCount >= 3 && $portCount >= 3,
+            'is_verified'      => $user->is_verified ? true : ($approvedCertCount >= 2 && $approvedPortCount >= 1),
+            'is_top_programmer' => $user->is_top_programmer ? true : ($approvedCertCount >= 3 && $approvedPortCount >= 3),
         ]);
     }
 
@@ -235,14 +267,31 @@ class ProgrammerController extends Controller
         }
         $request->validate([
             'title'       => 'required|string|max:255',
-            'description' => 'required|string|min:50',
+            'description' => 'required|string|min:20',
             'price'       => 'required|numeric|min:0',
             'level'       => 'required|in:pemula,menengah,mahir',
             'category'    => 'required|string|max:100',
-            'video_url'   => 'required|url',
+            'videos'      => 'required|array|min:1',
+            'videos.*.title' => 'required|string|max:255',
+            'videos.*.video_url' => 'required|url',
+            'videos.*.duration'  => 'nullable|string',
         ], [
-            'video_url.required' => 'Link YouTube wajib disertakan agar pelajar dapat menonton materi.',
-            'video_url.url'      => 'Format link YouTube tidak valid.',
+            'title.required' => 'Judul course wajib diisi.',
+            'title.max' => 'Judul course tidak boleh lebih dari 255 karakter.',
+            'description.required' => 'Deskripsi course wajib diisi.',
+            'description.min' => 'Deskripsi course minimal berisi :min karakter.',
+            'price.required' => 'Harga wajib diisi (isi 0 jika gratis).',
+            'price.numeric' => 'Harga harus berupa angka.',
+            'price.min' => 'Harga tidak boleh kurang dari 0.',
+            'level.required' => 'Level course wajib dipilih.',
+            'level.in' => 'Level course tidak valid.',
+            'category.required' => 'Kategori wajib diisi.',
+            'category.max' => 'Kategori tidak boleh lebih dari 100 karakter.',
+            'videos.required' => 'Minimal 1 video pembelajaran wajib disertakan.',
+            'videos.min' => 'Minimal 1 video pembelajaran wajib disertakan.',
+            'videos.*.title.required' => 'Judul video wajib diisi.',
+            'videos.*.video_url.required' => 'Link YouTube wajib diisi.',
+            'videos.*.video_url.url' => 'Format link YouTube video tidak valid.',
         ]);
         $course = Course::create([
             'instructor_id' => $user->id,
@@ -254,17 +303,18 @@ class ProgrammerController extends Controller
             'is_free'       => $request->has('is_free'),
             'is_published'  => false,
             'duration'      => $request->duration,
-            'total_videos'  => 1,
+            'total_videos'  => count($request->videos),
         ]);
 
-        // Auto-create video dari YouTube link yang diberikan programmer
-        \App\Models\CourseVideo::create([
-            'course_id' => $course->id,
-            'title'     => 'Materi Utama: ' . $request->title,
-            'video_url' => $request->video_url,
-            'duration'  => $request->duration ?? '15 menit',
-            'order'     => 1,
-        ]);
+        foreach ($request->videos as $index => $vid) {
+            \App\Models\CourseVideo::create([
+                'course_id' => $course->id,
+                'title'     => $vid['title'],
+                'video_url' => $vid['video_url'],
+                'duration'  => $vid['duration'] ?? '15 menit',
+                'order'     => $index + 1,
+            ]);
+        }
 
         return redirect()->route('programmer.dashboard')->with('success', '✅ Course berhasil dibuat! Video materi sudah tersedia. Admin akan meninjaunya.');
     }
@@ -286,6 +336,27 @@ class ProgrammerController extends Controller
             'price'       => 'required|numeric|min:0',
             'level'       => 'required|in:pemula,menengah,mahir',
             'category'    => 'required|string|max:100',
+            'videos'      => 'required|array|min:1',
+            'videos.*.title' => 'required|string|max:255',
+            'videos.*.video_url' => 'required|url',
+            'videos.*.duration'  => 'nullable|string',
+        ], [
+            'title.required' => 'Judul course wajib diisi.',
+            'title.max' => 'Judul course tidak boleh lebih dari 255 karakter.',
+            'description.required' => 'Deskripsi course wajib diisi.',
+            'description.min' => 'Deskripsi course minimal berisi :min karakter.',
+            'price.required' => 'Harga wajib diisi (isi 0 jika gratis).',
+            'price.numeric' => 'Harga harus berupa angka.',
+            'price.min' => 'Harga tidak boleh kurang dari 0.',
+            'level.required' => 'Level course wajib dipilih.',
+            'level.in' => 'Level course tidak valid.',
+            'category.required' => 'Kategori wajib diisi.',
+            'category.max' => 'Kategori tidak boleh lebih dari 100 karakter.',
+            'videos.required' => 'Minimal 1 video pembelajaran wajib disertakan.',
+            'videos.min' => 'Minimal 1 video pembelajaran wajib disertakan.',
+            'videos.*.title.required' => 'Judul video wajib diisi.',
+            'videos.*.video_url.required' => 'Link YouTube wajib diisi.',
+            'videos.*.video_url.url' => 'Format link YouTube video tidak valid.',
         ]);
         $course->update([
             'title'       => $request->title,
@@ -295,7 +366,20 @@ class ProgrammerController extends Controller
             'category'    => $request->category,
             'is_free'     => $request->has('is_free'),
             'duration'    => $request->duration,
+            'total_videos' => count($request->videos),
         ]);
+
+        $course->videos()->delete();
+
+        foreach ($request->videos as $index => $vid) {
+            \App\Models\CourseVideo::create([
+                'course_id' => $course->id,
+                'title'     => $vid['title'],
+                'video_url' => $vid['video_url'],
+                'duration'  => $vid['duration'] ?? '15 menit',
+                'order'     => $index + 1,
+            ]);
+        }
         return redirect()->route('programmer.dashboard')->with('success', '✅ Course berhasil diperbarui!');
     }
 
