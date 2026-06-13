@@ -350,7 +350,7 @@
         <iframe id="videoIframe" style="width:100%;height:100%;border:none" src="" allowfullscreen></iframe>
       </div>
       
-      <div class="card glass-card" style="margin-top:1.5rem;padding:1.5rem;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02)">
+      <div class="card glass-card" style="margin-top:1.5rem;padding:1.5rem 1.5rem 2rem 1.5rem;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);overflow:visible">
         <h4 style="font-size:1.05rem;font-weight:700;margin-bottom:.5rem;color:#FFF">Progress Belajar Anda</h4>
         <p style="font-size:.82rem;color:rgba(255,255,255,.6);margin-bottom:1.25rem">Tonton seluruh video pembelajaran dari Programmer untuk menguasai materi secara komprehensif. Setelah siap, Anda dapat menyatakan kelulusan di bawah.</p>
         
@@ -359,7 +359,7 @@
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="#10B981"/></svg>
             Pastikan semua materi dipahami dengan baik
           </div>
-          <form id="completeCourseForm" method="POST">
+          <form id="completeCourseForm" method="POST" style="margin:0;display:inline-block">
             @csrf
             <button type="submit" class="btn btn-success btn-3d-green" style="font-size:.85rem;font-weight:700;padding:8px 16px">Selesaikan Kelas & Claim Sertifikat 📜</button>
           </form>
@@ -607,7 +607,7 @@ function closeLearningRoom(){
   document.getElementById('learningRoomModal').style.display = 'none';
   
   const mascot = document.getElementById('buddyMascot');
-  if(mascot) mascot.style.display = 'block';
+  if(mascot) mascot.style.removeProperty('display');
 }
 
 // Certificate logic
