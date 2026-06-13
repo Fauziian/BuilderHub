@@ -277,7 +277,7 @@
 
 <!-- IMK CHECKOUT MODAL (HUMAN-COMPUTER INTERACTION DEMONSTRATION) -->
 <div id="checkoutModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;align-items:center;justify-content:center;padding:1rem">
-  <div style="background:var(--bg);border-radius:var(--radius-xl);padding:2rem;max-width:500px;width:100%;box-shadow:var(--shadow-lg)">
+  <div style="background:var(--bg);border-radius:var(--radius-xl);padding:2rem;max-width:500px;width:100%;box-shadow:var(--shadow-lg);max-height:90vh;overflow-y:auto">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
       <h3 style="font-size:1.15rem;font-weight:800;color:var(--text)">🛒 Konfirmasi Pendaftaran Course</h3>
       <button onclick="closeCheckoutModal()" style="font-size:1.5rem;color:var(--text3);background:none;border:none">&times;</button>
@@ -298,24 +298,110 @@
 
     <!-- MOCK CHECKOUT PAYMENT INTERACTION -->
     <div id="paymentFormSection">
-      <h4 style="font-size:.85rem;font-weight:700;margin-bottom:.5rem">💳 Metode Pembayaran Simulasi</h4>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:1rem">
-        <label style="border:1.5px solid var(--primary);border-radius:var(--radius-sm);padding:.5rem;display:flex;align-items:center;gap:.4rem;font-size:.8rem;cursor:pointer;background:var(--primary-light)">
-          <input type="radio" name="payment_method" checked> Bank Transfer
-        </label>
-        <label style="border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:.5rem;display:flex;align-items:center;gap:.4rem;font-size:.8rem;cursor:pointer;opacity:.6">
-          <input type="radio" name="payment_method" disabled> Kartu Kredit
-        </label>
+      <!-- Screen 1: Selection of payment method -->
+      <div id="paymentSelectionScreen">
+        <h4 style="font-size:.85rem;font-weight:700;margin-bottom:.75rem;color:var(--text)">💳 Pilih Metode Pembayaran</h4>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:1.25rem">
+          <label class="payment-method-option" style="border:1.5px solid var(--primary);border-radius:var(--radius-sm);padding:.6rem .5rem;display:flex;align-items:center;gap:.4rem;font-size:.8rem;cursor:pointer;background:var(--primary-light)">
+            <input type="radio" name="payment_method" value="qris" checked onchange="selectPaymentMethod('qris')">
+            <span>📱 QRIS</span>
+          </label>
+          <label class="payment-method-option" style="border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:.6rem .5rem;display:flex;align-items:center;gap:.4rem;font-size:.8rem;cursor:pointer">
+            <input type="radio" name="payment_method" value="bank_transfer" onchange="selectPaymentMethod('bank_transfer')">
+            <span>🏦 Bank Transfer</span>
+          </label>
+          <label class="payment-method-option" style="border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:.6rem .5rem;display:flex;align-items:center;gap:.4rem;font-size:.8rem;cursor:pointer">
+            <input type="radio" name="payment_method" value="debit" onchange="selectPaymentMethod('debit')">
+            <span>💳 Debit Card</span>
+          </label>
+          <label class="payment-method-option" style="border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:.6rem .5rem;display:flex;align-items:center;gap:.4rem;font-size:.8rem;cursor:pointer">
+            <input type="radio" name="payment_method" value="visa" onchange="selectPaymentMethod('visa')">
+            <span>💳 Visa</span>
+          </label>
+          <label class="payment-method-option" style="border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:.6rem .5rem;display:flex;align-items:center;gap:.4rem;font-size:.8rem;cursor:pointer">
+            <input type="radio" name="payment_method" value="bri" onchange="selectPaymentMethod('bri')">
+            <span>🏦 Bank BRI</span>
+          </label>
+          <label class="payment-method-option" style="border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:.6rem .5rem;display:flex;align-items:center;gap:.4rem;font-size:.8rem;cursor:pointer">
+            <input type="radio" name="payment_method" value="bni" onchange="selectPaymentMethod('bni')">
+            <span>🏦 Bank BNI</span>
+          </label>
+          <label class="payment-method-option" style="border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:.6rem .5rem;display:flex;align-items:center;gap:.4rem;font-size:.8rem;cursor:pointer">
+            <input type="radio" name="payment_method" value="bjb" onchange="selectPaymentMethod('bjb')">
+            <span>🏦 Bank BJB</span>
+          </label>
+        </div>
+
+        <div style="font-size:.78rem;color:var(--text2);margin-bottom:1.25rem;background:var(--bg2);padding:.75rem;border-radius:var(--radius-sm);border:1px solid var(--border);line-height:1.4">
+          ℹ️ Pilih salah satu metode di atas. Anda akan diarahkan ke halaman invoice/gateway simulasi setelah mengklik tombol di bawah.
+        </div>
+
+        <div style="display:flex;gap:.75rem">
+          <button type="button" onclick="goToInvoiceScreen()" class="btn btn-primary" style="flex:1;justify-content:center">Lanjutkan Pembayaran ➡️</button>
+          <button type="button" onclick="closeCheckoutModal()" class="btn btn-ghost">Batal</button>
+        </div>
       </div>
 
-      <div style="font-size:.78rem;color:var(--text2);margin-bottom:1.25rem;background:var(--orange-light);padding:.75rem;border-radius:var(--radius-sm);border:1px solid rgba(245,158,11,.2);line-height:1.4">
-        📌 <strong>Simulasi Pembayaran IMK:</strong> Tekan <strong>"Bayar & Daftarkan"</strong> untuk mensimulasikan pembayaran yang aman. Sistem akan memproses pendaftaran dan membuka akses materi secara instan.
-      </div>
+      <!-- Screen 2: Invoice / Payment Gateway Screen -->
+      <div id="paymentInvoiceScreen" style="display:none">
+        <h4 style="font-size:.88rem;font-weight:800;margin-bottom:1rem;color:var(--text);display:flex;align-items:center;gap:6px">
+          <span>🧾</span> Invoice Pembayaran BuilderHub
+        </h4>
+        
+        <!-- Status & Timer -->
+        <div style="display:flex;justify-content:space-between;align-items:center;background:#FEF3C7;border:1px solid #F59E0B;border-radius:var(--radius-sm);padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.75rem;color:#92400E">
+          <span>Status: <strong>MENUNGGU PEMBAYARAN</strong></span>
+          <span id="invoiceTimer" style="font-weight:700">23:59:59</span>
+        </div>
 
-      <form id="enrollForm" method="POST">
+        <!-- Dynamic Payment Details -->
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:1.25rem">
+          <div style="display:flex;justify-content:space-between;margin-bottom:0.5rem;font-size:0.8rem">
+            <span style="color:var(--text3)">Metode Pembayaran</span>
+            <strong id="invoicePaymentMethod" style="color:var(--primary)">QRIS</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:0.5rem;font-size:0.8rem">
+            <span style="color:var(--text3)">Total Tagihan</span>
+            <strong id="invoiceTotalText" style="color:var(--text)">Rp 0</strong>
+          </div>
+
+          <!-- QRIS display -->
+          <div id="qrisContainer" style="text-align:center;margin-top:1rem;padding:0.75rem;background:#fff;border-radius:var(--radius-sm);border:1px solid var(--border)">
+            <div style="font-size:0.7rem;color:#000;font-weight:800;margin-bottom:0.25rem">QRIS DUKUNG SELURUH APLIKASI PEMBAYARAN</div>
+            <img id="qrisImage" style="width:180px;height:180px;object-fit:contain;margin:0 auto" alt="QRIS Code">
+            <div style="font-size:0.68rem;color:#666;margin-top:0.25rem">Pindai kode QR di atas untuk menyelesaikan pembayaran</div>
+          </div>
+
+          <!-- VA / Bank Details display -->
+          <div id="vaContainer" style="display:none;margin-top:1rem;padding-top:0.75rem;border-top:1px dashed var(--border)">
+            <div style="font-size:0.8rem;color:var(--text2);margin-bottom:0.25rem">Nomor Virtual Account (VA)</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg);border:1px solid var(--border);padding:0.5rem 0.75rem;border-radius:var(--radius-sm)">
+              <code id="vaNumber" style="font-size:0.95rem;font-weight:700;letter-spacing:1px;color:var(--primary)">8839081234567890</code>
+              <button type="button" onclick="copyVaText()" style="background:var(--primary-light);color:var(--primary);border:none;border-radius:4px;padding:3px 8px;font-size:0.7rem;font-weight:700;cursor:pointer">Salin</button>
+            </div>
+            <div style="font-size:0.7rem;color:var(--text3);margin-top:0.4rem">Transfer dapat dilakukan melalui ATM, M-Banking, atau Internet Banking.</div>
+          </div>
+        </div>
+
+        <form id="enrollForm" method="POST">
+          @csrf
+          <div style="display:flex;gap:.75rem">
+            <button type="submit" class="btn btn-success" style="flex:1;justify-content:center;font-weight:700">Simulasikan Bayar Berhasil ✅</button>
+            <button type="button" onclick="backToSelection()" class="btn btn-ghost">Ubah Metode</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Free Enrollment Direct Submit -->
+    <div id="freeEnrollSection" style="display:none">
+      <div style="font-size:.78rem;color:var(--text2);margin-bottom:1.25rem;background:var(--primary-light);padding:.75rem;border-radius:var(--radius-sm);border:1px solid rgba(79,70,229,.2);line-height:1.4">
+        🎉 <strong>Course Gratis!</strong> Anda tidak memerlukan metode pembayaran untuk bergabung dengan course ini. Klik tombol di bawah untuk mendaftar secara langsung.
+      </div>
+      <form id="freeEnrollForm" method="POST">
         @csrf
         <div style="display:flex;gap:.75rem">
-          <button type="submit" class="btn btn-primary" style="flex:1;justify-content:center">Bayar & Daftarkan Sekarang ✅</button>
+          <button type="submit" class="btn btn-primary" style="flex:1;justify-content:center">Daftar Sekarang (Gratis) ✅</button>
           <button type="button" onclick="closeCheckoutModal()" class="btn btn-ghost">Batal</button>
         </div>
       </form>
@@ -534,15 +620,142 @@ const hash = location.hash.replace('#','');
 if(['my-courses','explore','certificates'].includes(hash)) showTab(hash);
 
 // Checkout Modal logic
+let countdownInterval;
+function startCountdown() {
+  if (countdownInterval) clearInterval(countdownInterval);
+  let duration = 24 * 60 * 60 - 1; // 24 hours
+  const timerEl = document.getElementById('invoiceTimer');
+  if (!timerEl) return;
+  
+  const updateTimer = () => {
+    let hours = Math.floor(duration / 3600);
+    let minutes = Math.floor((duration % 3600) / 60);
+    let seconds = duration % 60;
+    
+    hours = hours < 10 ? '0' + hours : hours;
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    seconds = seconds < 10 ? '0' + seconds : seconds;
+    
+    timerEl.textContent = `${hours}:${minutes}:${seconds}`;
+    if (duration > 0) duration--;
+  };
+  updateTimer();
+  countdownInterval = setInterval(updateTimer, 1000);
+}
+
+function selectPaymentMethod(method) {
+  const labels = document.querySelectorAll('.payment-method-option');
+  labels.forEach(label => {
+    const radio = label.querySelector('input[type="radio"]');
+    if (radio && radio.checked) {
+      label.style.borderColor = 'var(--primary)';
+      label.style.background = 'var(--primary-light)';
+    } else {
+      label.style.borderColor = 'var(--border)';
+      label.style.background = 'transparent';
+    }
+  });
+}
+
+function goToInvoiceScreen() {
+  const selectedMethodInput = document.querySelector('input[name="payment_method"]:checked');
+  if (!selectedMethodInput) {
+    alert("Silakan pilih metode pembayaran.");
+    return;
+  }
+  const method = selectedMethodInput.value;
+  
+  const methodLabelMap = {
+    qris: 'QRIS (E-Wallet & Mobile Banking)',
+    bank_transfer: 'Bank Transfer (Virtual Account)',
+    debit: 'Debit Card Payment',
+    visa: 'Visa Credit/Debit Card',
+    bri: 'Bank Rakyat Indonesia (BRIVA)',
+    bni: 'Bank Negara Indonesia (BNI VA)',
+    bjb: 'Bank Pembangunan Daerah BJB (BJB VA)'
+  };
+  
+  document.getElementById('invoicePaymentMethod').textContent = methodLabelMap[method] || method.toUpperCase();
+  document.getElementById('invoiceTotalText').textContent = document.getElementById('checkoutPriceText').textContent;
+  
+  const qrisContainer = document.getElementById('qrisContainer');
+  const vaContainer = document.getElementById('vaContainer');
+  
+  if (method === 'qris') {
+    qrisContainer.style.display = 'block';
+    vaContainer.style.display = 'none';
+    const amountStr = document.getElementById('checkoutPriceText').textContent;
+    document.getElementById('qrisImage').src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=BuilderHub-Simulated-QRIS-Amount-${encodeURIComponent(amountStr)}`;
+  } else {
+    qrisContainer.style.display = 'none';
+    vaContainer.style.display = 'block';
+    
+    const vaNumbers = {
+      bank_transfer: '88390812' + Math.floor(10000000 + Math.random() * 90000000),
+      debit: '40001234' + Math.floor(10000000 + Math.random() * 90000000),
+      visa: '45567890' + Math.floor(10000000 + Math.random() * 90000000),
+      bri: '12345678' + Math.floor(10000000 + Math.random() * 90000000),
+      bni: '98765432' + Math.floor(10000000 + Math.random() * 90000000),
+      bjb: '33221100' + Math.floor(10000000 + Math.random() * 90000000)
+    };
+    
+    document.getElementById('vaNumber').textContent = vaNumbers[method] || '8839081299999999';
+  }
+  
+  document.getElementById('paymentSelectionScreen').style.display = 'none';
+  document.getElementById('paymentInvoiceScreen').style.display = 'block';
+  startCountdown();
+}
+
+function backToSelection() {
+  document.getElementById('paymentSelectionScreen').style.display = 'block';
+  document.getElementById('paymentInvoiceScreen').style.display = 'none';
+  if (countdownInterval) clearInterval(countdownInterval);
+}
+
+function copyVaText() {
+  const vaText = document.getElementById('vaNumber').textContent;
+  navigator.clipboard.writeText(vaText).then(() => {
+    alert("Nomor Virtual Account disalin ke clipboard!");
+  }).catch(() => {
+    alert("Gagal menyalin. Silakan salin secara manual.");
+  });
+}
+
 function triggerEnroll(id, title, price, isFree, instructor){
   document.getElementById('checkoutCourseTitle').textContent = title;
   document.getElementById('checkoutInstructorName').textContent = instructor;
   document.getElementById('checkoutPriceText').textContent = isFree ? 'Gratis' : 'Rp ' + price.toLocaleString('id-ID');
+  
+  // Set forms action URL
   document.getElementById('enrollForm').action = `${window.APP_URL}/course-manager/course/${id}/enroll`;
+  document.getElementById('freeEnrollForm').action = `${window.APP_URL}/course-manager/course/${id}/enroll`;
+  
+  if (isFree) {
+    document.getElementById('paymentFormSection').style.display = 'none';
+    document.getElementById('freeEnrollSection').style.display = 'block';
+  } else {
+    document.getElementById('paymentFormSection').style.display = 'block';
+    document.getElementById('freeEnrollSection').style.display = 'none';
+    
+    // Reset screen state to selection
+    document.getElementById('paymentSelectionScreen').style.display = 'block';
+    document.getElementById('paymentInvoiceScreen').style.display = 'none';
+    
+    // Reset radios
+    const firstRadio = document.querySelector('input[name="payment_method"]');
+    if (firstRadio) {
+      firstRadio.checked = true;
+      selectPaymentMethod(firstRadio.value);
+    }
+  }
+  
   document.getElementById('checkoutModal').style.display = 'flex';
 }
+
 function closeCheckoutModal(){
   document.getElementById('checkoutModal').style.display = 'none';
+  if (countdownInterval) clearInterval(countdownInterval);
 }
 
 // Learning room logic
