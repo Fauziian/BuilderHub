@@ -197,7 +197,6 @@ footer { background: var(--dark); color: rgba(255,255,255,0.7); padding: 5rem 2r
 }
 @media(max-width: 768px) {
   .navbar { padding: 0 1rem; }
-  .nav-menu { display: none; }
   .stats-grid { grid-template-columns: 1fr; }
   .form-row { grid-template-columns: 1fr; }
   .section { padding: 3rem 1.5rem; }
@@ -208,8 +207,191 @@ footer { background: var(--dark); color: rgba(255,255,255,0.7); padding: 5rem 2r
   .footer-grid { grid-template-columns: 1fr; }
   .footer-bottom { flex-direction: column; gap: 1rem; text-align: center; }
 }
+
+/* 3D Glassmorphism & Premium shadow depth */
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.06), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.glass-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06), 0 0 24px rgba(79, 70, 229, 0.15);
+  border-color: rgba(79, 70, 229, 0.25);
+}
+
+.btn-3d {
+  position: relative;
+  border: none;
+  background: linear-gradient(135deg, var(--primary), #8B5CF6);
+  color: #fff !important;
+  border-radius: 99px;
+  box-shadow: 0 4px 0 #3730A3, 0 8px 16px rgba(79, 70, 229, 0.3);
+  transition: all 0.15s ease;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.btn-3d:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #3730A3, 0 12px 20px rgba(79, 70, 229, 0.4);
+}
+.btn-3d:active {
+  transform: translateY(4px);
+  box-shadow: 0 0px 0 #3730A3, 0 4px 8px rgba(79, 70, 229, 0.2);
+}
+
+.btn-3d-orange {
+  background: linear-gradient(135deg, var(--accent), #FB923C);
+  box-shadow: 0 4px 0 #C2410C, 0 8px 16px rgba(249, 115, 22, 0.3);
+}
+.btn-3d-orange:hover {
+  box-shadow: 0 6px 0 #C2410C, 0 12px 20px rgba(249, 115, 22, 0.4);
+}
+.btn-3d-orange:active {
+  transform: translateY(4px);
+  box-shadow: 0 0px 0 #C2410C, 0 4px 8px rgba(249, 115, 22, 0.2);
+}
+
+.btn-3d-green {
+  background: linear-gradient(135deg, var(--green), #34D399);
+  box-shadow: 0 4px 0 #047857, 0 8px 16px rgba(16, 185, 129, 0.3);
+}
+.btn-3d-green:hover {
+  box-shadow: 0 6px 0 #047857, 0 12px 20px rgba(16, 185, 129, 0.4);
+}
+.btn-3d-green:active {
+  transform: translateY(4px);
+  box-shadow: 0 0px 0 #047857, 0 4px 8px rgba(16, 185, 129, 0.2);
+}
+
+/* 3D Floating Animations */
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(1deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+.float-3d {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* Mascot Buddy Styling */
+.buddy-mascot-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-family: inherit;
+}
+.buddy-bubble {
+  background: #ffffff;
+  border: 2px solid #4F46E5;
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+  max-width: 320px;
+  margin-bottom: 12px;
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.5;
+  position: relative;
+  border-bottom-right-radius: 2px;
+  opacity: 0;
+  transform: translateY(30px) scale(0.9);
+  pointer-events: none;
+  transition: all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.buddy-bubble.active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: all;
+}
+.buddy-bubble.closing {
+  opacity: 0;
+  transform: translateY(120px) scale(0.8);
+  pointer-events: none;
+}
+.buddy-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  right: 18px;
+  border-width: 10px 10px 0;
+  border-style: solid;
+  border-color: #ffffff transparent;
+  display: block;
+  width: 0;
+}
+.buddy-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: -13px;
+  right: 17px;
+  border-width: 11px 11px 0;
+  border-style: solid;
+  border-color: #4F46E5 transparent;
+  display: block;
+  width: 0;
+  z-index: -1;
+}
+.buddy-avatar {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #4F46E5, #8B5CF6);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 25px rgba(79, 70, 229, 0.4), inset 0 -4px 0 rgba(0,0,0,0.2);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 3px solid #ffffff;
+  animation: float 3s ease-in-out infinite;
+  position: relative;
+}
+.buddy-avatar:hover {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 15px 32px rgba(79, 70, 229, 0.5), inset 0 -4px 0 rgba(0,0,0,0.2);
+}
+.buddy-face {
+  font-size: 2.2rem;
+  user-select: none;
+}
+.buddy-pulse {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 14px;
+  height: 14px;
+  background: #10B981;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  animation: pulse-ring 1.5s infinite;
+  transition: opacity 0.3s ease;
+}
+@keyframes pulse-ring {
+  0% { transform: scale(0.85); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { transform: scale(0.85); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
 </style>
-<script>window.APP_URL = "{{ url('/') }}";</script>
+<script>
+  window.APP_URL = "{{ url('/') }}";
+  window.USER_ROLE = "@auth{{ Auth::user()->role }}@elseguestguest@endauth";
+</script>
 @stack('styles')
 </head>
 <body>
@@ -359,6 +541,260 @@ footer { background: var(--dark); color: rgba(255,255,255,0.7); padding: 5rem 2r
   </div>
 </footer>
 @endguest
+
+@auth
+<!-- INTERACTIVE MASCOT: BuilderBuddy Guide -->
+<div class="buddy-mascot-container" id="buddyMascot">
+  <div class="buddy-bubble" id="buddyBubble">
+    <div id="buddyText">Hai! Saya BuilderBuddy. Ada yang bisa saya bantu hari ini?</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;border-top:1px solid #eee;padding-top:8px">
+      <span id="buddyStep" style="font-size:0.75rem;color:var(--text3);font-weight:600"></span>
+      <div style="display:flex;gap:6px">
+        <button type="button" onclick="buddyPrev()" class="btn btn-ghost btn-sm" id="buddyPrevBtn" style="padding:4px 8px;font-size:0.72rem;display:none">Kembali</button>
+        <button type="button" onclick="buddyNext()" class="btn btn-primary btn-sm" id="buddyNextBtn" style="padding:4px 10px;font-size:0.72rem">Lanjut</button>
+        <button type="button" onclick="closeBuddy()" class="btn btn-ghost btn-sm" id="buddyCloseBtn" style="padding:4px 8px;font-size:0.72rem">Tutup</button>
+      </div>
+    </div>
+  </div>
+  <div class="buddy-avatar" onclick="toggleBuddy()" aria-label="Interactive Human Guide" title="Klik saya untuk panduan interaktif! 💡">
+    <span class="buddy-face" id="buddyFace">🤖</span>
+    <span class="buddy-pulse" id="buddyPulse"></span>
+  </div>
+</div>
+
+<script>
+let buddyTour = [];
+let buddyCurrentStep = 0;
+
+function initBuddyTour() {
+  const role = window.USER_ROLE || 'guest';
+  
+  if (role === 'course') {
+    buddyTour = [
+      {
+        text: "Selamat datang di **Dashboard Pelajar**! Saya akan membantu Anda memahami alur belajar di BuilderHub. 🎓",
+        target: null,
+        face: "🎓"
+      },
+      {
+        text: "Di sini Anda bisa memantau **statistik belajar** Anda: course yang diikuti, sedang dipelajari, selesai, dan sertifikat yang Anda peroleh! 📊",
+        target: ".stats-grid",
+        face: "📈"
+      },
+      {
+        text: "Gunakan **Tab Menu** ini untuk berpindah halaman antara Course Saya, Jelajah Course Baru, dan Sertifikat Anda. 🗂️",
+        target: ".tab-bar",
+        face: "🎯"
+      },
+      {
+        text: "Di tab **Jelajah Course**, Anda dapat menemukan kelas gratis atau premium, lalu klik tombol ikuti untuk membuka simulasi pembayaran interaktif! 💳",
+        target: "#tab-explore",
+        face: "💡"
+      },
+      {
+        text: "Setelah Anda menyelesaikan semua video di **Ruang Belajar**, Anda bisa langsung mengklaim sertifikat kelulusan resmi! 📜",
+        target: "#tab-certificates",
+        face: "🏆"
+      }
+    ];
+  } else if (role === 'programmer') {
+    buddyTour = [
+      {
+        text: "Selamat datang di **Dashboard Programmer**! Mari kita lihat kelengkapan akun Anda agar siap menerima project UMKM. 🧑‍💻",
+        target: null,
+        face: "🧑‍💻"
+      },
+      {
+        text: "Ini adalah **Statistik Pendapatan & Project** Anda. Semua pendapatan dari project dikumpulkan secara transparan di sini. 💰",
+        target: ".stats-grid",
+        face: "📈"
+      },
+      {
+        text: "Perhatikan **Kelengkapan Profil Verifikasi** Anda. Anda perlu mengunggah portofolio dan sertifikat hingga 100% agar diverifikasi admin dan mendapatkan hak membuat course! 📋",
+        target: ".progress-bar",
+        face: "⚙️"
+      },
+      {
+        text: "Gunakan **Tab Menu** ini untuk berpindah antara Overview, Cari Project UMKM, Course Saya, dan menu Verifikasi dokumen. 🗂️",
+        target: ".tab-bar",
+        face: "🎯"
+      },
+      {
+        text: "Setelah akun Anda diverifikasi oleh Admin, Anda bisa mengajukan penawaran (*bid*) harga dan durasi pengerjaan pada halaman **Cari Project**! 🤝",
+        target: "#tab-projects",
+        face: "💡"
+      }
+    ];
+  } else if (role === 'umkm') {
+    buddyTour = [
+      {
+        text: "Selamat datang di **Dashboard UMKM**! Di sini Anda dapat memposting project digital dan merekrut programmer profesional. 🏢",
+        target: null,
+        face: "🏢"
+      },
+      {
+        text: "Ini adalah **Ringkasan Project** Anda. Anda bisa memantau project yang sedang menunggu antrean, berjalan, atau sudah selesai. 📊",
+        target: ".stats-grid",
+        face: "📈"
+      },
+      {
+        text: "Klik **Posting Project Baru** untuk membuat tawaran pekerjaan. Deskripsikan kebutuhan sistem Anda dengan jelas agar programmer tertarik mengajukan tawaran. 📝",
+        target: "[onclick*='posting']",
+        face: "💡"
+      },
+      {
+        text: "Di tab **Project Saya**, Anda dapat melihat penawaran masuk dari programmer, berdiskusi via Chat negosiasi, dan menyetujui penawaran terpilih! 💬",
+        target: "#utab-projects",
+        face: "🤝"
+      }
+    ];
+  } else if (role === 'admin') {
+    buddyTour = [
+      {
+        text: "Selamat datang di **Panel Administrasi**! Anda bertugas memverifikasi akun pengguna dan menyetujui postingan project baru. ⚙️",
+        target: null,
+        face: "⚡"
+      },
+      {
+        text: "Periksa daftar **Persetujuan Project UMKM Baru**. Klik *ACC & Publikasikan* untuk meloloskan project agar dapat dilamar oleh Programmer! 📋",
+        target: ".card",
+        face: "🔍"
+      },
+      {
+        text: "Periksa juga **Verifikasi Programmer & UMKM** yang tertunda. Verifikasi mereka jika dokumen yang dilampirkan sudah valid dan lengkap. ✅",
+        target: ".card:nth-of-type(2)",
+        face: "🛡️"
+      }
+    ];
+  } else {
+    buddyTour = [
+      {
+        text: "Hai! Selamat datang di **BuilderHub**. Saya siap memandu Anda menelusuri halaman platform ini. 🚀",
+        target: null,
+        face: "👋"
+      },
+      {
+        text: "Silakan gunakan menu navigasi di atas untuk menjelajahi **Project UMKM**, daftar **Course** pembelajaran, atau mendaftar akun baru! 💡",
+        target: ".navbar-inner",
+        face: "🎯"
+      }
+    ];
+  }
+}
+
+function toggleBuddy() {
+  const bubble = document.getElementById('buddyBubble');
+  if (bubble.classList.contains('active') && document.getElementById('buddyStep').textContent !== '') {
+    closeBuddy();
+  } else {
+    initBuddyTour();
+    buddyCurrentStep = 0;
+    showBuddyStep();
+  }
+}
+
+function showBuddyStep() {
+  const bubble = document.getElementById('buddyBubble');
+  const textEl = document.getElementById('buddyText');
+  const stepEl = document.getElementById('buddyStep');
+  const faceEl = document.getElementById('buddyFace');
+  const prevBtn = document.getElementById('buddyPrevBtn');
+  const nextBtn = document.getElementById('buddyNextBtn');
+  const pulseEl = document.getElementById('buddyPulse');
+  
+  if (buddyTour.length === 0) return;
+  
+  const step = buddyTour[buddyCurrentStep];
+  
+  // Clean previous highlights
+  document.querySelectorAll('.buddy-highlight').forEach(el => {
+    el.style.outline = '';
+    el.style.outlineOffset = '';
+    el.classList.remove('buddy-highlight');
+  });
+  
+  // Format markdown-like text to HTML
+  let formattedText = step.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  textEl.innerHTML = formattedText;
+  faceEl.textContent = step.face || '🤖';
+  stepEl.textContent = `${buddyCurrentStep + 1} / ${buddyTour.length}`;
+  
+  // Handle highlight target
+  if (step.target) {
+    const targetEl = document.querySelector(step.target);
+    if (targetEl) {
+      targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      targetEl.style.outline = '3px solid #4F46E5';
+      targetEl.style.outlineOffset = '6px';
+      targetEl.classList.add('buddy-highlight');
+    }
+  }
+  
+  prevBtn.style.display = buddyCurrentStep > 0 ? 'inline-block' : 'none';
+  nextBtn.style.display = 'inline-block';
+  nextBtn.textContent = buddyCurrentStep === buddyTour.length - 1 ? 'Selesai' : 'Lanjut';
+  
+  // Hide pulsing badge while guide is active/opened
+  if (pulseEl) pulseEl.style.opacity = '0';
+  
+  bubble.classList.remove('closing');
+  bubble.classList.add('active');
+}
+
+function buddyNext() {
+  if (buddyCurrentStep < buddyTour.length - 1) {
+    buddyCurrentStep++;
+    showBuddyStep();
+  } else {
+    closeBuddy();
+  }
+}
+
+function buddyPrev() {
+  if (buddyCurrentStep > 0) {
+    buddyCurrentStep--;
+    showBuddyStep();
+  }
+}
+
+function closeBuddy() {
+  const bubble = document.getElementById('buddyBubble');
+  bubble.classList.remove('active');
+  bubble.classList.add('closing');
+  
+  const pulseEl = document.getElementById('buddyPulse');
+  if (pulseEl) pulseEl.style.opacity = '1';
+  
+  // Clean highlight
+  document.querySelectorAll('.buddy-highlight').forEach(el => {
+    el.style.outline = '';
+    el.style.outlineOffset = '';
+    el.classList.remove('buddy-highlight');
+  });
+}
+
+// Automatically welcome user with a tiny floating tip after 3 seconds
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const bubble = document.getElementById('buddyBubble');
+    if (bubble && !bubble.classList.contains('active')) {
+      const textEl = document.getElementById('buddyText');
+      textEl.innerHTML = "Butuh bantuan memahami halaman ini? **Klik saya** untuk panduan interaktif! 👋";
+      document.getElementById('buddyFace').textContent = "👋";
+      document.getElementById('buddyStep').textContent = "";
+      document.getElementById('buddyPrevBtn').style.display = 'none';
+      document.getElementById('buddyNextBtn').style.display = 'none';
+      
+      const pulseEl = document.getElementById('buddyPulse');
+      if (pulseEl) pulseEl.style.opacity = '1';
+      
+      bubble.classList.remove('closing');
+      bubble.classList.add('active');
+    }
+  }, 3000);
+});
+</script>
+@endauth
 
 @stack('scripts')
 <script>

@@ -8,11 +8,31 @@
       <div class="profile-av">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
       <div>
         <div style="font-size:1.25rem;font-weight:800">{{ $user->name }}</div>
-        <div style="font-size:.85rem;color:var(--text2);display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-top:.25rem">
-          @if($user->city)📍 {{ $user->city }}@endif
-          @if($user->is_verified)<span style="font-size:.7rem;font-weight:600;padding:3px 9px;border-radius:99px;background:#ECFDF5;color:#059669">✅ Terverifikasi</span>@endif
-          @if($user->is_top_programmer)<span style="font-size:.7rem;font-weight:600;padding:3px 9px;border-radius:99px;background:#FFF7ED;color:#C2410C">🏆 Top Programmer</span>@endif
-          @if($user->is_top_programmer)<span style="font-size:.7rem;font-weight:600;padding:3px 9px;border-radius:99px;background:#EDE9FE;color:#6D28D9">💎 Pemateri</span>@endif
+        <div style="font-size:.85rem;color:var(--text2);display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-top:.35rem">
+          @if($user->city)
+          <span style="display:inline-flex;align-items:center;gap:4px;font-size:.78rem;font-weight:600;color:var(--text2)">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:14px;height:14px;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#EF4444"/></svg>
+            {{ $user->city }}
+          </span>
+          @endif
+          @if($user->is_verified)
+          <span style="font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:99px;background:#ECFDF5;color:#059669;border:1px solid rgba(5,150,105,0.2);display:inline-flex;align-items:center;gap:4px">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:12px;height:12px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="#10B981"/></svg>
+            Terverifikasi
+          </span>
+          @endif
+          @if($user->is_top_programmer)
+          <span style="font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:99px;background:#FFF7ED;color:#C2410C;border:1px solid rgba(194,65,12,0.2);display:inline-flex;align-items:center;gap:4px">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:12px;height:12px;"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v3c0 2.44 1.72 4.48 4 4.88V17c0 1.1.9 2 2 2h2v2H9v2h6v-2h-2v-2h2c1.1 0 2-.9 2-2v-2.12c2.28-.4 4-2.44 4-4.88V7c0-1.1-.9-2-2-2zm-12 5V7h2v3c0 .55-.45 1-1 1s-1-.45-1-1zm10 0c0 .55-.45 1-1 1s-1-.45-1-1V7h2v3z" fill="#F59E0B"/></svg>
+            Top Programmer
+          </span>
+          @endif
+          @if($user->is_top_programmer)
+          <span style="font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:99px;background:#EDE9FE;color:#6D28D9;border:1px solid rgba(109,40,217,0.2);display:inline-flex;align-items:center;gap:4px">
+            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:12px;height:12px;"><path d="M32 6 L54 22 L32 58 L10 22 Z" fill="#8B5CF6"/><path d="M32 6 L42 22 L32 38 L22 22 Z" fill="#A78BFA"/></svg>
+            Pemateri
+          </span>
+          @endif
         </div>
       </div>
     </div>
@@ -44,11 +64,91 @@
   <!-- OVERVIEW TAB -->
   <div id="pane-overview" role="tabpanel">
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-card-icon">💰</div><div class="stat-card-value">Rp {{ number_format($user->total_earnings / 1000000, 1) }}M</div><div class="stat-card-label">Total Pendapatan</div></div>
-      <div class="stat-card"><div class="stat-card-icon">⏳</div><div class="stat-card-value">{{ $activeProjects->count() }}</div><div class="stat-card-label">Project Berjalan</div></div>
-      <div class="stat-card"><div class="stat-card-icon">✅</div><div class="stat-card-value">{{ $completedProjects }}</div><div class="stat-card-label">Project Selesai</div></div>
-      <div class="stat-card">
-        <div class="stat-card-icon">⭐</div>
+      <div class="stat-card glass-card">
+        <div class="stat-card-icon" style="background:rgba(245,158,11,0.1)">
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 44px; height: 44px; filter: drop-shadow(0 4px 8px rgba(245, 158, 11, 0.4));">
+            <defs>
+              <linearGradient id="coin-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FCD34D" />
+                <stop offset="100%" stop-color="#D97706" />
+              </linearGradient>
+              <linearGradient id="coin-edge" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FBBF24" />
+                <stop offset="100%" stop-color="#B45309" />
+              </linearGradient>
+            </defs>
+            <ellipse cx="32" cy="36" rx="20" ry="12" fill="url(#coin-edge)" />
+            <ellipse cx="32" cy="32" rx="20" ry="12" fill="url(#coin-grad)" />
+            <ellipse cx="32" cy="32" rx="14" ry="8" fill="none" stroke="#FFF" stroke-width="1.5" opacity="0.5" />
+            <path d="M 28 32 C 28 30 30 29 32 29 C 34 29 36 30 36 32 C 36 34 34 35 32 35 C 30 35 28 34 28 32 Z M 32 27 V 37" stroke="#FFF" stroke-width="2.5" stroke-linecap="round" />
+          </svg>
+        </div>
+        <div class="stat-card-value">Rp {{ number_format($user->total_earnings / 1000000, 1) }}M</div>
+        <div class="stat-card-label">Total Pendapatan</div>
+      </div>
+      <div class="stat-card glass-card">
+        <div class="stat-card-icon" style="background:rgba(59,130,246,0.1)">
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 44px; height: 44px; filter: drop-shadow(0 4px 8px rgba(59, 130, 246, 0.4));">
+            <defs>
+              <linearGradient id="glass-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#93C5FD" />
+                <stop offset="50%" stop-color="#3B82F6" />
+                <stop offset="100%" stop-color="#1D4ED8" />
+              </linearGradient>
+              <linearGradient id="sand-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FCD34D" />
+                <stop offset="100%" stop-color="#F59E0B" />
+              </linearGradient>
+            </defs>
+            <rect x="10" y="8" width="44" height="6" rx="3" fill="#1D4ED8" />
+            <rect x="10" y="50" width="44" height="6" rx="3" fill="#1D4ED8" />
+            <path d="M 16 14 C 16 28 28 30 28 32 C 28 34 16 36 16 50 Z" fill="none" stroke="url(#glass-grad)" stroke-width="3" stroke-linecap="round" />
+            <path d="M 48 14 C 48 28 36 30 36 32 C 36 34 48 36 48 50 Z" fill="none" stroke="url(#glass-grad)" stroke-width="3" stroke-linecap="round" />
+            <path d="M 18 16 Q 32 28 32 30" stroke="#FFF" stroke-width="1.5" stroke-linecap="round" opacity="0.6" />
+            <path d="M 20 18 C 20 26 28 28 30 30 L 34 30 C 36 28 44 26 44 18 Z" fill="url(#sand-grad)" />
+            <rect x="31" y="30" width="2" height="10" fill="#F59E0B" opacity="0.8" />
+            <path d="M 22 48 C 22 42 26 40 32 40 C 38 40 42 42 42 48 Z" fill="url(#sand-grad)" />
+          </svg>
+        </div>
+        <div class="stat-card-value">{{ $activeProjects->count() }}</div>
+        <div class="stat-card-label">Project Berjalan</div>
+      </div>
+      <div class="stat-card glass-card">
+        <div class="stat-card-icon" style="background:rgba(16,185,129,0.1)">
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 44px; height: 44px; filter: drop-shadow(0 4px 8px rgba(16, 185, 129, 0.4));">
+            <defs>
+              <linearGradient id="shield-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#34D399" />
+                <stop offset="50%" stop-color="#10B981" />
+                <stop offset="100%" stop-color="#047857" />
+              </linearGradient>
+              <linearGradient id="check-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FFF" />
+                <stop offset="100%" stop-color="#ECFDF5" />
+              </linearGradient>
+            </defs>
+            <path d="M 32 6 C 44 6 52 10 52 18 C 52 38 32 56 32 58 C 32 56 12 38 12 18 C 12 10 20 6 32 6 Z" fill="url(#shield-grad)" />
+            <path d="M 32 9 C 41 9 48 12 48 18 C 48 34 32 49 32 52" stroke="#6EE7B7" stroke-width="2" stroke-linecap="round" opacity="0.5" />
+            <path d="M 22 30 L 29 37 L 44 22" stroke="url(#check-grad)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </div>
+        <div class="stat-card-value">{{ $completedProjects }}</div>
+        <div class="stat-card-label">Project Selesai</div>
+      </div>
+      <div class="stat-card glass-card">
+        <div class="stat-card-icon" style="background:rgba(245,158,11,0.1)">
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 44px; height: 44px; filter: drop-shadow(0 4px 8px rgba(245, 158, 11, 0.4));">
+            <defs>
+              <linearGradient id="star-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FDE047" />
+                <stop offset="50%" stop-color="#F59E0B" />
+                <stop offset="100%" stop-color="#D97706" />
+              </linearGradient>
+            </defs>
+            <path d="M 32 6 L 40 22 L 58 24 L 44 36 L 48 54 L 32 44 L 16 54 L 20 36 L 6 24 L 24 22 Z" fill="url(#star-grad)" />
+            <path d="M 32 9 L 38 23 L 53 25 L 41 35 L 45 50 L 32 41" stroke="#FFF" stroke-width="1.5" stroke-linecap="round" opacity="0.4" />
+          </svg>
+        </div>
         <div class="stat-card-value" style="font-size:1.15rem;display:flex;flex-direction:column;gap:4px;margin-top:4px">
           <span style="font-weight:800;color:var(--text)">🏢 {{ number_format($user->rating ?: 5.0, 1) }} ★ <span style="font-size:0.75rem;font-weight:normal;color:var(--text2)">Project</span></span>
           <span style="font-weight:800;color:var(--text)">🎓 {{ number_format($user->course_rating ?: 5.0, 1) }} ★ <span style="font-size:0.75rem;font-weight:normal;color:var(--text2)">Course</span></span>

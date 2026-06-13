@@ -25,23 +25,96 @@
 <div class="dash-layout">
   <!-- STATS -->
   <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-card-icon">📚</div>
+    <div class="stat-card glass-card">
+      <div class="stat-card-icon" style="background:rgba(79,70,229,0.1)">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 44px; height: 44px; filter: drop-shadow(0 4px 8px rgba(79, 70, 229, 0.4));">
+          <defs>
+            <linearGradient id="book1-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#818CF8" />
+              <stop offset="100%" stop-color="#4F46E5" />
+            </linearGradient>
+            <linearGradient id="book2-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#F472B6" />
+              <stop offset="100%" stop-color="#DB2777" />
+            </linearGradient>
+          </defs>
+          <path d="M 12 36 L 46 36 L 52 42 L 18 42 Z" fill="#E2E8F0" />
+          <path d="M 10 32 C 10 30 12 30 18 30 L 48 30 L 48 38 L 18 38 C 12 38 10 36 10 32 Z" fill="url(#book2-grad)" />
+          <rect x="44" y="32" width="4" height="6" fill="#FCE7F3" />
+          <path d="M 18 20 L 52 20 L 58 26 L 24 26 Z" fill="#FFF" />
+          <path d="M 16 16 C 16 14 18 14 24 14 L 54 14 L 54 22 L 24 22 C 18 22 16 20 16 16 Z" fill="url(#book1-grad)" />
+          <rect x="50" y="16" width="4" height="6" fill="#EEF2FF" />
+        </svg>
+      </div>
       <div class="stat-card-value">{{ $enrollments->count() }}</div>
       <div class="stat-card-label">Course Diikuti</div>
     </div>
-    <div class="stat-card">
-      <div class="stat-card-icon">⏳</div>
+    <div class="stat-card glass-card">
+      <div class="stat-card-icon" style="background:rgba(59,130,246,0.1)">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 44px; height: 44px; filter: drop-shadow(0 4px 8px rgba(59, 130, 246, 0.4));">
+          <defs>
+            <linearGradient id="glass-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#93C5FD" />
+              <stop offset="50%" stop-color="#3B82F6" />
+              <stop offset="100%" stop-color="#1D4ED8" />
+            </linearGradient>
+            <linearGradient id="sand-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FCD34D" />
+              <stop offset="100%" stop-color="#F59E0B" />
+            </linearGradient>
+          </defs>
+          <rect x="10" y="8" width="44" height="6" rx="3" fill="#1D4ED8" />
+          <rect x="10" y="50" width="44" height="6" rx="3" fill="#1D4ED8" />
+          <path d="M 16 14 C 16 28 28 30 28 32 C 28 34 16 36 16 50 Z" fill="none" stroke="url(#glass-grad)" stroke-width="3" stroke-linecap="round" />
+          <path d="M 48 14 C 48 28 36 30 36 32 C 36 34 48 36 48 50 Z" fill="none" stroke="url(#glass-grad)" stroke-width="3" stroke-linecap="round" />
+          <path d="M 18 16 Q 32 28 32 30" stroke="#FFF" stroke-width="1.5" stroke-linecap="round" opacity="0.6" />
+          <path d="M 20 18 C 20 26 28 28 30 30 L 34 30 C 36 28 44 26 44 18 Z" fill="url(#sand-grad)" />
+          <rect x="31" y="30" width="2" height="10" fill="#F59E0B" opacity="0.8" />
+          <path d="M 22 48 C 22 42 26 40 32 40 C 38 40 42 42 42 48 Z" fill="url(#sand-grad)" />
+        </svg>
+      </div>
       <div class="stat-card-value">{{ $enrollments->where('status', 'active')->count() }}</div>
       <div class="stat-card-label">Sedang Dipelajari</div>
     </div>
-    <div class="stat-card">
-      <div class="stat-card-icon">🏆</div>
+    <div class="stat-card glass-card">
+      <div class="stat-card-icon" style="background:rgba(16,185,129,0.1)">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 44px; height: 44px; filter: drop-shadow(0 4px 8px rgba(16, 185, 129, 0.4));">
+          <defs>
+            <linearGradient id="shield-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#34D399" />
+              <stop offset="50%" stop-color="#10B981" />
+              <stop offset="100%" stop-color="#047857" />
+            </linearGradient>
+            <linearGradient id="check-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FFF" />
+              <stop offset="100%" stop-color="#ECFDF5" />
+            </linearGradient>
+          </defs>
+          <path d="M 32 6 C 44 6 52 10 52 18 C 52 38 32 56 32 58 C 32 56 12 38 12 18 C 12 10 20 6 32 6 Z" fill="url(#shield-grad)" />
+          <path d="M 32 9 C 41 9 48 12 48 18 C 48 34 32 49 32 52" stroke="#6EE7B7" stroke-width="2" stroke-linecap="round" opacity="0.5" />
+          <path d="M 22 30 L 29 37 L 44 22" stroke="url(#check-grad)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </div>
       <div class="stat-card-value">{{ $enrollments->where('status', 'completed')->count() }}</div>
       <div class="stat-card-label">Course Selesai</div>
     </div>
-    <div class="stat-card">
-      <div class="stat-card-icon">📜</div>
+    <div class="stat-card glass-card">
+      <div class="stat-card-icon" style="background:rgba(139,92,246,0.1)">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 44px; height: 44px; filter: drop-shadow(0 4px 8px rgba(139, 92, 246, 0.4));">
+          <defs>
+            <linearGradient id="cert-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#C084FC" />
+              <stop offset="100%" stop-color="#8B5CF6" />
+            </linearGradient>
+          </defs>
+          <rect x="8" y="12" width="48" height="34" rx="4" fill="#FFF" stroke="url(#cert-grad)" stroke-width="3" />
+          <line x1="16" y1="20" x2="36" y2="20" stroke="#DDD" stroke-width="2" stroke-linecap="round" />
+          <line x1="16" y1="26" x2="48" y2="26" stroke="#DDD" stroke-width="2" stroke-linecap="round" />
+          <line x1="16" y1="32" x2="40" y2="32" stroke="#DDD" stroke-width="2" stroke-linecap="round" />
+          <circle cx="44" cy="36" r="6" fill="#F59E0B" />
+          <path d="M 42 42 L 40 48 L 44 46 L 48 48 L 46 42 Z" fill="#D97706" />
+        </svg>
+      </div>
       <div class="stat-card-value">{{ $enrollments->where('status', 'completed')->count() }}</div>
       <div class="stat-card-label">Sertifikat Kelulusan</div>
     </div>
@@ -75,8 +148,15 @@
     <div style="display:grid;grid-template-columns:1fr;gap:1rem">
       @forelse($enrollments as $enroll)
       @php $c = $enroll->course; @endphp
-      <div class="card" style="display:flex;gap:1.5rem;align-items:center;padding:1.5rem;flex-wrap:wrap">
-        <div style="width:100px;height:80px;background:linear-gradient(135deg,#1E1260,#3D1FAF);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:2rem;color:#fff;flex-shrink:0">⚛️</div>
+      <div class="card glass-card" style="display:flex;gap:1.5rem;align-items:center;padding:1.5rem;flex-wrap:wrap">
+        <div style="width:100px;height:80px;background:linear-gradient(135deg,#3B82F6,#8B5CF6);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;box-shadow:0 8px 16px rgba(59,130,246,0.3)">
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:38px;height:38px;filter:drop-shadow(0 2px 4px rgba(255,255,255,0.4))">
+            <path d="M 16 48 L 32 16 L 48 48 Z" stroke="#FFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="32" cy="16" r="4" fill="#FFF" />
+            <circle cx="16" cy="48" r="4" fill="#FFF" />
+            <circle cx="48" cy="48" r="4" fill="#FFF" />
+          </svg>
+        </div>
         <div style="flex:1;min-width:280px">
           <div style="display:flex;gap:.5rem;margin-bottom:.25rem;align-items:center">
             <span class="level-badge level-{{ $c->level }}" style="position:static;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:99px">{{ $c->level_label }}</span>
@@ -89,17 +169,17 @@
           </div>
         </div>
         <div style="text-align:right;flex-shrink:0;min-width:180px">
-      @if($enroll->status === 'completed')
+          @if($enroll->status === 'completed')
             <div style="color:var(--green);font-weight:700;font-size:.9rem;margin-bottom:.5rem;display:flex;align-items:center;justify-content:flex-end;gap:4px">
               <span>✓ Selesai & Lulus</span>
             </div>
-            <button onclick="viewCertificate('{{ $user->name }}', '{{ addslashes($c->title) }}', '{{ addslashes($c->instructor->name) }}', '{{ $enroll->updated_at->format('d M Y') }}')" class="btn btn-ghost btn-sm" style="color:var(--primary);border-color:var(--primary)">📜 Lihat Sertifikat</button>
+            <button onclick="viewCertificate('{{ $user->name }}', '{{ addslashes($c->title) }}', '{{ addslashes($c->instructor->name) }}', '{{ $enroll->updated_at->format('d M Y') }}')" class="btn btn-3d btn-sm" style="color:var(--primary);border-color:var(--primary)">Lihat Sertifikat 📜</button>
             {{-- Rating block --}}
             @php $existingCourseReview = $givenCourseReviews->get($c->id); @endphp
             @if($existingCourseReview)
               <div style="margin-top:.5rem;padding:.5rem .75rem;background:var(--bg2);border-radius:var(--radius);border:1px solid var(--border)">
                 <div style="font-size:.72rem;font-weight:600;color:var(--green);margin-bottom:.2rem">Rating Anda:</div>
-                <div style="display:flex;gap:1px">
+                <div style="display:flex;gap:1px;justify-content:flex-end">
                   @for($s=1;$s<=5;$s++)
                     <span style="font-size:1rem;color:{{ $s<=$existingCourseReview->rating ? '#F59E0B' : '#D1D5DB' }}">★</span>
                   @endfor
@@ -109,21 +189,20 @@
                 @endif
               </div>
             @else
-              <button onclick="openCourseRatingModal({{ $c->id }}, '{{ addslashes($c->title) }}', '{{ addslashes($c->instructor->name) }}')" class="btn btn-sm" style="margin-top:.4rem;background:#FFF7ED;color:#C2410C;border:1px solid rgba(194,65,12,.2);font-size:.78rem">⭐ Beri Rating</button>
+              <button onclick="openCourseRatingModal({{ $c->id }}, '{{ addslashes($c->title) }}', '{{ addslashes($c->instructor->name) }}')" class="btn btn-3d btn-3d-orange btn-sm" style="margin-top:.4rem;font-size:.78rem">⭐ Beri Rating</button>
             @endif
           @else
             <div style="margin-bottom:.5rem;font-size:.8rem;color:var(--text3)">Status: <strong style="color:var(--orange)">Belajar</strong></div>
-            <button onclick="openLearningRoom({{ $c->id }}, '{{ addslashes($c->title) }}', {{ json_encode($c->videos) }}, {{ $c->id }})" class="btn btn-primary btn-sm">▶ Mulai Belajar</button>
+            <button onclick="openLearningRoom({{ $c->id }}, '{{ addslashes($c->title) }}', {{ json_encode($c->videos) }}, {{ $c->id }})" class="btn btn-3d btn-sm">▶ Mulai Belajar</button>
           @endif
-
         </div>
       </div>
       @empty
-      <div style="text-align:center;padding:4rem 2rem;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg)">
+      <div class="card glass-card" style="text-align:center;padding:4rem 2rem;">
         <div style="font-size:3rem;margin-bottom:1rem">📚</div>
         <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:.25rem">Belum ada course yang Anda ikuti</h3>
         <p style="font-size:.85rem;color:var(--text3);margin-bottom:1.5rem">Mulai belajar teknologi baru sekarang dengan gratis maupun premium!</p>
-        <button onclick="showTab('explore')" class="btn btn-primary">Cari Course Sekarang</button>
+        <button onclick="showTab('explore')" class="btn btn-3d">Cari Course Sekarang</button>
       </div>
       @endforelse
     </div>
@@ -161,7 +240,7 @@
           @if($isEnrolled)
             <span style="font-size:.8rem;color:var(--green);font-weight:700">Diikuti ✓</span>
           @else
-            <button onclick="triggerEnroll({{ $course->id }}, '{{ addslashes($course->title) }}', {{ $course->price }}, {{ $course->is_free ? 1 : 0 }}, '{{ addslashes($course->instructor->name) }}')" class="btn btn-primary btn-sm">
+            <button onclick="triggerEnroll({{ $course->id }}, '{{ addslashes($course->title) }}', {{ $course->price }}, {{ $course->is_free ? 1 : 0 }}, '{{ addslashes($course->instructor->name) }}')" class="btn btn-3d btn-sm">
               {{ $course->is_free ? 'Ikuti Gratis' : 'Beli Course' }}
             </button>
           @endif
@@ -180,12 +259,12 @@
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1rem">
       @forelse($enrollments->where('status', 'completed') as $enroll)
       @php $c = $enroll->course; @endphp
-      <div class="card" style="border-top:4px solid var(--primary);text-align:center;padding:1.5rem">
-        <div style="font-size:2.5rem;margin-bottom:.5rem">📜</div>
+      <div class="card glass-card" style="border-top:4px solid var(--primary);text-align:center;padding:1.5rem">
+        <div style="font-size:2.5rem;margin-bottom:.5rem" class="float-3d">📜</div>
         <h4 style="font-size:1rem;font-weight:700;margin-bottom:.25rem">{{ $c->title }}</h4>
         <p style="font-size:.8rem;color:var(--text2);margin-bottom:.75rem">Pengajar: {{ $c->instructor->name }}</p>
         <p style="font-size:.75rem;color:var(--text3);margin-bottom:1rem">Selesai pada: {{ $enroll->updated_at->format('d M Y') }}</p>
-        <button onclick="viewCertificate('{{ $user->name }}', '{{ addslashes($c->title) }}', '{{ addslashes($c->instructor->name) }}', '{{ $enroll->updated_at->format('d M Y') }}')" class="btn btn-primary btn-sm btn-full">Tampilkan Sertifikat 📜</button>
+        <button onclick="viewCertificate('{{ $user->name }}', '{{ addslashes($c->title) }}', '{{ addslashes($c->instructor->name) }}', '{{ $enroll->updated_at->format('d M Y') }}')" class="btn btn-3d btn-sm btn-full">Tampilkan Sertifikat 📜</button>
       </div>
       @empty
       <div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text3)">
@@ -245,45 +324,56 @@
 </div>
 
 <!-- IMK LEARNING ROOM VIEW (UDEMY-LIKE INTERACTIVE COMPONENT) -->
-<div id="learningRoomModal" style="display:none;position:fixed;inset:0;background:rgba(15,15,26,.97);z-index:9999;color:#fff;display:none;flex-direction:column">
+<div id="learningRoomModal" style="display:none;position:fixed;inset:0;background:rgba(10,10,22,.98);backdrop-filter:blur(20px);z-index:9999;color:#fff;display:none;flex-direction:column">
   <!-- Top Bar -->
-  <div style="height:60px;background:var(--dark2);border-bottom:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:space-between;padding:0 2rem">
+  <div style="height:70px;background:rgba(20,20,35,0.8);border-bottom:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;backdrop-filter:blur(10px)">
     <div style="display:flex;align-items:center;gap:1rem">
-      <span style="font-size:1.5rem">💻</span>
+      <div style="background:rgba(79,70,229,0.15);width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(79,70,229,0.3)">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:22px;height:22px;filter:drop-shadow(0 2px 4px rgba(79,70,229,0.5))"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.9-.9 1.9-2l.01-12c0-1.1-.9-2-2-2zm0 14H3V5h18v12z" fill="#8B5CF6"/><path d="M10 8l6 4-6 4V8z" fill="#8B5CF6"/></svg>
+      </div>
       <div>
-        <h3 id="learnCourseTitle" style="font-size:.95rem;font-weight:700;color:#fff;margin:0">-</h3>
-        <div style="font-size:.75rem;color:rgba(255,255,255,.6)">Ruang Belajar Interaktif Pelajar</div>
+        <h3 id="learnCourseTitle" style="font-size:1.05rem;font-weight:800;color:#fff;margin:0">-</h3>
+        <div style="font-size:.78rem;color:rgba(255,255,255,.5);display:flex;align-items:center;gap:4px">
+          <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10B981"></span>
+          Ruang Belajar Interaktif Pelajar
+        </div>
       </div>
     </div>
-    <button onclick="closeLearningRoom()" style="background:rgba(255,255,255,.1);border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.2rem;border:none">&times;</button>
+    <button onclick="closeLearningRoom()" class="btn-3d" style="background:#EF4444;box-shadow:0 3px 0 #B91C1C;color:#fff;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;border:none;cursor:pointer">&times;</button>
   </div>
 
   <!-- Main Grid -->
   <div style="flex:1;display:grid;grid-template-columns:3fr 1fr;overflow:hidden">
     <!-- Player Panel -->
-    <div style="padding:2rem;display:flex;flex-direction:column;justify-content:space-between;overflow-y:auto">
-      <div style="width:100%;aspect-ratio:16/9;background:#000;border-radius:var(--radius-lg);overflow:hidden;border:1px solid rgba(255,255,255,.15)">
+    <div style="padding:2rem;display:flex;flex-direction:column;justify-content:space-between;overflow-y:auto;background:radial-gradient(circle at top left, rgba(79,70,229,0.05), transparent)">
+      <div style="width:100%;aspect-ratio:16/9;background:#000;border-radius:var(--radius-lg);overflow:hidden;border:2px solid rgba(79, 70, 229, 0.4);box-shadow:0 0 35px rgba(79, 70, 229, 0.3)">
         <iframe id="videoIframe" style="width:100%;height:100%;border:none" src="" allowfullscreen></iframe>
       </div>
       
-      <div style="margin-top:1.5rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:1.5rem;border-radius:var(--radius-lg)">
-        <h4 style="font-size:1.05rem;font-weight:700;margin-bottom:.5rem">Progress Belajar Anda</h4>
-        <p style="font-size:.82rem;color:rgba(255,255,255,.7);margin-bottom:1.25rem">Tonton seluruh video pembelajaran dari Programmer untuk menguasai materi secara komprehensif. Setelah siap, Anda dapat menyatakan kelulusan di bawah.</p>
+      <div class="card glass-card" style="margin-top:1.5rem;padding:1.5rem;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02)">
+        <h4 style="font-size:1.05rem;font-weight:700;margin-bottom:.5rem;color:#FFF">Progress Belajar Anda</h4>
+        <p style="font-size:.82rem;color:rgba(255,255,255,.6);margin-bottom:1.25rem">Tonton seluruh video pembelajaran dari Programmer untuk menguasai materi secara komprehensif. Setelah siap, Anda dapat menyatakan kelulusan di bawah.</p>
         
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div style="font-size:.85rem;color:#34D399;font-weight:600">✓ Pastikan semua materi dipahami dengan baik</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem">
+          <div style="font-size:.85rem;color:#34D399;font-weight:600;display:flex;align-items:center;gap:6px">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="#10B981"/></svg>
+            Pastikan semua materi dipahami dengan baik
+          </div>
           <form id="completeCourseForm" method="POST">
             @csrf
-            <button type="submit" class="btn btn-success" style="font-size:.85rem;font-weight:700">Selesaikan Kelas & Claim Sertifikat 📜</button>
+            <button type="submit" class="btn btn-success btn-3d-green" style="font-size:.85rem;font-weight:700;padding:8px 16px">Selesaikan Kelas & Claim Sertifikat 📜</button>
           </form>
         </div>
       </div>
     </div>
 
     <!-- Sidebar Videos List -->
-    <div style="background:var(--dark2);border-left:1px solid rgba(255,255,255,.1);overflow-y:auto;padding:1rem">
-      <h4 style="font-size:.85rem;font-weight:700;color:rgba(255,255,255,.8);margin-bottom:1rem;text-transform:uppercase;letter-spacing:1px">Daftar Materi Video</h4>
-      <div id="videoListContainer" style="display:flex;flex-direction:column;gap:.5rem">
+    <div style="background:rgba(15,15,28,0.7);border-left:1px solid rgba(255,255,255,.08);overflow-y:auto;padding:1.25rem">
+      <h4 style="font-size:.78rem;font-weight:800;color:rgba(255,255,255,.5);margin-bottom:1.25rem;text-transform:uppercase;letter-spacing:1px;display:flex;align-items:center;gap:6px">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:14px;height:14px"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12.5v-9l6 4.5-6 4.5z" fill="rgba(255,255,255,.5)"/></svg>
+        Daftar Materi Video
+      </h4>
+      <div id="videoListContainer" style="display:flex;flex-direction:column;gap:.75rem">
         <!-- Rendered via JS -->
       </div>
     </div>
@@ -383,6 +473,48 @@
   </div>
 </div>
 
+@push('styles')
+<style>
+.video-list-item {
+  padding: .85rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.05);
+  transition: all .25s ease;
+}
+.video-list-item:hover {
+  background: rgba(255,255,255,.06);
+  border-color: rgba(255,255,255,.12);
+  transform: translateY(-2px);
+}
+.video-list-item.active {
+  background: linear-gradient(135deg, rgba(79,70,229,0.2), rgba(139,92,246,0.2)) !important;
+  border-color: rgba(79,70,229,0.5) !important;
+  box-shadow: 0 4px 15px rgba(79,70,229,0.15);
+}
+.video-index-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.7);
+  transition: all 0.25s ease;
+  flex-shrink: 0;
+}
+.video-list-item.active .video-index-badge {
+  background: var(--primary) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 8px rgba(79,70,229,0.4);
+}
+</style>
+@endpush
+
 @push('scripts')
 <script>
 function showTab(name){
@@ -415,6 +547,9 @@ function closeCheckoutModal(){
 
 // Learning room logic
 function openLearningRoom(id, title, videos, courseId){
+  const mascot = document.getElementById('buddyMascot');
+  if(mascot) mascot.style.setProperty('display', 'none', 'important');
+
   document.getElementById('learnCourseTitle').textContent = title;
   document.getElementById('completeCourseForm').action = `${window.APP_URL}/course-manager/course/${courseId}/complete`;
   
@@ -426,13 +561,20 @@ function openLearningRoom(id, title, videos, courseId){
     document.getElementById('videoIframe').src = '';
   } else {
     videos.forEach((vid, index) => {
-      const activeClass = index === 0 ? 'background:var(--primary);' : 'background:rgba(255,255,255,.05);';
       const item = document.createElement('div');
-      item.style = `padding:.75rem;border-radius:var(--radius-sm);cursor:pointer;display:flex;flex-direction:column;gap:.25rem;transition:.15s;${activeClass}`;
+      item.className = 'video-list-item';
       item.onclick = () => selectVideo(vid.video_url, item);
       item.innerHTML = `
-        <span style="font-size:.8rem;font-weight:700;color:#fff">${index + 1}. ${vid.title}</span>
-        <span style="font-size:.7rem;color:rgba(255,255,255,.6)">⏱ ${vid.duration || 'N/A'}</span>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="video-index-badge">${index + 1}</span>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:.8rem;font-weight:700;color:#fff">${vid.title}</span>
+            <span style="font-size:.7rem;color:rgba(255,255,255,.5);display:inline-flex;align-items:center;gap:4px">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:10px;height:10px;"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm4.3 14.3L11 13V7h1.5v5.2l4.5 2.7-.7 1.4z" fill="rgba(255,255,255,0.4)"/></svg>
+              ${vid.duration || 'N/A'}
+            </span>
+          </div>
+        </div>
       `;
       container.appendChild(item);
     });
@@ -448,9 +590,9 @@ function selectVideo(url, element){
   // Set active style
   const siblings = element.parentNode.childNodes;
   siblings.forEach(s => {
-    if(s.nodeType === 1) s.style.background = 'rgba(255,255,255,.05)';
+    if(s.nodeType === 1) s.classList.remove('active');
   });
-  element.style.background = 'var(--primary)';
+  element.classList.add('active');
   
   // Format embed url if needed
   let embedUrl = url;
@@ -463,6 +605,9 @@ function selectVideo(url, element){
 function closeLearningRoom(){
   document.getElementById('videoIframe').src = '';
   document.getElementById('learningRoomModal').style.display = 'none';
+  
+  const mascot = document.getElementById('buddyMascot');
+  if(mascot) mascot.style.display = 'block';
 }
 
 // Certificate logic

@@ -34,10 +34,94 @@
   <!-- OVERVIEW -->
   <div id="upane-overview" role="tabpanel">
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-card-icon">📋</div><div class="stat-card-value">{{ $projects->count() }}</div><div class="stat-card-label">Total Project</div></div>
-      <div class="stat-card"><div class="stat-card-icon">⏳</div><div class="stat-card-value">{{ $projects->where('status','in_progress')->count() }}</div><div class="stat-card-label">Sedang Berjalan</div></div>
-      <div class="stat-card"><div class="stat-card-icon">✅</div><div class="stat-card-value">{{ $projects->where('status','completed')->count() }}</div><div class="stat-card-label">Selesai</div></div>
-      <div class="stat-card"><div class="stat-card-icon">⏰</div><div class="stat-card-value">{{ $projects->where('status','open')->count() }}</div><div class="stat-card-label">Menunggu</div></div>
+      <div class="stat-card glass-card">
+        <div class="stat-card-icon" style="background:rgba(79,70,229,0.1)">
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 44px; height: 44px; filter: drop-shadow(0 4px 8px rgba(79, 70, 229, 0.4));">
+            <defs>
+              <linearGradient id="board-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#818CF8" />
+                <stop offset="100%" stop-color="#4F46E5" />
+              </linearGradient>
+            </defs>
+            <rect x="14" y="10" width="36" height="46" rx="4" fill="url(#board-grad)" />
+            <rect x="18" y="16" width="28" height="36" fill="#FFF" rx="2" />
+            <rect x="26" y="6" width="12" height="6" fill="#4B5563" rx="1.5" />
+            <line x1="22" y1="22" x2="34" y2="22" stroke="#4F46E5" stroke-width="2.5" stroke-linecap="round" />
+            <line x1="22" y1="28" x2="42" y2="28" stroke="#E2E8F0" stroke-width="2.5" stroke-linecap="round" />
+            <line x1="22" y1="34" x2="38" y2="34" stroke="#E2E8F0" stroke-width="2.5" stroke-linecap="round" />
+          </svg>
+        </div>
+        <div class="stat-card-value">{{ $projects->count() }}</div>
+        <div class="stat-card-label">Total Project</div>
+      </div>
+      <div class="stat-card glass-card">
+        <div class="stat-card-icon" style="background:rgba(59,130,246,0.1)">
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 44px; height: 44px; filter: drop-shadow(0 4px 8px rgba(59, 130, 246, 0.4));">
+            <defs>
+              <linearGradient id="glass-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#93C5FD" />
+                <stop offset="50%" stop-color="#3B82F6" />
+                <stop offset="100%" stop-color="#1D4ED8" />
+              </linearGradient>
+              <linearGradient id="sand-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FCD34D" />
+                <stop offset="100%" stop-color="#F59E0B" />
+              </linearGradient>
+            </defs>
+            <rect x="10" y="8" width="44" height="6" rx="3" fill="#1D4ED8" />
+            <rect x="10" y="50" width="44" height="6" rx="3" fill="#1D4ED8" />
+            <path d="M 16 14 C 16 28 28 30 28 32 C 28 34 16 36 16 50 Z" fill="none" stroke="url(#glass-grad)" stroke-width="3" stroke-linecap="round" />
+            <path d="M 48 14 C 48 28 36 30 36 32 C 36 34 48 36 48 50 Z" fill="none" stroke="url(#glass-grad)" stroke-width="3" stroke-linecap="round" />
+            <path d="M 18 16 Q 32 28 32 30" stroke="#FFF" stroke-width="1.5" stroke-linecap="round" opacity="0.6" />
+            <path d="M 20 18 C 20 26 28 28 30 30 L 34 30 C 36 28 44 26 44 18 Z" fill="url(#sand-grad)" />
+            <rect x="31" y="30" width="2" height="10" fill="#F59E0B" opacity="0.8" />
+            <path d="M 22 48 C 22 42 26 40 32 40 C 38 40 42 42 42 48 Z" fill="url(#sand-grad)" />
+          </svg>
+        </div>
+        <div class="stat-card-value">{{ $projects->where('status','in_progress')->count() }}</div>
+        <div class="stat-card-label">Sedang Berjalan</div>
+      </div>
+      <div class="stat-card glass-card">
+        <div class="stat-card-icon" style="background:rgba(16,185,129,0.1)">
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 44px; height: 44px; filter: drop-shadow(0 4px 8px rgba(16, 185, 129, 0.4));">
+            <defs>
+              <linearGradient id="shield-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#34D399" />
+                <stop offset="50%" stop-color="#10B981" />
+                <stop offset="100%" stop-color="#047857" />
+              </linearGradient>
+              <linearGradient id="check-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FFF" />
+                <stop offset="100%" stop-color="#ECFDF5" />
+              </linearGradient>
+            </defs>
+            <path d="M 32 6 C 44 6 52 10 52 18 C 52 38 32 56 32 58 C 32 56 12 38 12 18 C 12 10 20 6 32 6 Z" fill="url(#shield-grad)" />
+            <path d="M 32 9 C 41 9 48 12 48 18 C 48 34 32 49 32 52" stroke="#6EE7B7" stroke-width="2" stroke-linecap="round" opacity="0.5" />
+            <path d="M 22 30 L 29 37 L 44 22" stroke="url(#check-grad)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </div>
+        <div class="stat-card-value">{{ $projects->where('status','completed')->count() }}</div>
+        <div class="stat-card-label">Selesai</div>
+      </div>
+      <div class="stat-card glass-card">
+        <div class="stat-card-icon" style="background:rgba(239,68,68,0.1)">
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 44px; height: 44px; filter: drop-shadow(0 4px 8px rgba(239, 68, 68, 0.4));">
+            <defs>
+              <linearGradient id="clock-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#F87171" />
+                <stop offset="100%" stop-color="#EF4444" />
+              </linearGradient>
+            </defs>
+            <circle cx="32" cy="34" r="20" fill="url(#clock-grad)" />
+            <circle cx="32" cy="34" r="16" fill="#FFF" />
+            <path d="M 32 22 V 34 L 40 38" stroke="#EF4444" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+            <rect x="29" y="8" width="6" height="4" fill="#EF4444" rx="1" />
+            <path d="M 12 18 L 18 12 M 52 18 L 46 12" stroke="#EF4444" stroke-width="4.5" stroke-linecap="round" />
+          </svg>
+        </div>
+        <div class="stat-card-value">{{ $projects->where('status','open')->count() }}</div>
+        <div class="stat-card-label">Menunggu</div>
+      </div>
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem">

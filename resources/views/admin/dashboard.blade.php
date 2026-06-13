@@ -21,24 +21,97 @@
 
 <div class="dash-layout">
   <!-- STATS -->
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem">
-    @foreach([
-      ['👥', $stats['total_users'], 'Total Users', null],
-      ['📋', $stats['total_projects'], 'Total Project', null],
-      ['📚', $stats['total_courses'], 'Total Course', null],
-      ['💰', 'Rp '.number_format($stats['total_revenue']/1000000,1).'M', 'Revenue Platform', null],
-    ] as [$icon, $val, $label, $_])
-    <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:var(--radius-lg);padding:1.25rem;background:var(--bg);border-color:var(--border)">
-      <div style="font-size:1.25rem;margin-bottom:.5rem">{{ $icon }}</div>
-      <div style="font-size:1.6rem;font-weight:800">{{ $val }}</div>
-      <div style="font-size:.8rem;color:var(--text3)">{{ $label }}</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:1rem;margin-bottom:1.5rem">
+    <div class="stat-card glass-card" style="padding: 1.25rem;">
+      <div style="margin-bottom:.5rem; background:rgba(79,70,229,0.1); width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center;">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 34px; height: 34px; filter: drop-shadow(0 4px 6px rgba(79, 70, 229, 0.35));">
+          <defs>
+            <linearGradient id="user-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#818CF8" />
+              <stop offset="100%" stop-color="#4F46E5" />
+            </linearGradient>
+          </defs>
+          <circle cx="32" cy="22" r="10" fill="url(#user-grad)" />
+          <path d="M 12 50 C 12 40 20 38 32 38 C 44 38 52 40 52 50 Z" fill="url(#user-grad)" />
+        </svg>
+      </div>
+      <div style="font-size:1.6rem;font-weight:800">{{ $stats['total_users'] }}</div>
+      <div style="font-size:.8rem;color:var(--text3)">Total Users</div>
     </div>
-    @endforeach
+
+    <div class="stat-card glass-card" style="padding: 1.25rem;">
+      <div style="margin-bottom:.5rem; background:rgba(79,70,229,0.1); width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center;">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 34px; height: 34px; filter: drop-shadow(0 4px 6px rgba(79, 70, 229, 0.35));">
+          <defs>
+            <linearGradient id="board-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#818CF8" />
+              <stop offset="100%" stop-color="#4F46E5" />
+            </linearGradient>
+          </defs>
+          <rect x="14" y="10" width="36" height="46" rx="4" fill="url(#board-grad)" />
+          <rect x="18" y="16" width="28" height="36" fill="#FFF" rx="2" />
+          <rect x="26" y="6" width="12" height="6" fill="#4B5563" rx="1.5" />
+          <line x1="22" y1="22" x2="34" y2="22" stroke="#4F46E5" stroke-width="2.5" stroke-linecap="round" />
+          <line x1="22" y1="28" x2="42" y2="28" stroke="#E2E8F0" stroke-width="2.5" stroke-linecap="round" />
+          <line x1="22" y1="34" x2="38" y2="34" stroke="#E2E8F0" stroke-width="2.5" stroke-linecap="round" />
+        </svg>
+      </div>
+      <div style="font-size:1.6rem;font-weight:800">{{ $stats['total_projects'] }}</div>
+      <div style="font-size:.8rem;color:var(--text3)">Total Project</div>
+    </div>
+
+    <div class="stat-card glass-card" style="padding: 1.25rem;">
+      <div style="margin-bottom:.5rem; background:rgba(79,70,229,0.1); width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center;">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 34px; height: 34px; filter: drop-shadow(0 4px 6px rgba(99, 102, 241, 0.35));">
+          <defs>
+            <linearGradient id="book1-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#818CF8" />
+              <stop offset="100%" stop-color="#4F46E5" />
+            </linearGradient>
+            <linearGradient id="book2-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#F472B6" />
+              <stop offset="100%" stop-color="#DB2777" />
+            </linearGradient>
+          </defs>
+          <path d="M 12 36 L 46 36 L 52 42 L 18 42 Z" fill="#E2E8F0" />
+          <path d="M 10 32 C 10 30 12 30 18 30 L 48 30 L 48 38 L 18 38 C 12 38 10 36 10 32 Z" fill="url(#book2-grad)" />
+          <rect x="44" y="32" width="4" height="6" fill="#FCE7F3" />
+          <path d="M 18 20 L 52 20 L 58 26 L 24 26 Z" fill="#FFF" />
+          <path d="M 16 16 C 16 14 18 14 24 14 L 54 14 L 54 22 L 24 22 C 18 22 16 20 16 16 Z" fill="url(#book1-grad)" />
+          <rect x="50" y="16" width="4" height="6" fill="#EEF2FF" />
+        </svg>
+      </div>
+      <div style="font-size:1.6rem;font-weight:800">{{ $stats['total_courses'] }}</div>
+      <div style="font-size:.8rem;color:var(--text3)">Total Course</div>
+    </div>
+
+    <div class="stat-card glass-card" style="padding: 1.25rem;">
+      <div style="margin-bottom:.5rem; background:rgba(245,158,11,0.1); width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center;">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 34px; height: 34px; filter: drop-shadow(0 4px 6px rgba(245, 158, 11, 0.35));">
+          <defs>
+            <linearGradient id="coin-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FCD34D" />
+              <stop offset="100%" stop-color="#D97706" />
+            </linearGradient>
+            <linearGradient id="coin-edge" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FBBF24" />
+              <stop offset="100%" stop-color="#B45309" />
+            </linearGradient>
+          </defs>
+          <ellipse cx="32" cy="36" rx="20" ry="12" fill="url(#coin-edge)" />
+          <ellipse cx="32" cy="32" rx="20" ry="12" fill="url(#coin-grad)" />
+          <ellipse cx="32" cy="32" rx="14" ry="8" fill="none" stroke="#FFF" stroke-width="1.5" opacity="0.5" />
+          <path d="M 28 32 C 28 30 30 29 32 29 C 34 29 36 30 36 32 C 36 34 34 35 32 35 C 30 35 28 34 28 32 Z M 32 27 V 37" stroke="#FFF" stroke-width="2.5" stroke-linecap="round" />
+        </svg>
+      </div>
+      <div style="font-size:1.6rem;font-weight:800">Rp {{ number_format($stats['total_revenue']/1000000,1) }}M</div>
+      <div style="font-size:.8rem;color:var(--text3)">Revenue Platform</div>
+    </div>
   </div>
 
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:1rem;margin-bottom:1.5rem">
     @foreach([['🧑‍💻', $stats['programmers'], 'Programmer', 'var(--primary)'],['🏢', $stats['umkms'], 'UMKM', 'var(--accent)'],['⏰', $stats['open_projects'], 'Project Open', 'var(--orange)'],['✅', $stats['completed_projects'], 'Project Selesai', 'var(--green)']] as [$ic,$v,$l,$c])
-    <div class="card" style="border-left:4px solid {{ $c }}">
+    <div class="card glass-card" style="border-left:4px solid {{ $c }}">
       <div style="font-size:1.5rem;font-weight:800;color:{{ $c }}">{{ $v }}</div>
       <div style="font-size:.82rem;color:var(--text3)">{{ $ic }} {{ $l }}</div>
     </div>
