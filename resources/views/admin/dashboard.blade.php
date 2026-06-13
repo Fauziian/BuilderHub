@@ -12,9 +12,9 @@
       <p style="font-size:.82rem;color:rgba(255,255,255,.6)">Panel Administrasi Platform</p>
     </div>
     <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
-      <a href="{{ route('admin.dashboard') }}" class="btn" style="background:{{ request()->routeIs('admin.dashboard') ? 'var(--primary)' : 'rgba(255,255,255,.1)' }};color:#fff;border-color:{{ request()->routeIs('admin.dashboard') ? 'var(--primary)' : 'rgba(255,255,255,.2)' }};font-size:.82rem">📊 Dashboard</a>
-      <a href="{{ route('admin.users') }}" class="btn" style="background:{{ request()->routeIs('admin.users') ? 'rgba(255,255,255,.1)' : 'rgba(255,255,255,.1)' }};color:#fff;border-color:rgba(255,255,255,.2);font-size:.82rem">👥 Users</a>
-      <a href="{{ route('admin.projects') }}" class="btn" style="background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2);font-size:.82rem;display:inline-flex;align-items:center;gap:6px">
+      <a href="{{ route('admin.dashboard') }}" id="admin-nav-dashboard" class="btn" style="background:{{ request()->routeIs('admin.dashboard') ? 'var(--primary)' : 'rgba(255,255,255,.1)' }};color:#fff;border-color:{{ request()->routeIs('admin.dashboard') ? 'var(--primary)' : 'rgba(255,255,255,.2)' }};font-size:.82rem">📊 Dashboard</a>
+      <a href="{{ route('admin.users') }}" id="admin-nav-users" class="btn" style="background:{{ request()->routeIs('admin.users') ? 'rgba(255,255,255,.1)' : 'rgba(255,255,255,.1)' }};color:#fff;border-color:rgba(255,255,255,.2);font-size:.82rem">👥 Users</a>
+      <a href="{{ route('admin.projects') }}" id="admin-nav-projects" class="btn" style="background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2);font-size:.82rem;display:inline-flex;align-items:center;gap:6px">
         📋 Projects
         @if($pendingProjectsCount > 0)
           <span style="background:#EF4444;color:#fff;font-size:0.72rem;font-weight:800;padding:2px 7px;border-radius:10px;line-height:1;box-shadow:0 2px 5px rgba(239,68,68,0.4)">
@@ -22,7 +22,7 @@
           </span>
         @endif
       </a>
-      <a href="{{ route('admin.courses') }}" class="btn" style="background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2);font-size:.82rem;display:inline-flex;align-items:center;gap:6px">
+      <a href="{{ route('admin.courses') }}" id="admin-nav-courses" class="btn" style="background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2);font-size:.82rem;display:inline-flex;align-items:center;gap:6px">
         📚 Courses
         @if($pendingCoursesCount > 0)
           <span style="background:#EF4444;color:#fff;font-size:0.72rem;font-weight:800;padding:2px 7px;border-radius:10px;line-height:1;box-shadow:0 2px 5px rgba(239,68,68,0.4)">
@@ -254,7 +254,7 @@
   </div>
 
   <!-- Pending Portfolios & Certificates Verifications -->
-  <div class="card" style="margin-bottom:1.25rem">
+  <div id="adminDocVerificationsCard" class="card" style="margin-bottom:1.25rem">
     <div class="card-header" style="border-bottom:1px solid var(--border);padding-bottom:.75rem;margin-bottom:.75rem">
       <span class="card-title" style="color:var(--primary)">🗂 Verifikasi Portofolio & Sertifikat Pending</span>
     </div>

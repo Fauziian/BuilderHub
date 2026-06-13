@@ -595,12 +595,22 @@ function initBuddyTour() {
         face: "🎯"
       },
       {
+        text: "Gunakan **Pencarian & Filter** untuk mencari course tertentu berdasarkan judul, nama pengajar, atau memfilternya berdasarkan tingkat kesulitan! 🔍",
+        target: "#myCoursesSearch",
+        face: "🔎"
+      },
+      {
         text: "Di tab **Jelajah Course**, Anda dapat menemukan kelas gratis atau premium, lalu klik tombol ikuti untuk membuka simulasi pembayaran interaktif! 💳",
         target: "#tab-explore",
         face: "💡"
       },
       {
-        text: "Setelah Anda menyelesaikan semua video di **Ruang Belajar**, Anda bisa langsung mengklaim sertifikat kelulusan resmi! 📜",
+        text: "Klik **Mulai Belajar** pada course Anda untuk masuk ke **Ruang Kelas Virtual**. Anda bisa memutar video materi dan mengikuti materi yang diunggah. 📹",
+        target: "[onclick*='openLearningRoom']",
+        face: "👨‍🏫"
+      },
+      {
+        text: "Setelah Anda menyelesaikan semua video di Ruang Belajar, Anda bisa langsung mengklaim **Sertifikat Kelulusan Resmi** dan memberikan rating bintang! 📜",
         target: "#tab-certificates",
         face: "🏆"
       }
@@ -631,6 +641,21 @@ function initBuddyTour() {
         text: "Setelah akun Anda diverifikasi oleh Admin, Anda bisa mengajukan penawaran (*bid*) harga dan durasi pengerjaan pada halaman **Cari Project**! 🤝",
         target: "#tab-projects",
         face: "💡"
+      },
+      {
+        text: "Unggah karya terbaik Anda di tab **Verifikasi** dengan melampirkan berkas Portofolio dan Sertifikat pendukung agar dilirik oleh UMKM. 🗂️",
+        target: "#tab-verification",
+        face: "🛡️"
+      },
+      {
+        text: "Jika verifikasi profil Anda sudah disetujui Admin, Anda dapat memposting video materi dan membuat kelas baru di tab **Course Saya**! 📚",
+        target: "#tab-courses",
+        face: "✨"
+      },
+      {
+        text: "Gunakan tombol **Diskusi / Chat** untuk bernegosiasi mengenai spesifikasi dan biaya project dengan UMKM secara real-time. 💬",
+        target: "[onclick*='openChat']",
+        face: "💬"
       }
     ];
   } else if (role === 'umkm') {
@@ -646,7 +671,7 @@ function initBuddyTour() {
         face: "📈"
       },
       {
-        text: "Klik **Posting Project Baru** untuk membuat tawaran pekerjaan. Deskripsikan kebutuhan sistem Anda dengan jelas agar programmer tertarik mengajukan tawaran. 📝",
+        text: "Klik **Posting Project Baru** untuk membuat tawaran pekerjaan. Deskripsikan kebutuhan sistem Anda dengan jelas (min. 50 karakter) agar programmer tertarik. 📝",
         target: "#utab-posting",
         face: "💡"
       },
@@ -654,6 +679,21 @@ function initBuddyTour() {
         text: "Di tab **Project Saya**, Anda dapat melihat penawaran masuk dari programmer, berdiskusi via Chat negosiasi, dan menyetujui penawaran terpilih! 💬",
         target: "#utab-projects",
         face: "🤝"
+      },
+      {
+        text: "Ingin mencari bakat secara langsung? Jelajahi daftar **Programmer Terverifikasi** untuk melihat profil, keahlian, dan portofolio mereka! 🔍",
+        target: "#utab-programmers",
+        face: "🔎"
+      },
+      {
+        text: "Gunakan fitur **Chat Diskusi** di samping detail project Anda untuk melakukan tawar-menawar secara langsung dengan programmer pelamar. 💬",
+        target: "[onclick*='openChat']",
+        face: "💬"
+      },
+      {
+        text: "Jika penawaran programmer cocok, klik **Terima Penawaran** untuk memulai kolaborasi. Jangan lupa beri rating review setelah project rampung! ⭐",
+        target: "[onclick*='terima']",
+        face: "🏆"
       }
     ];
   } else if (role === 'admin') {
@@ -664,6 +704,11 @@ function initBuddyTour() {
         face: "⚡"
       },
       {
+        text: "Gunakan **Statistik Utama** di atas untuk memantau performa platform: total user, project aktif, course terdaftar, dan revenue bagi hasil platform. 📊",
+        target: ".stats-grid",
+        face: "📈"
+      },
+      {
         text: "Periksa daftar **Persetujuan Project UMKM Baru**. Klik *ACC & Publikasikan* untuk meloloskan project agar dapat dilamar oleh Programmer! 📋",
         target: "#adminPendingProjectsCard",
         face: "🔍"
@@ -672,6 +717,21 @@ function initBuddyTour() {
         text: "Periksa juga **Verifikasi Programmer & UMKM** yang tertunda. Verifikasi mereka jika dokumen yang dilampirkan sudah valid dan lengkap. ✅",
         target: "#adminPendingVerificationsGrid",
         face: "🛡️"
+      },
+      {
+        text: "Tinjau berkas **Portofolio & Sertifikat** programmer yang menunggu validasi di sini untuk menaikkan persentase progres profil mereka. 🗂️",
+        target: "#adminDocVerificationsCard",
+        face: "📂"
+      },
+      {
+        text: "Gunakan tombol navigasi **Users** di bar atas untuk memantau, mengaktifkan, atau mengelola seluruh akun yang terdaftar di sistem. 👥",
+        target: "#admin-nav-users",
+        face: "👥"
+      },
+      {
+        text: "Kelola daftar **Courses** di bar atas untuk melihat, memvalidasi, atau meninjau modul pembelajaran yang dibuat oleh pengajar programmer. 📚",
+        target: "#admin-nav-courses",
+        face: "🎓"
       }
     ];
   } else {
