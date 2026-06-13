@@ -57,6 +57,7 @@
   </div>
 </div>
 
+@auth
 <div style="max-width:1200px;margin:0 auto;padding:2rem;display:grid;grid-template-columns:2fr 1fr;gap:2rem">
   <!-- VIDEO MODULES -->
   <div id="modul">
@@ -115,6 +116,27 @@
     @endforelse
   </div>
 </div>
+@else
+{{-- Guest: tampilkan hanya prompt login, tanpa modul/instruktur/course terkait --}}
+<div style="max-width:700px;margin:3rem auto;padding:0 2rem;text-align:center">
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-xl);padding:3rem 2rem">
+    <div style="font-size:3rem;margin-bottom:1rem">🔒</div>
+    <h2 style="font-size:1.4rem;font-weight:800;margin-bottom:.75rem">Konten Terbatas</h2>
+    <p style="color:var(--text2);font-size:.95rem;margin-bottom:2rem;line-height:1.7">
+      Modul pembelajaran, profil instruktur, dan course terkait hanya tersedia untuk pengguna yang sudah login.<br>
+      Silakan masuk atau daftar akun terlebih dahulu untuk melihat konten lengkap.
+    </p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+      <a href="{{ route('login') }}" class="btn btn-primary" style="padding:12px 32px;font-size:.95rem" aria-label="Masuk untuk melihat konten kursus">
+        🔑 Masuk Sekarang
+      </a>
+      <a href="{{ route('register') }}?role=umkm" class="btn btn-ghost" style="padding:12px 32px;font-size:.95rem" aria-label="Daftar akun baru">
+        📝 Daftar Akun
+      </a>
+    </div>
+  </div>
+</div>
+@endauth
 
 @push('scripts')
 <script>
