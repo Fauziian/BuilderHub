@@ -46,7 +46,10 @@
       </div>
       <div class="form-group">
         <label class="form-label">Deskripsi <span class="required">*</span></label>
-        <textarea name="description" class="form-textarea" placeholder="Deskripsi kursus yang detail..." required>{{ old('description') }}</textarea>
+        <textarea id="course-manager-desc" name="description" class="form-textarea" placeholder="Deskripsi kursus yang detail..." required>{{ old('description') }}</textarea>
+        <div id="course-manager-desc-counter" style="font-size:0.78rem;margin-top:4px;font-weight:600;color:var(--text3)">
+          Minimal 50 karakter (0/50)
+        </div>
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -148,6 +151,26 @@ function openVideoModal(id, title){
 }
 function closeVideoModal(){ document.getElementById('videoModal').style.display = 'none'; }
 document.getElementById('videoModal')?.addEventListener('click', e=>{ if(e.target===e.currentTarget) closeVideoModal(); });
+
+// Description live counter
+document.addEventListener('DOMContentLoaded', function() {
+  const descTextarea = document.getElementById('course-manager-desc');
+  const descCounter = document.getElementById('course-manager-desc-counter');
+  if (descTextarea && descCounter) {
+    const updateCount = () => {
+      const len = descTextarea.value.length;
+      if (len < 50) {
+        descCounter.textContent = `Minimal 50 karakter (${len}/50)`;
+        descCounter.style.color = '#EF4444';
+      } else {
+        descCounter.textContent = `${len} karakter ✓`;
+        descCounter.style.color = '#10B981';
+      }
+    };
+    descTextarea.addEventListener('input', updateCount);
+    updateCount();
+  }
+});
 </script>
 @endpush
 @endsection

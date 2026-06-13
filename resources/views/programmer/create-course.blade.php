@@ -25,6 +25,9 @@
       <div class="form-group">
         <label for="description" class="form-label">Deskripsi <span class="required">*</span></label>
         <textarea id="description" name="description" class="form-textarea" style="min-height:120px" required placeholder="Jelaskan apa yang akan dipelajari siswa, siapa target peserta, dan apa yang membuat course Anda unik...">{{ old('description') }}</textarea>
+        <div id="desc-char-count" style="font-size:0.78rem;margin-top:4px;font-weight:600;color:var(--text3)">
+          Minimal 20 karakter (0/20)
+        </div>
       </div>
       <div class="form-group" style="margin-top:1.5rem">
         <label class="form-label" style="font-weight:700;font-size:1rem;margin-bottom:.5rem">🎬 Video Pembelajaran (YouTube) <span class="required">*</span></label>
@@ -183,6 +186,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Initial call to hide delete button if only 1 row
   reindexVideos();
+
+  // Description live counter
+  const descTextarea = document.getElementById('description');
+  const descCounter = document.getElementById('desc-char-count');
+  if (descTextarea && descCounter) {
+    const updateCount = () => {
+      const len = descTextarea.value.length;
+      if (len < 20) {
+        descCounter.textContent = `Minimal 20 karakter (${len}/20)`;
+        descCounter.style.color = '#EF4444';
+      } else {
+        descCounter.textContent = `${len} karakter ✓`;
+        descCounter.style.color = '#10B981';
+      }
+    };
+    descTextarea.addEventListener('input', updateCount);
+    updateCount();
+  }
 });
 </script>
 @endpush

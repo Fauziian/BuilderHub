@@ -603,10 +603,31 @@ function openEditProjectModal(id, title, description, deadline, category, appTyp
   document.getElementById('editProjCategory').value = category;
   document.getElementById('editProjAppType').value = appType;
   document.getElementById('editProjectModal').style.display = 'flex';
+  if (window.updateEditProjectCounter) window.updateEditProjectCounter();
 }
 function closeEditProjectModal() {
   document.getElementById('editProjectModal').style.display = 'none';
 }
+
+// Edit Project description counter
+document.addEventListener('DOMContentLoaded', function() {
+  const editProjDesc = document.getElementById('editProjDesc');
+  const editProjCounter = document.getElementById('editProjDescCount');
+  if (editProjDesc && editProjCounter) {
+    const updateEditCount = () => {
+      const len = editProjDesc.value.length;
+      if (len < 50) {
+        editProjCounter.textContent = `Minimal 50 karakter (${len}/50)`;
+        editProjCounter.style.color = 'var(--red)';
+      } else {
+        editProjCounter.textContent = `${len} karakter ✓`;
+        editProjCounter.style.color = 'var(--green)';
+      }
+    };
+    editProjDesc.addEventListener('input', updateEditCount);
+    window.updateEditProjectCounter = updateEditCount;
+  }
+});
 </script>
 @endpush
 
@@ -624,6 +645,9 @@ function closeEditProjectModal() {
       <div class="form-group">
         <label class="form-label" for="editProjDesc">Deskripsi Kebutuhan</label>
         <textarea id="editProjDesc" name="description" class="form-textarea" style="min-height:120px" required></textarea>
+        <div id="editProjDescCount" style="font-size:0.78rem;margin-top:4px;font-weight:600;color:var(--text3)">
+          Minimal 50 karakter (0/50)
+        </div>
       </div>
       <div class="form-group">
         <label class="form-label" for="editProjDeadline">Deadline</label>
