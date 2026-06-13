@@ -2,65 +2,106 @@
 @section('title', 'BuilderHub')
 @section('content')
 <!-- HERO -->
-<section class="hero" style="background:linear-gradient(135deg,#0F0F1A 0%,#1E1260 50%,#3D1FAF 100%);min-height:calc(100vh - 64px);display:flex;align-items:center;padding:4rem 2rem;position:relative;overflow:hidden">
-  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 70% 50%,rgba(108,56,255,.3) 0%,transparent 60%)"></div>
+<section class="hero" style="background:linear-gradient(135deg, var(--dark) 0%, var(--dark2) 50%, var(--dark3) 100%);min-height:calc(100vh - 72px);display:flex;align-items:center;padding:6rem 2rem;position:relative;overflow:hidden">
+  <!-- Decorative Orbs -->
+  <div style="position:absolute;top:-20%;right:-10%;width:600px;height:600px;background:radial-gradient(circle, rgba(79, 70, 229, 0.4) 0%, transparent 70%);border-radius:50%;filter:blur(60px);z-index:0;animation:pulse 8s infinite alternate;"></div>
+  <div style="position:absolute;bottom:-20%;left:-10%;width:500px;height:500px;background:radial-gradient(circle, rgba(249, 115, 22, 0.3) 0%, transparent 70%);border-radius:50%;filter:blur(60px);z-index:0;animation:pulse 10s infinite alternate-reverse;"></div>
+
   <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;position:relative;z-index:1;width:100%">
     <div>
-      <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:99px;padding:6px 14px;font-size:.8rem;color:rgba(255,255,255,.9);margin-bottom:1.5rem">
-        ⚡ Platform #1 Jodoh UMKM & Programmer Indonesia
+      <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:99px;padding:8px 20px;font-size:0.85rem;font-weight:700;color:#fff;margin-bottom:2rem;box-shadow:var(--shadow-sm);text-transform:uppercase;letter-spacing:1px">
+        <span style="color:var(--accent)">🚀</span> Platform #1 UMKM & Programmer
       </div>
-      <h1 style="font-size:3.2rem;font-weight:800;color:#fff;line-height:1.15;margin-bottom:1.25rem">
-        Wujudkan <span style="color:#A78BFA">Bisnis Digital</span> Anda Bersama Kami
+      <h1 style="font-size:3.8rem;font-weight:800;color:#fff;line-height:1.15;margin-bottom:1.5rem;letter-spacing:-1px;">
+        Wujudkan <span style="background:linear-gradient(to right, #818CF8, #C084FC);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Bisnis Digital</span> Anda Bersama Kami
       </h1>
-      <p style="font-size:1.05rem;color:rgba(255,255,255,.7);margin-bottom:2rem;line-height:1.7">
-        BuilderHub menghubungkan UMKM yang ingin go digital dengan programmer profesional terverifikasi. Mulai dari toko online hingga aplikasi mobile.
+      <p style="font-size:1.15rem;color:rgba(255,255,255,0.7);margin-bottom:2.5rem;line-height:1.8;max-width:90%">
+        BuilderHub menghubungkan UMKM yang ingin go digital dengan programmer profesional terverifikasi. Mulai dari toko online hingga aplikasi mobile kelas enterprise.
       </p>
-      <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1.5rem">
-        <a href="{{ route('register') }}?role=umkm" class="btn btn-primary" style="font-size:.95rem;padding:12px 22px" aria-label="Daftarkan bisnis UMKM Anda">🏢 Daftarkan UMKM →</a>
-        <a href="{{ route('register') }}?role=programmer" class="btn" style="background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.25);font-size:.95rem;padding:12px 22px">&lt;/&gt; Jadi Programmer</a>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:2rem">
+        <a href="{{ route('register') }}?role=umkm" class="btn btn-primary" style="padding:16px 32px;font-size:1rem;box-shadow:0 10px 25px rgba(79,70,229,0.4)">🏢 Daftarkan UMKM</a>
+        <a href="{{ route('register') }}?role=programmer" class="btn" style="background:rgba(255,255,255,0.05);color:#fff;border:1px solid rgba(255,255,255,0.2);padding:16px 32px;font-size:1rem;backdrop-filter:blur(10px)">&lt;/&gt; Jadi Programmer</a>
       </div>
-      <a href="{{ route('courses.index') }}" style="color:rgba(255,255,255,.7);font-size:.85rem;display:inline-flex;align-items:center;gap:6px">▶ Lihat Course Gratis</a>
-      <div style="display:flex;align-items:center;gap:12px;margin-top:1.5rem">
+      <a href="{{ route('courses.index') }}" style="color:rgba(255,255,255,0.6);font-size:0.9rem;display:inline-flex;align-items:center;gap:6px;font-weight:600;transition:0.3s">
+        <span style="display:flex;align-items:center;justify-content:center;width:24px;height:24px;background:rgba(255,255,255,0.1);border-radius:50%;color:#fff;font-size:0.7rem">▶</span> Lihat Course Gratis
+      </a>
+      
+      <div style="display:flex;align-items:center;gap:16px;margin-top:3rem;padding-top:2rem;border-top:1px solid rgba(255,255,255,0.1)">
         <div style="display:flex">
           @foreach(['R','D','B','S','A'] as $i => $l)
-          <div style="width:32px;height:32px;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:{{ ['#6C38FF','#10B981','#F59E0B','#EF4444','#8B5CF6'][$i] }};display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#fff;margin-left:{{ $i === 0 ? '0' : '-8px' }}">{{ $l }}</div>
+          <div style="width:40px;height:40px;border-radius:50%;border:2px solid var(--dark);background:{{ ['#4F46E5','#10B981','#F59E0B','#EF4444','#8B5CF6'][$i] }};display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:800;color:#fff;margin-left:{{ $i === 0 ? '0' : '-12px' }};box-shadow:var(--shadow-sm)">{{ $l }}</div>
           @endforeach
         </div>
-        <div style="font-size:.85rem;color:rgba(255,255,255,.6)">Dipercaya <strong style="color:#fff">{{ number_format($stats['programmers']) }}+</strong> programmer & UMKM ⭐⭐⭐⭐⭐</div>
+        <div style="font-size:0.95rem;color:rgba(255,255,255,0.6);line-height:1.4">
+          Dipercaya <strong style="color:#fff">{{ number_format($stats['programmers']) }}+</strong> pengguna <br>
+          <span style="color:var(--orange)">★★★★★</span> Rating
+        </div>
       </div>
     </div>
-    <div style="position:relative">
-      <div style="background:rgba(255,255,255,.08);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.15);border-radius:24px;padding:1.5rem;color:#fff">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+    
+    <div style="position:relative;perspective:1000px">
+      <div style="background:rgba(255,255,255,0.03);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius-xl);padding:2.5rem;color:#fff;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);transform:rotateY(-5deg) rotateX(5deg);transition:all 0.5s ease" onmouseover="this.style.transform='rotateY(0deg) rotateX(0deg)'" onmouseout="this.style.transform='rotateY(-5deg) rotateX(5deg)'">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem">
           <div>
-            <div style="font-size:.85rem;color:rgba(255,255,255,.6)">Total Pendapatan Programmer</div>
-            <div style="font-size:1.8rem;font-weight:800">Rp 1.200.000</div>
+            <div style="font-size:0.9rem;color:rgba(255,255,255,0.6);font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem">Pendapatan Programmer</div>
+            <div style="font-size:2.5rem;font-weight:800;letter-spacing:-1px">Rp 1.200.000</div>
           </div>
-          <div style="background:rgba(52,211,153,.15);border-radius:var(--radius-sm);padding:.4rem .6rem;color:#34D399;font-size:.8rem;font-weight:600">📈 +24%</div>
+          <div style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);border-radius:99px;padding:6px 14px;color:#34D399;font-size:0.85rem;font-weight:700">📈 +24%</div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.25rem">
-          <div style="background:rgba(255,255,255,.06);border-radius:var(--radius-sm);padding:.75rem"><label style="font-size:.7rem;color:rgba(255,255,255,.5);display:block;margin-bottom:4px">Komisi Platform (80%)</label><strong>Rp 4.800.000</strong></div>
-          <div style="background:rgba(255,255,255,.06);border-radius:var(--radius-sm);padding:.75rem"><label style="font-size:.7rem;color:rgba(255,255,255,.5);display:block;margin-bottom:4px">Untuk Programmer (20%)</label><strong style="color:#34D399">Rp 1.200.000</strong></div>
+        
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2rem">
+          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.05);border-radius:var(--radius-sm);padding:1.25rem">
+            <label style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:8px;font-weight:600">Nilai Project (100%)</label>
+            <strong style="font-size:1.1rem">Rp 6.000.000</strong>
+          </div>
+          <div style="background:linear-gradient(135deg, rgba(79,70,229,0.1), rgba(79,70,229,0.2));border:1px solid rgba(79,70,229,0.3);border-radius:var(--radius-sm);padding:1.25rem">
+            <label style="font-size:0.75rem;color:rgba(255,255,255,0.7);display:block;margin-bottom:8px;font-weight:600">Untuk Programmer (20%)</label>
+            <strong style="color:#A78BFA;font-size:1.1rem">Rp 1.200.000</strong>
+          </div>
         </div>
+        
+        <h4 style="font-size:0.9rem;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;margin-bottom:1rem;font-weight:700">Project Terkini</h4>
         @foreach($projects->take(3) as $p)
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:.5rem 0;border-bottom:1px solid rgba(255,255,255,.08)">
-          <span style="font-size:.82rem;color:rgba(255,255,255,.8)">{{ Str::limit($p->title, 28) }}</span>
-          <span style="font-size:.7rem;font-weight:600;padding:3px 8px;border-radius:99px;background:rgba(52,211,153,.2);color:#34D399">{{ $p->status_label }}</span>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:1rem 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;background:rgba(255,255,255,0.05);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--primary-light);font-size:1rem">&lt;/&gt;</div>
+            <span style="font-size:0.95rem;color:rgba(255,255,255,0.9);font-weight:500">{{ Str::limit($p->title, 25) }}</span>
+          </div>
+          <span style="font-size:0.75rem;font-weight:700;padding:4px 10px;border-radius:99px;background:rgba(52,211,153,0.15);color:#34D399;border:1px solid rgba(52,211,153,0.2)">{{ $p->status_label }}</span>
         </div>
         @endforeach
       </div>
-      <div style="position:absolute;bottom:-10px;right:-10px;background:var(--green);color:#fff;border-radius:var(--radius);padding:.5rem 1rem;font-size:.8rem;font-weight:600">✅ Earn 20% dari setiap project</div>
+      <div style="position:absolute;bottom:-20px;right:-20px;background:linear-gradient(135deg, var(--green), #059669);color:#fff;border-radius:var(--radius);padding:1rem 1.5rem;font-size:0.9rem;font-weight:700;box-shadow:0 10px 25px rgba(16,185,129,0.4);border:1px solid rgba(255,255,255,0.2);display:flex;align-items:center;gap:8px">
+        <span style="background:#fff;color:var(--green);width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem">✓</span> 
+        Skema Transparan 20%
+      </div>
     </div>
   </div>
+  <style>@keyframes pulse { 0% { opacity: 0.5; transform: scale(0.9); } 100% { opacity: 0.8; transform: scale(1.1); } }</style>
 </section>
 
 <!-- STATS BAR -->
-<div style="background:var(--bg2);border-bottom:1px solid var(--border);padding:2rem">
-  <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;text-align:center">
-    <div><strong style="font-size:2rem;font-weight:800;display:block">{{ number_format($stats['programmers']) }}+</strong><span style="font-size:.85rem;color:var(--text3)">Programmer Aktif</span></div>
-    <div><strong style="font-size:2rem;font-weight:800;display:block">{{ number_format($stats['projects_done']) }}+</strong><span style="font-size:.85rem;color:var(--text3)">Project Selesai</span></div>
-    <div><strong style="font-size:2rem;font-weight:800;display:block">{{ $stats['satisfaction'] }}%</strong><span style="font-size:.85rem;color:var(--text3)">Kepuasan UMKM</span></div>
-    <div><strong style="font-size:2rem;font-weight:800;display:block">Rp {{ number_format(($stats['avg_earning'] ?? 4200000)/1000000, 1) }}M</strong><span style="font-size:.85rem;color:var(--text3)">Rata-rata Earning</span></div>
+<div style="background:var(--bg2);border-bottom:1px solid var(--border);padding:3rem 2rem;position:relative;z-index:10;margin-top:-2rem;box-shadow:0 -10px 30px rgba(0,0,0,0.05)">
+  <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:2rem;text-align:center">
+    <div>
+      <strong style="font-size:2.5rem;font-weight:800;display:block;color:var(--primary);letter-spacing:-1px">{{ number_format($stats['programmers']) }}+</strong>
+      <span style="font-size:0.95rem;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:0.5px">Programmer Aktif</span>
+    </div>
+    <div style="position:relative">
+      <div style="position:absolute;left:-1rem;top:20%;bottom:20%;width:1px;background:var(--border)"></div>
+      <strong style="font-size:2.5rem;font-weight:800;display:block;color:var(--text);letter-spacing:-1px">{{ number_format($stats['projects_done']) }}+</strong>
+      <span style="font-size:0.95rem;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:0.5px">Project Selesai</span>
+    </div>
+    <div style="position:relative">
+      <div style="position:absolute;left:-1rem;top:20%;bottom:20%;width:1px;background:var(--border)"></div>
+      <strong style="font-size:2.5rem;font-weight:800;display:block;color:var(--green);letter-spacing:-1px">{{ $stats['satisfaction'] }}%</strong>
+      <span style="font-size:0.95rem;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:0.5px">Kepuasan UMKM</span>
+    </div>
+    <div style="position:relative">
+      <div style="position:absolute;left:-1rem;top:20%;bottom:20%;width:1px;background:var(--border)"></div>
+      <strong style="font-size:2.5rem;font-weight:800;display:block;color:var(--orange);letter-spacing:-1px">Rp {{ number_format(($stats['avg_earning'] ?? 4200000)/1000000, 1) }}M</strong>
+      <span style="font-size:0.95rem;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:0.5px">Rata-rata Pendapatan</span>
+    </div>
   </div>
 </div>
 
