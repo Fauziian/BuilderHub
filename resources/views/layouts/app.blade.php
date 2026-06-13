@@ -37,7 +37,7 @@ input, select, textarea { cursor: text; }
 .navbar { position: sticky; top: 0; z-index: 100; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255,255,255,0.4); padding: 0 2rem; box-shadow: var(--shadow-sm); }
 .navbar-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; height: 72px; gap: 2rem; }
 .nav-logo { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.25rem; color: var(--text); letter-spacing: -0.5px; }
-.nav-logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary), #818CF8); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1rem; font-weight: 800; box-shadow: var(--shadow-glow); }
+.nav-logo-icon { width: 44px; height: 35px; flex-shrink: 0; filter: drop-shadow(0 4px 6px rgba(79, 70, 229, 0.15)); }
 .nav-menu { display: flex; gap: 0.5rem; flex: 1; justify-content: center; }
 .nav-link { padding: 8px 16px; border-radius: 99px; font-size: 0.95rem; font-weight: 600; color: var(--text2); transition: all 0.3s ease; }
 .nav-link:hover, .nav-link.active { color: var(--primary); background: var(--primary-light); }
@@ -243,7 +243,30 @@ footer { background: var(--dark); color: rgba(255,255,255,0.7); padding: 5rem 2r
 <nav class="navbar" aria-label="Navigasi utama BuilderHub">
   <div class="navbar-inner">
     <a href="{{ route('home') }}" class="nav-logo" aria-label="BuilderHub Beranda">
-      <div class="nav-logo-icon" aria-hidden="true">&lt;/&gt;</div>BuilderHub
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 160" class="nav-logo-icon" aria-hidden="true" style="fill: none;">
+        <defs>
+          <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="var(--primary)" />
+            <stop offset="100%" stop-color="#8B5CF6" />
+          </linearGradient>
+        </defs>
+        <path d="M 93 12 A 10 10 0 0 1 107 12 L 182 72 A 10 10 0 0 1 185 80 L 185 140 A 10 10 0 0 1 175 150 L 25 150 A 10 10 0 0 1 15 140 L 15 80 A 10 10 0 0 1 18 72 Z" fill="url(#logo-grad)" />
+        <path d="M 85 45 L 75 51 L 85 57 M 115 45 L 125 51 L 115 57 M 105 40 L 95 62" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+        <path d="M 80 150 V 120 L 100 102 L 120 120 V 150 Z" fill="#ffffff" />
+        <rect x="93" y="122" width="5" height="5" fill="url(#logo-grad)" rx="1.5" />
+        <rect x="102" y="122" width="5" height="5" fill="url(#logo-grad)" rx="1.5" />
+        <rect x="93" y="131" width="5" height="5" fill="url(#logo-grad)" rx="1.5" />
+        <rect x="102" y="131" width="5" height="5" fill="url(#logo-grad)" rx="1.5" />
+        <circle cx="50" cy="98" r="9.5" fill="#ffffff" />
+        <path d="M 24 150 V 134 C 24 125 30 118 38 118 C 42 118 45 122 46 126 L 47 132 H 58 A 1 1 0 0 1 59 133 L 64 124 A 1 1 0 0 1 65.8 125 L 61 135 A 2 2 0 0 1 59 136.5 H 46.5 C 45 136.5 44 142 44 150 Z" fill="#ffffff" />
+        <circle cx="150" cy="98" r="9.5" fill="#ffffff" />
+        <path d="M 136 84 L 150 79 L 164 84 L 150 89 Z" fill="#ffffff" />
+        <path d="M 144 86.5 V 90 C 144 92 156 92 156 90 V 86.5" fill="#ffffff" />
+        <path d="M 158 84 L 162 90" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" fill="none" />
+        <path d="M 176 150 V 134 C 176 125 170 118 162 118 C 158 118 155 122 154 126 L 153 132 H 144 L 140 126 A 1 1 0 0 0 138.2 127 L 141 135 A 2 2 0 0 0 143 136.5 H 153.5 C 155 136.5 156 142 156 150 Z" fill="#ffffff" />
+        <path d="M 135 128 L 126 130 L 128 136 L 135 133 Z" fill="#ffffff" opacity="0.9" />
+        <path d="M 135 128 L 142 126 L 144 132 L 135 133 Z" fill="#ffffff" opacity="0.9" />
+      </svg>BuilderHub
     </a>
     <nav class="nav-menu" aria-label="Menu navigasi">
       <a href="{{ route('projects') }}" class="nav-link {{ request()->routeIs('projects') ? 'active' : '' }}">Project UMKM</a>
@@ -268,7 +291,30 @@ footer { background: var(--dark); color: rgba(255,255,255,0.7); padding: 5rem 2r
     <div class="footer-grid">
       <div class="footer-brand">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem">
-          <div class="nav-logo-icon">&lt;/&gt;</div><h3 style="margin:0">BuilderHub</h3>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 160" class="nav-logo-icon" aria-hidden="true" style="fill: none;">
+            <defs>
+              <linearGradient id="logo-grad-footer" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--primary)" />
+                <stop offset="100%" stop-color="#8B5CF6" />
+              </linearGradient>
+            </defs>
+            <path d="M 93 12 A 10 10 0 0 1 107 12 L 182 72 A 10 10 0 0 1 185 80 L 185 140 A 10 10 0 0 1 175 150 L 25 150 A 10 10 0 0 1 15 140 L 15 80 A 10 10 0 0 1 18 72 Z" fill="url(#logo-grad-footer)" />
+            <path d="M 85 45 L 75 51 L 85 57 M 115 45 L 125 51 L 115 57 M 105 40 L 95 62" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+            <path d="M 80 150 V 120 L 100 102 L 120 120 V 150 Z" fill="#ffffff" />
+            <rect x="93" y="122" width="5" height="5" fill="url(#logo-grad-footer)" rx="1.5" />
+            <rect x="102" y="122" width="5" height="5" fill="url(#logo-grad-footer)" rx="1.5" />
+            <rect x="93" y="131" width="5" height="5" fill="url(#logo-grad-footer)" rx="1.5" />
+            <rect x="102" y="131" width="5" height="5" fill="url(#logo-grad-footer)" rx="1.5" />
+            <circle cx="50" cy="98" r="9.5" fill="#ffffff" />
+            <path d="M 24 150 V 134 C 24 125 30 118 38 118 C 42 118 45 122 46 126 L 47 132 H 58 A 1 1 0 0 1 59 133 L 64 124 A 1 1 0 0 1 65.8 125 L 61 135 A 2 2 0 0 1 59 136.5 H 46.5 C 45 136.5 44 142 44 150 Z" fill="#ffffff" />
+            <circle cx="150" cy="98" r="9.5" fill="#ffffff" />
+            <path d="M 136 84 L 150 79 L 164 84 L 150 89 Z" fill="#ffffff" />
+            <path d="M 144 86.5 V 90 C 144 92 156 92 156 90 V 86.5" fill="#ffffff" />
+            <path d="M 158 84 L 162 90" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" fill="none" />
+            <path d="M 176 150 V 134 C 176 125 170 118 162 118 C 158 118 155 122 154 126 L 153 132 H 144 L 140 126 A 1 1 0 0 0 138.2 127 L 141 135 A 2 2 0 0 0 143 136.5 H 153.5 C 155 136.5 156 142 156 150 Z" fill="#ffffff" />
+            <path d="M 135 128 L 126 130 L 128 136 L 135 133 Z" fill="#ffffff" opacity="0.9" />
+            <path d="M 135 128 L 142 126 L 144 132 L 135 133 Z" fill="#ffffff" opacity="0.9" />
+          </svg><h3 style="margin:0">BuilderHub</h3>
         </div>
         <p>Platform penghubung UMKM dengan programmer profesional Indonesia. Wujudkan bisnis digital Anda bersama kami.</p>
         <div class="footer-social">
