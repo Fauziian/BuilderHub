@@ -69,9 +69,9 @@
         </div>
       </div>
       @empty
-      <div style="text-align:center;padding:3rem;color:var(--text3)">
-        <div style="font-size:2rem">📋</div>
-        <div style="font-size:1rem;font-weight:600;margin-top:.75rem">Tidak ada project ditemukan</div>
+      <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--text3)">
+        <div style="font-size: 2rem">📋</div>
+        <div style="font-size: 1rem; font-weight: 600; margin-top: .75rem">Tidak ada project ditemukan</div>
       </div>
       @endforelse
     </div>
