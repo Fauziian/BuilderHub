@@ -295,6 +295,7 @@ footer { background: var(--dark); color: rgba(255,255,255,0.7); padding: 5rem 2r
   flex-direction: column;
   align-items: flex-end;
   font-family: inherit;
+  pointer-events: none;
 }
 .buddy-bubble {
   background: #ffffff;
@@ -361,6 +362,7 @@ footer { background: var(--dark); color: rgba(255,255,255,0.7); padding: 5rem 2r
   border: 3px solid #ffffff;
   animation: float 3s ease-in-out infinite;
   position: relative;
+  pointer-events: all;
 }
 .buddy-avatar:hover {
   transform: scale(1.1) rotate(5deg);

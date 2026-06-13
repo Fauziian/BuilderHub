@@ -1,16 +1,35 @@
 @extends('layouts.app')
 @section('title', 'Admin Dashboard')
 @section('content')
+@php
+  $pendingProjectsCount = \App\Models\Project::where('status', 'pending')->count();
+  $pendingCoursesCount = \App\Models\Course::where('is_published', false)->count();
+@endphp
 <div style="background:var(--dark2);color:#fff;padding:1.5rem 2rem;border-bottom:1px solid rgba(255,255,255,.1)">
-  <div style="max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center">
+  <div style="max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem">
     <div>
-      <h1 style="font-size:1.25rem;font-weight:800;color:#fff">⚙️ Admin BuilderHub</h1>
+      <h1 style="font-size:1.25rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px">⚙️ Admin BuilderHub</h1>
       <p style="font-size:.82rem;color:rgba(255,255,255,.6)">Panel Administrasi Platform</p>
     </div>
-    <div style="display:flex;gap:.5rem;align-items:center">
-      <a href="{{ route('admin.users') }}" class="btn" style="background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2);font-size:.82rem">👥 Users</a>
-      <a href="{{ route('admin.projects') }}" class="btn" style="background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2);font-size:.82rem">📋 Projects</a>
-      <a href="{{ route('admin.courses') }}" class="btn" style="background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2);font-size:.82rem">📚 Courses</a>
+    <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+      <a href="{{ route('admin.dashboard') }}" class="btn" style="background:{{ request()->routeIs('admin.dashboard') ? 'var(--primary)' : 'rgba(255,255,255,.1)' }};color:#fff;border-color:{{ request()->routeIs('admin.dashboard') ? 'var(--primary)' : 'rgba(255,255,255,.2)' }};font-size:.82rem">📊 Dashboard</a>
+      <a href="{{ route('admin.users') }}" class="btn" style="background:{{ request()->routeIs('admin.users') ? 'rgba(255,255,255,.1)' : 'rgba(255,255,255,.1)' }};color:#fff;border-color:rgba(255,255,255,.2);font-size:.82rem">👥 Users</a>
+      <a href="{{ route('admin.projects') }}" class="btn" style="background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2);font-size:.82rem;display:inline-flex;align-items:center;gap:6px">
+        📋 Projects
+        @if($pendingProjectsCount > 0)
+          <span style="background:#EF4444;color:#fff;font-size:0.72rem;font-weight:800;padding:2px 7px;border-radius:10px;line-height:1;box-shadow:0 2px 5px rgba(239,68,68,0.4)">
+            {{ $pendingProjectsCount }}
+          </span>
+        @endif
+      </a>
+      <a href="{{ route('admin.courses') }}" class="btn" style="background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2);font-size:.82rem;display:inline-flex;align-items:center;gap:6px">
+        📚 Courses
+        @if($pendingCoursesCount > 0)
+          <span style="background:#EF4444;color:#fff;font-size:0.72rem;font-weight:800;padding:2px 7px;border-radius:10px;line-height:1;box-shadow:0 2px 5px rgba(239,68,68,0.4)">
+            {{ $pendingCoursesCount }}
+          </span>
+        @endif
+      </a>
       <form method="POST" action="{{ route('logout') }}" style="display:inline">
         @csrf
         <button type="submit" class="btn" style="background:var(--red);color:#fff;border-color:var(--red);font-size:.82rem" aria-label="Keluar dari akun">Keluar 🚪</button>
