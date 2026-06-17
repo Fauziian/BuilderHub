@@ -1,8 +1,8 @@
 @extends('layouts.app')
 @section('title', 'Dashboard Pelajar')
 @section('content')
-<div style="background:linear-gradient(135deg,#1E1260,#3D1FAF);color:#fff;padding:2.5rem 2rem;position:relative">
-  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 50% 50% at 80% 50%,rgba(255,255,255,.1) 0%,transparent 60%)"></div>
+<div style="background:linear-gradient(135deg, #0A0A14 0%, #150E36 50%, #080515 100%);color:#fff;padding:2.5rem 2rem;position:relative;border-bottom:2px solid rgba(129, 140, 248, 0.25);box-shadow:0 10px 30px rgba(0,0,0,0.3)">
+  <div style="position:absolute;inset:0;background:radial-gradient(circle at 80% 50%, rgba(129, 140, 248, 0.2) 0%, rgba(192, 132, 252, 0.1) 40%, transparent 70%);pointer-events:none"></div>
   <div style="max-width:1200px;margin:0 auto;display:flex;justify-content:flex-end;align-items:center;gap:.75rem;margin-bottom:1rem;position:relative;z-index:2">
     @php
       $unreadMessagesCount = \App\Models\Message::where('receiver_id', Auth::id())->where('is_read', false)->count();

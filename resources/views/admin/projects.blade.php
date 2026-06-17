@@ -5,7 +5,7 @@
   $pendingProjectsCount = \App\Models\Project::where('status', 'pending')->count();
   $pendingCoursesCount = \App\Models\Course::where('is_published', false)->count();
 @endphp
-<div style="background:var(--dark2);color:#fff;padding:1.5rem 2rem;border-bottom:1px solid rgba(255,255,255,.1)">
+<div style="background:linear-gradient(135deg, #0A0A14 0%, #150E36 50%, #080515 100%);color:#fff;padding:1.5rem 2rem;border-bottom:2px solid rgba(129, 140, 248, 0.25);box-shadow:0 10px 30px rgba(0,0,0,0.3)">
   <div style="max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem">
     <div>
       <h1 style="font-size:1.25rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px">📋 Manajemen Project</h1>
