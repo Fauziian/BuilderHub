@@ -30,7 +30,6 @@
 }
 body { font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text); background: var(--bg); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
 p, span, div, td, th, h1, h2, h3, h4, h5, h6, strong, a, label {
-  word-break: break-word;
   overflow-wrap: break-word;
 }
 a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
@@ -99,7 +98,7 @@ input, select, textarea { cursor: text; }
 .stat-card-label { font-size: 0.9rem; color: var(--text2); font-weight: 600; margin-top: 4px; }
 
 /* BADGES */
-.badge { font-size: 0.75rem; font-weight: 700; padding: 4px 12px; border-radius: 99px; display: inline-flex; align-items: center; gap: 4px; letter-spacing: 0.3px; text-transform: uppercase; }
+.badge { font-size: 0.75rem; font-weight: 700; padding: 4px 12px; border-radius: 99px; display: inline-flex; align-items: center; gap: 4px; letter-spacing: 0.3px; text-transform: uppercase; white-space: nowrap; }
 .badge-open { background: var(--primary-light); color: var(--primary-dark); }
 .badge-running { background: var(--orange-light); color: #B45309; }
 .badge-done { background: var(--green-light); color: #047857; }
@@ -163,7 +162,7 @@ input, select, textarea { cursor: text; }
 .course-card { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; background: var(--bg2); transition: all 0.3s ease; display: flex; flex-direction: column; box-shadow: var(--shadow); }
 .course-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); border-color: var(--primary); }
 .course-thumb { height: 180px; display: flex; align-items: center; justify-content: center; font-size: 4rem; position: relative; }
-.level-badge { position: absolute; top: 12px; left: 12px; padding: 4px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: var(--shadow-sm); }
+.level-badge { position: absolute; top: 12px; left: 12px; padding: 4px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: var(--shadow-sm); display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; }
 .level-pemula { background: #059669; color: #fff; }
 .level-menengah { background: #D97706; color: #fff; }
 .level-mahir { background: #DC2626; color: #fff; }
