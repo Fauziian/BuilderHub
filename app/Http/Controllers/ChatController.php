@@ -109,7 +109,7 @@ class ChatController extends Controller
                     $progId = $user->role === 'programmer' ? $userId : $contact->id;
                     $sharedProj = Project::where('umkm_id', $umkmId)
                         ->where(function($q) use ($progId) {
-                            $q->where('programmer_id', $progId)
+                            $q->where('assigned_programmer_id', $progId)
                               ->orWhereHas('bids', fn($b) => $b->where('programmer_id', $progId));
                         })->first();
                     if ($sharedProj) {
@@ -206,7 +206,7 @@ class ChatController extends Controller
             $progId = Auth::user()->role === 'programmer' ? $userId : $receiverId;
             $sharedProj = Project::where('umkm_id', $umkmId)
                 ->where(function($q) use ($progId) {
-                    $q->where('programmer_id', $progId)
+                    $q->where('assigned_programmer_id', $progId)
                       ->orWhereHas('bids', fn($b) => $b->where('programmer_id', $progId));
                 })->first();
             if ($sharedProj) {
