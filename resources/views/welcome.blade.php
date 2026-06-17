@@ -110,7 +110,7 @@
         <h1 style="font-size:4.2rem;font-weight:900;color:#fff;line-height:1.1;margin-bottom:1.5rem;letter-spacing:-1.5px">
           Satu Ekosistem Tech Terpadu: <br>
           <span style="background:linear-gradient(to right, #818CF8, #C084FC, #34D399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 2px 10px rgba(129,140,248,0.2))">
-            UMKM • Programmer • Pelajar
+            UMKM &nbsp;&nbsp; Programmer &nbsp;&nbsp; Pelajar
           </span>
         </h1>
         <p style="font-size:1.2rem;color:rgba(255,255,255,0.7);margin-bottom:2.5rem;line-height:1.8;max-width:92%">
@@ -257,7 +257,7 @@
         <!-- Portal Programmer -->
         <div class="fantasy-card portal-programmer" style="padding:2.5rem;display:flex;flex-direction:column;justify-content:space-between;height:340px;background:radial-gradient(circle at top right, rgba(245, 158, 11, 0.08) 0%, transparent 60%)">
           <div>
-            <div style="width:52px;height:52px;border-radius:14px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin-bottom:1.5rem;box-shadow:0 0 15px rgba(245,158,11,0.2)">&lt;/&gt;</div>
+            <div style="width:52px;height:52px;border-radius:14px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:1.5rem;box-shadow:0 0 15px rgba(245,158,11,0.2);color:#F59E0B;font-weight:900;font-family:monospace">&lt;/&gt;</div>
             <h3 style="font-size:1.4rem;font-weight:800;color:#fff;margin-bottom:0.75rem">Programmer Realm</h3>
             <p style="color:rgba(255,255,255,0.6);font-size:0.9rem;line-height:1.6">
               Raih pendapatan melimpah. Kerjakan proyek terverifikasi dengan potongan minim, serta jual course pemrograman dengan bagi hasil 80%.
