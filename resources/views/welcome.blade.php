@@ -39,100 +39,147 @@
       </div>
     </div>
     
-    <div style="position:relative;perspective:1000px">
+    <div style="position:relative;perspective:1000px;min-height:540px">
       <!-- Tabs Switcher -->
       <div style="display:flex;gap:8px;margin-bottom:1rem;background:rgba(255,255,255,0.05);padding:4px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);position:relative;z-index:2">
-        <button onclick="switchTab('project')" id="tabBtnProject" style="flex:1;background:var(--primary);border:none;border-radius:8px;padding:10px;color:#fff;font-size:0.8rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:0.3s">
+        <button onclick="switchTab('project', true)" id="tabBtnProject" style="flex:1;background:var(--primary);border:none;border-radius:8px;padding:10px;color:#fff;font-size:0.8rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:0.3s">
           💼 Project Earning (20%)
         </button>
-        <button onclick="switchTab('course')" id="tabBtnCourse" style="flex:1;background:transparent;border:none;border-radius:8px;padding:10px;color:rgba(255,255,255,0.6);font-size:0.8rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:0.3s">
+        <button onclick="switchTab('course', true)" id="tabBtnCourse" style="flex:1;background:transparent;border:none;border-radius:8px;padding:10px;color:rgba(255,255,255,0.6);font-size:0.8rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:0.3s">
           🎓 Course Earning (80%)
         </button>
       </div>
 
-      <!-- Card Project Earning -->
-      <div id="cardProject" style="background:rgba(255,255,255,0.03);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius-xl);padding:2.5rem;color:#fff;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);transform:rotateY(-5deg) rotateX(5deg);transition:all 0.5s ease" onmouseover="this.style.transform='rotateY(0deg) rotateX(0deg)'" onmouseout="this.style.transform='rotateY(-5deg) rotateX(5deg)'">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem">
-          <div>
-            <div style="font-size:0.9rem;color:rgba(255,255,255,0.6);font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem">Pendapatan Programmer</div>
-            <div style="font-size:2.5rem;font-weight:800;letter-spacing:-1px">Rp 1.200.000</div>
+      <!-- Wrapper for sliding cards -->
+      <div style="position:relative;width:100%">
+        <!-- Card Project Earning -->
+        <div id="cardProject" class="earning-card active" style="background:rgba(255,255,255,0.03);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius-xl);padding:2.5rem;color:#fff;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5)" onmouseover="this.style.transform='rotateY(0deg) rotateX(0deg)'" onmouseout="this.style.transform='rotateY(-5deg) rotateX(5deg)'">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem">
+            <div>
+              <div style="font-size:0.9rem;color:rgba(255,255,255,0.6);font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem">Pendapatan Programmer</div>
+              <div style="font-size:2.5rem;font-weight:800;letter-spacing:-1px">Rp 1.200.000</div>
+            </div>
+            <div style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);border-radius:99px;padding:6px 14px;color:#34D399;font-size:0.85rem;font-weight:700">📈 +24%</div>
           </div>
-          <div style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);border-radius:99px;padding:6px 14px;color:#34D399;font-size:0.85rem;font-weight:700">📈 +24%</div>
+          
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2rem">
+            <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.05);border-radius:var(--radius-sm);padding:1.25rem">
+              <label style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:8px;font-weight:600">Nilai Project (100%)</label>
+              <strong style="font-size:1.1rem">Rp 6.000.000</strong>
+            </div>
+            <div style="background:linear-gradient(135deg, rgba(79,70,229,0.1), rgba(79,70,229,0.2));border:1px solid rgba(79,70,229,0.3);border-radius:var(--radius-sm);padding:1.25rem">
+              <label style="font-size:0.75rem;color:rgba(255,255,255,0.7);display:block;margin-bottom:8px;font-weight:600">Untuk Programmer (20%)</label>
+              <strong style="color:#A78BFA;font-size:1.1rem">Rp 1.200.000</strong>
+            </div>
+          </div>
+          
+          <h4 style="font-size:0.9rem;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;margin-bottom:1rem;font-weight:700">Project Terkini</h4>
+          @foreach($projects->take(3) as $p)
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:1rem 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:36px;height:36px;background:rgba(255,255,255,0.05);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--primary-light);font-size:1rem">&lt;/&gt;</div>
+              <span style="font-size:0.95rem;color:rgba(255,255,255,0.9);font-weight:500">{{ Str::limit($p->title, 25) }}</span>
+            </div>
+            <span style="font-size:0.75rem;font-weight:700;padding:4px 10px;border-radius:99px;background:rgba(52,211,153,0.15);color:#34D399;border:1px solid rgba(52,211,153,0.2)">{{ $p->status_label }}</span>
+          </div>
+          @endforeach
         </div>
-        
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2rem">
-          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.05);border-radius:var(--radius-sm);padding:1.25rem">
-            <label style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:8px;font-weight:600">Nilai Project (100%)</label>
-            <strong style="font-size:1.1rem">Rp 6.000.000</strong>
-          </div>
-          <div style="background:linear-gradient(135deg, rgba(79,70,229,0.1), rgba(79,70,229,0.2));border:1px solid rgba(79,70,229,0.3);border-radius:var(--radius-sm);padding:1.25rem">
-            <label style="font-size:0.75rem;color:rgba(255,255,255,0.7);display:block;margin-bottom:8px;font-weight:600">Untuk Programmer (20%)</label>
-            <strong style="color:#A78BFA;font-size:1.1rem">Rp 1.200.000</strong>
-          </div>
-        </div>
-        
-        <h4 style="font-size:0.9rem;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;margin-bottom:1rem;font-weight:700">Project Terkini</h4>
-        @foreach($projects->take(3) as $p)
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:1rem 0;border-bottom:1px solid rgba(255,255,255,0.05)">
-          <div style="display:flex;align-items:center;gap:12px">
-            <div style="width:36px;height:36px;background:rgba(255,255,255,0.05);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--primary-light);font-size:1rem">&lt;/&gt;</div>
-            <span style="font-size:0.95rem;color:rgba(255,255,255,0.9);font-weight:500">{{ Str::limit($p->title, 25) }}</span>
-          </div>
-          <span style="font-size:0.75rem;font-weight:700;padding:4px 10px;border-radius:99px;background:rgba(52,211,153,0.15);color:#34D399;border:1px solid rgba(52,211,153,0.2)">{{ $p->status_label }}</span>
-        </div>
-        @endforeach
-      </div>
 
-      <!-- Card Course Earning -->
-      <div id="cardCourse" style="display:none;background:rgba(255,255,255,0.03);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius-xl);padding:2.5rem;color:#fff;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);transform:rotateY(-5deg) rotateX(5deg);transition:all 0.5s ease" onmouseover="this.style.transform='rotateY(0deg) rotateX(0deg)'" onmouseout="this.style.transform='rotateY(-5deg) rotateX(5deg)'">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem">
-          <div>
-            <div style="font-size:0.9rem;color:rgba(255,255,255,0.6);font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem">Pendapatan Course (Programmer Expert)</div>
-            <div style="font-size:2.5rem;font-weight:800;letter-spacing:-1px;color:var(--orange)">Rp 6.000.000</div>
+        <!-- Card Course Earning -->
+        <div id="cardCourse" class="earning-card" style="background:rgba(255,255,255,0.03);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius-xl);padding:2.5rem;color:#fff;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5)" onmouseover="this.style.transform='rotateY(0deg) rotateX(0deg)'" onmouseout="this.style.transform='rotateY(-5deg) rotateX(5deg)'">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem">
+            <div>
+              <div style="font-size:0.9rem;color:rgba(255,255,255,0.6);font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem">Pendapatan Course (Programmer Expert)</div>
+              <div style="font-size:2.5rem;font-weight:800;letter-spacing:-1px;color:var(--orange)">Rp 6.000.000</div>
+            </div>
+            <div style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);border-radius:99px;padding:6px 14px;color:#F59E0B;font-size:0.85rem;font-weight:700">🚀 Passive Income</div>
           </div>
-          <div style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);border-radius:99px;padding:6px 14px;color:#F59E0B;font-size:0.85rem;font-weight:700">🚀 Passive Income</div>
+          
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2rem">
+            <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.05);border-radius:var(--radius-sm);padding:1.25rem">
+              <label style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:8px;font-weight:600">Harga per Siswa</label>
+              <strong style="font-size:1.1rem">Rp 150.000</strong>
+            </div>
+            <div style="background:linear-gradient(135deg, rgba(245,158,11,0.1), rgba(245,158,11,0.2));border:1px solid rgba(245,158,11,0.3);border-radius:var(--radius-sm);padding:1.25rem">
+              <label style="font-size:0.75rem;color:rgba(255,255,255,0.7);display:block;margin-bottom:8px;font-weight:600">Bagi Hasil Instruktur (80%)</label>
+              <strong style="color:var(--orange);font-size:1.1rem">Rp 120.000</strong>
+            </div>
+          </div>
+          
+          <h4 style="font-size:0.9rem;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;margin-bottom:1rem;font-weight:700">Skema Pendapatan (Simulasi 50 Siswa)</h4>
+          <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:1.25rem;display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;justify-content:space-between;font-size:0.9rem">
+              <span style="color:rgba(255,255,255,0.6)">Total Penjualan (50 Siswa)</span>
+              <strong>Rp 7.500.000</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:0.9rem">
+              <span style="color:rgba(255,255,255,0.6)">Bagi Hasil Website (20%)</span>
+              <span style="color:var(--red-light)">- Rp 1.500.000</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:0.95rem;font-weight:700;padding-top:10px;border-top:1px solid rgba(255,255,255,0.1)">
+              <span style="color:var(--orange)">Bersih untuk Anda (80%)</span>
+              <span style="color:var(--orange)">Rp 6.000.000</span>
+            </div>
+          </div>
         </div>
-        
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2rem">
-          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.05);border-radius:var(--radius-sm);padding:1.25rem">
-            <label style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:8px;font-weight:600">Harga per Siswa</label>
-            <strong style="font-size:1.1rem">Rp 150.000</strong>
-          </div>
-          <div style="background:linear-gradient(135deg, rgba(245,158,11,0.1), rgba(245,158,11,0.2));border:1px solid rgba(245,158,11,0.3);border-radius:var(--radius-sm);padding:1.25rem">
-            <label style="font-size:0.75rem;color:rgba(255,255,255,0.7);display:block;margin-bottom:8px;font-weight:600">Bagi Hasil Instruktur (80%)</label>
-            <strong style="color:var(--orange);font-size:1.1rem">Rp 120.000</strong>
-          </div>
-        </div>
-        
-        <h4 style="font-size:0.9rem;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;margin-bottom:1rem;font-weight:700">Skema Pendapatan (Simulasi 50 Siswa)</h4>
-        <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:1.25rem;display:flex;flex-direction:column;gap:12px">
-          <div style="display:flex;justify-content:space-between;font-size:0.9rem">
-            <span style="color:rgba(255,255,255,0.6)">Total Penjualan (50 Siswa)</span>
-            <strong>Rp 7.500.000</strong>
-          </div>
-          <div style="display:flex;justify-content:space-between;font-size:0.9rem">
-            <span style="color:rgba(255,255,255,0.6)">Bagi Hasil Website (20%)</span>
-            <span style="color:var(--red-light)">- Rp 1.500.000</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;font-size:0.95rem;font-weight:700;padding-top:10px;border-top:1px solid rgba(255,255,255,0.1)">
-            <span style="color:var(--orange)">Bersih untuk Anda (80%)</span>
-            <span style="color:var(--orange)">Rp 6.000.000</span>
-          </div>
-        </div>
-      </div>
 
-      <!-- Badge Overlay -->
-      <div id="badgeProject" style="position:absolute;bottom:-20px;right:-20px;background:linear-gradient(135deg, var(--green), #059669);color:#fff;border-radius:var(--radius);padding:1rem 1.5rem;font-size:0.9rem;font-weight:700;box-shadow:0 10px 25px rgba(16,185,129,0.4);border:1px solid rgba(255,255,255,0.2);display:flex;align-items:center;gap:8px">
-        <span style="background:#fff;color:var(--green);width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem">✓</span> 
-        Skema Transparan 20%
-      </div>
-      <div id="badgeCourse" style="display:none;position:absolute;bottom:-20px;right:-20px;background:linear-gradient(135deg, var(--orange), #D97706);color:#fff;border-radius:var(--radius);padding:1rem 1.5rem;font-size:0.9rem;font-weight:700;box-shadow:0 10px 25px rgba(245,158,11,0.4);border:1px solid rgba(255,255,255,0.2);display:flex;align-items:center;gap:8px">
-        <span style="background:#fff;color:var(--orange);width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem">🎓</span> 
-        Skema Adil 80% Programmer
+        <!-- Badge Project -->
+        <div id="badgeProject" class="earning-badge active" style="position:absolute;bottom:-20px;right:-20px;background:linear-gradient(135deg, var(--green), #059669);color:#fff;border-radius:var(--radius);padding:1rem 1.5rem;font-size:0.9rem;font-weight:700;box-shadow:0 10px 25px rgba(16,185,129,0.4);border:1px solid rgba(255,255,255,0.2);display:flex;align-items:center;gap:8px">
+          <span style="background:#fff;color:var(--green);width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem">✓</span> 
+          Skema Transparan 20%
+        </div>
+
+        <!-- Badge Course -->
+        <div id="badgeCourse" class="earning-badge" style="position:absolute;bottom:-20px;right:-20px;background:linear-gradient(135deg, var(--orange), #D97706);color:#fff;border-radius:var(--radius);padding:1rem 1.5rem;font-size:0.9rem;font-weight:700;box-shadow:0 10px 25px rgba(245,158,11,0.4);border:1px solid rgba(255,255,255,0.2);display:flex;align-items:center;gap:8px">
+          <span style="background:#fff;color:var(--orange);width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem">🎓</span> 
+          Skema Adil 80% Programmer
+        </div>
       </div>
     </div>
   </div>
-  <style>@keyframes pulse { 0% { opacity: 0.5; transform: scale(0.9); } 100% { opacity: 0.8; transform: scale(1.1); } }</style>
+  <style>
+    @keyframes pulse { 0% { opacity: 0.5; transform: scale(0.9); } 100% { opacity: 0.8; transform: scale(1.1); } }
+    
+    .earning-card {
+      transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      opacity: 0;
+      transform: translateX(100px) rotateY(-5deg) rotateX(5deg);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      pointer-events: none;
+    }
+    
+    .earning-card.active {
+      opacity: 1;
+      transform: translateX(0) rotateY(-5deg) rotateX(5deg);
+      position: relative;
+      pointer-events: auto;
+    }
+    
+    .earning-card.exit {
+      opacity: 0;
+      transform: translateX(-100px) rotateY(-5deg) rotateX(5deg);
+      position: absolute;
+      pointer-events: none;
+    }
+    
+    .earning-badge {
+      transition: opacity 0.6s ease, transform 0.6s ease !important;
+      opacity: 0;
+      transform: translateY(20px);
+      pointer-events: none;
+      display: none !important;
+    }
+    
+    .earning-badge.active {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+      display: flex !important;
+    }
+  </style>
 </section>
 
 <!-- STATS BAR -->
@@ -336,7 +383,14 @@
   </div>
 </section>
 <script>
-  function switchTab(type) {
+  let autoSlideInterval;
+  let currentTab = 'project';
+
+  function switchTab(type, isManual = false) {
+    if (isManual) {
+      clearInterval(autoSlideInterval);
+    }
+    
     const btnProject = document.getElementById('tabBtnProject');
     const btnCourse = document.getElementById('tabBtnCourse');
     const cardProject = document.getElementById('cardProject');
@@ -344,29 +398,54 @@
     const badgeProject = document.getElementById('badgeProject');
     const badgeCourse = document.getElementById('badgeCourse');
 
+    currentTab = type;
+
     if (type === 'project') {
+      // Button states
       btnProject.style.background = 'var(--primary)';
       btnProject.style.color = '#fff';
       btnCourse.style.background = 'transparent';
       btnCourse.style.color = 'rgba(255,255,255,0.6)';
 
-      cardProject.style.display = 'block';
-      cardCourse.style.display = 'none';
+      // Card states
+      cardCourse.classList.remove('active');
+      cardCourse.classList.add('exit');
+      
+      cardProject.classList.remove('exit');
+      cardProject.classList.add('active');
 
-      badgeProject.style.display = 'flex';
-      badgeCourse.style.display = 'none';
+      // Badge states
+      badgeCourse.classList.remove('active');
+      badgeProject.classList.add('active');
     } else {
+      // Button states
       btnCourse.style.background = 'var(--orange)';
       btnCourse.style.color = '#fff';
       btnProject.style.background = 'transparent';
       btnProject.style.color = 'rgba(255,255,255,0.6)';
 
-      cardProject.style.display = 'none';
-      cardCourse.style.display = 'block';
+      // Card states
+      cardProject.classList.remove('active');
+      cardProject.classList.add('exit');
+      
+      cardCourse.classList.remove('exit');
+      cardCourse.classList.add('active');
 
-      badgeProject.style.display = 'none';
-      badgeCourse.style.display = 'flex';
+      // Badge states
+      badgeProject.classList.remove('active');
+      badgeCourse.classList.add('active');
     }
   }
+
+  function startAutoSlide() {
+    autoSlideInterval = setInterval(() => {
+      let nextTab = currentTab === 'project' ? 'course' : 'project';
+      switchTab(nextTab);
+    }, 5000); // Switch tab every 5 seconds
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    startAutoSlide();
+  });
 </script>
 @endsection
