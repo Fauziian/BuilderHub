@@ -112,16 +112,22 @@ class AdminController extends Controller
     public function deleteProject(Project $project)
     {
         $this->checkAccess();
+        $programmerId = $project->assigned_programmer_id;
         $project->delete();
+        if ($programmerId) {
+            User::recalcRatings($programmerId);
+        }
         return back()->with('success', "Project \"{$project->title}\" berhasil dihapus.");
     }
-
-
 
     public function deleteCourse(Course $course)
     {
         $this->checkAccess();
+        $instructorId = $course->instructor_id;
         $course->delete();
+        if ($instructorId) {
+            User::recalcRatings($instructorId);
+        }
         return back()->with('success', "Course \"{$course->title}\" berhasil dihapus.");
     }
 

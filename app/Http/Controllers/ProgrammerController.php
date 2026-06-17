@@ -387,7 +387,11 @@ class ProgrammerController extends Controller
     {
         $this->checkAccess();
         if ($course->instructor_id !== Auth::id() && Auth::user()->role !== 'admin') abort(403);
+        $instructorId = $course->instructor_id;
         $course->delete();
+        if ($instructorId) {
+            \App\Models\User::recalcRatings($instructorId);
+        }
         return back()->with('success', 'Course berhasil dihapus.');
     }
 }

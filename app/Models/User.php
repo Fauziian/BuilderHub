@@ -99,4 +99,20 @@ class User extends Authenticatable
     {
         return $this->role === 'course';
     }
+
+    public static function recalcRatings(int $userId): void
+    {
+        $umkmAvg = \App\Models\Review::where('reviewed_id', $userId)
+            ->where('type', 'umkm')
+            ->avg('rating') ?? 0;
+
+        $courseAvg = \App\Models\Review::where('reviewed_id', $userId)
+            ->where('type', 'course')
+            ->avg('rating') ?? 0;
+
+        self::where('id', $userId)->update([
+            'rating' => round($umkmAvg, 2),
+            'course_rating' => round($courseAvg, 2),
+        ]);
+    }
 }

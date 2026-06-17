@@ -113,7 +113,13 @@ class UmkmController extends Controller
         if ($project->status === 'in_progress') {
             return back()->with('error', 'Project yang sedang berjalan tidak dapat dihapus.');
         }
+        $programmerId = $project->assigned_programmer_id;
         $project->delete();
+
+        if ($programmerId) {
+            \App\Models\User::recalcRatings($programmerId);
+        }
+
         return back()->with('success', 'Project berhasil dihapus.');
     }
 
