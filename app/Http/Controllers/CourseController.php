@@ -127,14 +127,24 @@ class CourseController extends Controller
             return redirect()->route('course.dashboard')->with('info', 'Anda sudah terdaftar di course ini.');
         }
 
+        $amountPaid = $course->is_free ? 0 : $course->price;
+
         CourseEnrollment::create([
             'course_id' => $course->id,
             'user_id' => Auth::id(),
-            'amount_paid' => $course->is_free ? 0 : $course->price,
+            'amount_paid' => $amountPaid,
             'status' => 'active',
         ]);
 
         $course->increment('total_students');
+
+        // Programmer mendapatkan 80% pendapatan dari penjualan course
+        if ($amountPaid > 0) {
+            $instructor = $course->instructor;
+            if ($instructor) {
+                $instructor->increment('total_earnings', $amountPaid * 0.80);
+            }
+        }
 
         return redirect()->route('course.dashboard')->with('success', '✅ Berhasil mendaftar course! Selamat belajar.');
     }
