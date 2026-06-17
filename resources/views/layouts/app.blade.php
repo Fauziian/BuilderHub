@@ -551,6 +551,7 @@ footer { background: var(--dark); color: rgba(255,255,255,0.7); padding: 5rem 2r
 @endguest
 
 @auth
+@if(in_array(Route::currentRouteName(), ['programmer.dashboard', 'umkm.dashboard', 'course.dashboard', 'admin.dashboard']))
 <!-- INTERACTIVE MASCOT: BuilderBuddy Guide -->
 <div class="buddy-mascot-container" id="buddyMascot">
   <div class="buddy-bubble" id="buddyBubble">
@@ -569,6 +570,7 @@ footer { background: var(--dark); color: rgba(255,255,255,0.7); padding: 5rem 2r
     <span class="buddy-pulse" id="buddyPulse"></span>
   </div>
 </div>
+@endif
 
 <script>
 let buddyTour = [];
@@ -859,6 +861,27 @@ function finishBuddyTour() {
 }
 
 // Automatically welcome user with a tiny floating tip after 3 seconds
+window.checkMascotVisibility = function(activeTabName) {
+  const mascot = document.getElementById('buddyMascot');
+  if (!mascot) return;
+  
+  const tab = activeTabName || window.location.hash.replace('#', '') || 'overview';
+  
+  if (tab === 'overview' || tab === 'my-courses') {
+    if (sessionStorage.getItem('ai_tour_finished') !== 'true') {
+      mascot.style.display = 'flex';
+    }
+  } else {
+    mascot.style.display = 'none';
+    const bubble = document.getElementById('buddyBubble');
+    if (bubble) {
+      bubble.classList.remove('active');
+      bubble.classList.add('closing');
+    }
+  }
+};
+
+// Automatically welcome user with a tiny floating tip after 3 seconds
 window.addEventListener('load', () => {
   if (sessionStorage.getItem('ai_tour_finished') === 'true') {
     const container = document.getElementById('buddyMascot');
@@ -866,9 +889,15 @@ window.addEventListener('load', () => {
     return;
   }
   
+  // Running the visibility check on load based on current hash
+  window.checkMascotVisibility();
+  
   setTimeout(() => {
     const bubble = document.getElementById('buddyBubble');
-    if (bubble && !bubble.classList.contains('active')) {
+    const hash = window.location.hash.replace('#', '') || 'overview';
+    
+    // Only show welcome tip if on overview/my-courses tab and bubble is not already active
+    if ((hash === 'overview' || hash === 'my-courses') && bubble && !bubble.classList.contains('active')) {
       const textEl = document.getElementById('buddyText');
       textEl.innerHTML = "Butuh bantuan memahami halaman ini? **Klik saya** untuk panduan interaktif! 👋";
       document.getElementById('buddyFace').textContent = "👋";

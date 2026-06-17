@@ -679,6 +679,7 @@ function showTab(name){
   document.getElementById('tab-'+name).classList.add('active');
   document.getElementById('tab-'+name).setAttribute('aria-selected','true');
   history.replaceState(null,'','#'+name);
+  if(window.checkMascotVisibility) window.checkMascotVisibility(name);
 }
 
 // Restore active tab

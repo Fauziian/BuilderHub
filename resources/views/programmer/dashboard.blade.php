@@ -680,6 +680,7 @@ function showTab(name){
     atb.setAttribute('aria-selected','true');
   }
   history.replaceState(null,'','#'+name);
+  if(window.checkMascotVisibility) window.checkMascotVisibility(name);
 }
 
 // IMK: Restore tab from URL hash
@@ -697,6 +698,8 @@ if(hash && allowedTabs.includes(hash)) {
 
 let bidProjectId, bidBudget;
 function openBidModal(id, title, budget, daysRemaining){
+  const mascot = document.getElementById('buddyMascot');
+  if(mascot) mascot.style.setProperty('display', 'none', 'important');
   bidProjectId = id; bidBudget = budget;
   document.getElementById('bidProjectTitle').textContent = title;
   document.getElementById('bidAmount').value = budget > 0 ? budget : '';
@@ -712,7 +715,12 @@ function openBidModal(id, title, budget, daysRemaining){
   document.getElementById('bidModal').style.display = 'flex';
   document.getElementById('bidForm').action = `${window.APP_URL}/programmer/projects/${id}/bid`;
 }
-function closeBidModal(){ document.getElementById('bidModal').style.display = 'none'; }
+function closeBidModal(){ 
+  document.getElementById('bidModal').style.display = 'none'; 
+  const mascot = document.getElementById('buddyMascot');
+  if(mascot) mascot.style.removeProperty('display');
+  if(window.checkMascotVisibility) window.checkMascotVisibility();
+}
 function updateEarning(){
   const v = parseFloat(document.getElementById('bidAmount').value) || 0;
   document.getElementById('bidEarning').textContent = v > 0 ? `Estimasi Anda terima (20%): Rp ${(v*0.2).toLocaleString('id-ID')}` : '';
@@ -723,6 +731,8 @@ document.getElementById('bidModal')?.addEventListener('click', e=>{ if(e.target=
 
 // ===== EDIT BID SYSTEM =====
 function openEditBidModal(bidId, amount, timelineDays, message, projectTitle, daysRemaining) {
+  const mascot = document.getElementById('buddyMascot');
+  if(mascot) mascot.style.setProperty('display', 'none', 'important');
   document.getElementById('editBidProjectTitle').textContent = projectTitle;
   document.getElementById('editBidAmount').value = amount;
   document.getElementById('editBidTimeline').value = timelineDays;
@@ -742,6 +752,9 @@ function openEditBidModal(bidId, amount, timelineDays, message, projectTitle, da
 }
 function closeEditBidModal() {
   document.getElementById('editBidModal').style.display = 'none';
+  const mascot = document.getElementById('buddyMascot');
+  if(mascot) mascot.style.removeProperty('display');
+  if(window.checkMascotVisibility) window.checkMascotVisibility();
 }
 function updateEditBidEarning() {
   const v = parseFloat(document.getElementById('editBidAmount').value) || 0;
@@ -753,6 +766,8 @@ document.getElementById('editBidModal')?.addEventListener('click', e => { if (e.
 // ===== CHAT / NEGOTIATION SYSTEM (Programmer side) =====
 let chatProjectId = null, chatReceiverId = null, chatPollInterval = null;
 function openChat(projectId, receiverId, receiverName, role) {
+  const mascot = document.getElementById('buddyMascot');
+  if(mascot) mascot.style.setProperty('display', 'none', 'important');
   chatProjectId = projectId; chatReceiverId = receiverId;
   document.getElementById('chatReceiverName').textContent = '\ud83d\udcac Chat dengan ' + receiverName;
   document.getElementById('chatModal').style.display = 'flex';
@@ -789,6 +804,8 @@ document.getElementById('chatInput')?.addEventListener('keydown', e=>{ if(e.key=
 
 // ===== PORTFOLIO EDIT SYSTEM =====
 function openEditPortfolioModal(id, title, description, tags, projectUrl) {
+  const mascot = document.getElementById('buddyMascot');
+  if(mascot) mascot.style.setProperty('display', 'none', 'important');
   const form = document.getElementById('editPortfolioForm');
   form.action = window.APP_URL + '/programmer/portfolio/' + id;
   document.getElementById('editPortTitle').value = title;
@@ -799,6 +816,9 @@ function openEditPortfolioModal(id, title, description, tags, projectUrl) {
 }
 function closeEditPortfolioModal() {
   document.getElementById('editPortfolioModal').style.display = 'none';
+  const mascot = document.getElementById('buddyMascot');
+  if(mascot) mascot.style.removeProperty('display');
+  if(window.checkMascotVisibility) window.checkMascotVisibility();
 }
 </script>
 @endpush

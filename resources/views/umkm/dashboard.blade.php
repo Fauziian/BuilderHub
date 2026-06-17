@@ -528,6 +528,8 @@ function showUTab(name){
   if(activePane) activePane.style.display = 'block';
   const activeBtn = document.getElementById('utab-'+name);
   if(activeBtn){ activeBtn.classList.add('active'); activeBtn.style.color='var(--accent)'; activeBtn.style.borderBottomColor='var(--accent)'; }
+  history.replaceState(null,'','#'+name);
+  if(window.checkMascotVisibility) window.checkMascotVisibility(name);
 }
 function calcFee(){ /* removed - budget now set by programmer */ }
 // IMK: Real-time description character count
@@ -545,6 +547,8 @@ if(['overview','projects','posting','programmers'].includes(hash)) showUTab(hash
 let chatProjectId = null, chatReceiverId = null, chatPollInterval = null;
 
 function openChat(projectId, receiverId, receiverName, role) {
+  const mascot = document.getElementById('buddyMascot');
+  if(mascot) mascot.style.setProperty('display', 'none', 'important');
   chatProjectId = projectId;
   chatReceiverId = receiverId;
   document.getElementById('chatReceiverName').textContent = '💬 Negosiasi dengan ' + receiverName;
@@ -604,6 +608,8 @@ document.getElementById('chatInput')?.addEventListener('keydown', e => {
 
 // ===== PROJECT EDIT SYSTEM =====
 function openEditProjectModal(id, title, description, deadline, category, appType) {
+  const mascot = document.getElementById('buddyMascot');
+  if(mascot) mascot.style.setProperty('display', 'none', 'important');
   const form = document.getElementById('editProjectForm');
   form.action = window.APP_URL + '/umkm/project/' + id;
   document.getElementById('editProjTitle').value = title;
@@ -616,6 +622,9 @@ function openEditProjectModal(id, title, description, deadline, category, appTyp
 }
 function closeEditProjectModal() {
   document.getElementById('editProjectModal').style.display = 'none';
+  const mascot = document.getElementById('buddyMascot');
+  if(mascot) mascot.style.removeProperty('display');
+  if(window.checkMascotVisibility) window.checkMascotVisibility();
 }
 
 // Edit Project description counter
