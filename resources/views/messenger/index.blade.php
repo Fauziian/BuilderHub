@@ -78,6 +78,7 @@
   const paramContactId = "{{ $selectedContactId }}";
   const paramProjectId = "{{ $selectedProjectId }}";
   const paramCourseId = "{{ $selectedCourseId }}";
+  const paramInitialMsg = "{!! addslashes($initialMessage ?? '') !!}";
 
   document.addEventListener('DOMContentLoaded', () => {
     loadThreads().then(() => {
@@ -95,7 +96,11 @@
 
   async function loadThreads() {
     try {
-      const response = await fetch("{{ route('chat.threads') }}", {
+      let url = "{{ route('chat.threads') }}";
+      if (paramContactId) {
+        url += "?contact_id=" + paramContactId;
+      }
+      const response = await fetch(url, {
         headers: { 'Accept': 'application/json' }
       });
       threads = await response.json();
@@ -204,6 +209,10 @@
     if (projectId) ctxText = '💼 Negosiasi Project';
     else if (courseId) ctxText = '📚 Diskusi Belajar Course';
     document.getElementById('headerContextLabel').textContent = ctxText;
+
+    if (paramInitialMsg && contactId == paramContactId) {
+      document.getElementById('chatInput').value = paramInitialMsg;
+    }
 
     // Load Messages
     loadMessages();

@@ -490,7 +490,7 @@
         </div>
         <div style="border-top:1px solid var(--border);padding-top:.75rem;margin-top:auto;display:flex;justify-content:space-between;align-items:center">
           <span style="font-size:.78rem;color:var(--text3)">💼 {{ $p->total_projects ?: 0 }} Selesai</span>
-          <a href="mailto:{{ $p->email }}" class="btn btn-sm btn-ghost" style="border-color:var(--accent);color:var(--accent)">Hubungi Programmer</a>
+          <a href="{{ route('messages.index') }}?contact_id={{ $p->id }}&msg=Halo%2C%20apakah%20programmer%20ini%20tersedia%20untuk%20mengerjakan%20project%20saya%3F" class="btn btn-sm btn-ghost" style="border-color:var(--accent);color:var(--accent)">Hubungi Programmer</a>
         </div>
       </div>
       @endforeach

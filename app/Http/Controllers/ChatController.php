@@ -25,18 +25,19 @@ class ChatController extends Controller
         $selectedContactId = $request->query('contact_id');
         $selectedProjectId = $request->query('project_id');
         $selectedCourseId = $request->query('course_id');
+        $initialMessage = $request->query('msg');
 
-        return view('messenger.index', compact('selectedContactId', 'selectedProjectId', 'selectedCourseId'));
+        return view('messenger.index', compact('selectedContactId', 'selectedProjectId', 'selectedCourseId', 'initialMessage'));
     }
 
     /**
      * Ambil daftar thread chat (conversations) untuk user login
      */
-    public function getThreads()
+    public function getThreads(Request $request)
     {
         $userId = Auth::id();
         $user = Auth::user();
-
+        
         // 1. Dapatkan user-user yang sudah pernah bertukar pesan
         $sentContacts = Message::where('sender_id', $userId)->pluck('receiver_id')->toArray();
         $receivedContacts = Message::where('receiver_id', $userId)->pluck('sender_id')->toArray();
@@ -64,6 +65,9 @@ class ChatController extends Controller
         }
 
         $allContactIds = array_unique(array_merge($chattedUserIds, $potentialUserIds));
+        if ($request->has('contact_id')) {
+            $allContactIds[] = (int)$request->query('contact_id');
+        }
         $allContactIds = array_filter($allContactIds, fn($id) => $id != $userId);
 
         $contacts = User::whereIn('id', $allContactIds)->get();
