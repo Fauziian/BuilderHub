@@ -398,6 +398,142 @@ footer { background: var(--dark); color: rgba(255,255,255,0.7); padding: 5rem 2r
   70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
   100% { transform: scale(0.85); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
 }
+
+/* TOAST NOTIFICATION CONTAINER */
+.toast-notification-container {
+  position: fixed;
+  bottom: 24px;
+  right: 100px;
+  z-index: 100000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 380px;
+  width: 100%;
+  pointer-events: none;
+}
+
+/* INDIVIDUAL TOAST */
+.toast-notification {
+  pointer-events: auto;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0,0,0,0.03);
+  animation: toastSlideIn 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.15) forwards;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+.toast-notification::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+}
+
+/* TYPES */
+.toast-notification.success::before {
+  background: var(--green);
+}
+.toast-notification.success .toast-icon {
+  background: var(--green-light);
+  color: var(--green);
+}
+
+.toast-notification.error::before {
+  background: var(--red);
+}
+.toast-notification.error .toast-icon {
+  background: var(--red-light);
+  color: var(--red);
+}
+
+.toast-notification.info::before {
+  background: var(--blue);
+}
+.toast-notification.info .toast-icon {
+  background: var(--blue-light);
+  color: var(--blue);
+}
+
+/* CONTENT */
+.toast-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.toast-body {
+  flex: 1;
+}
+
+.toast-title {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+
+.toast-msg {
+  font-size: 0.82rem;
+  color: var(--text2);
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: var(--text3);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  margin-top: -2px;
+  transition: color 0.2s;
+}
+
+.toast-close:hover {
+  color: var(--text);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .toast-notification-container {
+    right: 16px;
+    left: 16px;
+    bottom: 16px;
+    max-width: none;
+  }
+}
 </style>
 <script>
   window.APP_URL = "{{ url('/') }}";
@@ -407,30 +543,47 @@ footer { background: var(--dark); color: rgba(255,255,255,0.7); padding: 5rem 2r
 </head>
 <body>
 
-@if(session('success'))
-<div style="position:fixed;top:1rem;right:1rem;z-index:9999;max-width:380px">
-  <div class="alert alert-success">
-    @if(str_starts_with(session('success'), '🎉'))
-      {{ session('success') }}
-    @else
-      ✅ {{ preg_replace('/^\s*✅\s*/u', '', session('success')) }}
-    @endif
-  </div>
+<div class="toast-notification-container">
+  @if(session('success'))
+    <div id="toast-success" class="toast-notification success" onclick="dismissToast(this)">
+      <div class="toast-icon">✓</div>
+      <div class="toast-body">
+        <div class="toast-title">Sukses</div>
+        <div class="toast-msg">
+          @if(str_starts_with(session('success'), '🎉'))
+            {{ session('success') }}
+          @else
+            {{ preg_replace('/^\s*✅\s*/u', '', session('success')) }}
+          @endif
+        </div>
+      </div>
+      <button class="toast-close" onclick="dismissToast(this.parentElement, event)">&times;</button>
+    </div>
+    <script>setTimeout(() => { const el = document.getElementById('toast-success'); if (el) dismissToast(el); }, 4500);</script>
+  @endif
+  @if(session('error'))
+    <div id="toast-error" class="toast-notification error" onclick="dismissToast(this)">
+      <div class="toast-icon">✕</div>
+      <div class="toast-body">
+        <div class="toast-title">Error</div>
+        <div class="toast-msg">{{ preg_replace('/^\s*❌\s*/u', '', session('error')) }}</div>
+      </div>
+      <button class="toast-close" onclick="dismissToast(this.parentElement, event)">&times;</button>
+    </div>
+    <script>setTimeout(() => { const el = document.getElementById('toast-error'); if (el) dismissToast(el); }, 5000);</script>
+  @endif
+  @if(session('info'))
+    <div id="toast-info" class="toast-notification info" onclick="dismissToast(this)">
+      <div class="toast-icon">ℹ</div>
+      <div class="toast-body">
+        <div class="toast-title">Informasi</div>
+        <div class="toast-msg">{{ preg_replace('/^\s*(ℹ️|ℹ)\s*/u', '', session('info')) }}</div>
+      </div>
+      <button class="toast-close" onclick="dismissToast(this.parentElement, event)">&times;</button>
+    </div>
+    <script>setTimeout(() => { const el = document.getElementById('toast-info'); if (el) dismissToast(el); }, 4500);</script>
+  @endif
 </div>
-<script>setTimeout(()=>{document.querySelector('.alert-success')?.remove()},4000)</script>
-@endif
-@if(session('error'))
-<div style="position:fixed;top:1rem;right:1rem;z-index:9999;max-width:380px">
-  <div class="alert alert-error">{{ str_starts_with(session('error'), '❌') ? session('error') : '❌ ' . session('error') }}</div>
-</div>
-<script>setTimeout(()=>{document.querySelector('.alert-error')?.remove()},5000)</script>
-@endif
-@if(session('info'))
-<div style="position:fixed;top:1rem;right:1rem;z-index:9999;max-width:380px">
-  <div class="alert alert-info">{{ (str_starts_with(session('info'), 'ℹ️') || str_starts_with(session('info'), 'ℹ')) ? session('info') : 'ℹ️ ' . session('info') }}</div>
-</div>
-<script>setTimeout(()=>{document.querySelector('.alert-info')?.remove()},4000)</script>
-@endif
 
 @guest
 <nav class="navbar" aria-label="Navigasi utama BuilderHub">
@@ -932,6 +1085,13 @@ document.addEventListener('submit', function(e) {
 document.querySelectorAll('.alert').forEach(el=>{
   setTimeout(()=>el.closest('div')?.remove(), 4500);
 });
+
+window.dismissToast = function(element, event) {
+  if (event) event.stopPropagation();
+  element.style.opacity = '0';
+  element.style.transform = 'translateY(20px) scale(0.9)';
+  setTimeout(() => element.remove(), 350);
+};
 
 window.toggleDesc = function(btn) {
   const shortEl = btn.previousElementSibling.previousElementSibling;
