@@ -40,7 +40,15 @@
       @if($user->is_verified)
       <a href="{{ route('projects') }}" class="btn btn-primary btn-sm">🔍 Cari Project</a>
       @endif
-      <a href="{{ route('messages.index') }}" class="btn btn-ghost btn-sm" style="border-color:var(--primary);color:var(--primary);background:var(--primary-light);font-weight:600;display:inline-flex;align-items:center;gap:6px">💬 Pesan / Chat</a>
+      @php
+        $unreadMessagesCount = \App\Models\Message::where('receiver_id', Auth::id())->where('is_read', false)->count();
+      @endphp
+      <a href="{{ route('messages.index') }}" class="btn btn-ghost btn-sm" style="border-color:var(--primary);color:var(--primary);background:var(--primary-light);font-weight:600;display:inline-flex;align-items:center;gap:6px">
+        💬 Pesan / Chat
+        @if($unreadMessagesCount > 0)
+          <span style="background:var(--red);color:#fff;font-size:0.75rem;font-weight:800;padding:2px 7px;border-radius:99px;line-height:1;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(239,68,68,0.4)">{{ $unreadMessagesCount }}</span>
+        @endif
+      </a>
       <form method="POST" action="{{ route('logout') }}" style="display:inline">
         @csrf
         <button type="submit" class="btn btn-ghost btn-sm" style="border-color:var(--red);color:var(--red);background:var(--red-light)" aria-label="Keluar dari akun">Keluar 🚪</button>

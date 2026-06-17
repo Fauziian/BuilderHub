@@ -5,7 +5,7 @@
   <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:350px 1fr;gap:1.5rem;height:78vh;background:rgba(255,255,255,0.03);backdrop-filter:blur(20px);border-radius:24px;border:1px solid rgba(255,255,255,0.1);overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.3)">
     
     <!-- LEFT PANEL: THREADS -->
-    <div style="border-right:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;background:rgba(0,0,0,0.2)">
+    <div style="border-right:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;background:rgba(0,0,0,0.2);min-height:0">
       <!-- Panel Header -->
       <div style="padding:1.5rem;border-bottom:1px solid rgba(255,255,255,0.08)">
         <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:1rem;display:flex;align-items:center;gap:8px">💬 Messenger Hub</h2>
@@ -27,7 +27,7 @@
     </div>
 
     <!-- RIGHT PANEL: CHAT WINDOW -->
-    <div style="display:flex;flex-direction:column;background:rgba(0,0,0,0.1)">
+    <div style="display:flex;flex-direction:column;background:rgba(0,0,0,0.1);min-height:0">
       <!-- Active Thread Header -->
       <div id="chatHeader" style="padding:1.25rem 1.5rem;border-bottom:1px solid rgba(255,255,255,0.08);display:none;align-items:center;justify-content:between;background:rgba(0,0,0,0.15)">
         <div style="display:flex;align-items:center;gap:.75rem">
@@ -180,7 +180,7 @@
     // Show Chat Workspace
     document.getElementById('chatPlaceholder').style.display = 'none';
     document.getElementById('chatHeader').style.display = 'flex';
-    document.getElementById('messagesArea').style.display = 'block';
+    document.getElementById('messagesArea').style.display = 'flex';
     document.getElementById('messagesList').style.display = 'block';
     document.getElementById('chatInputArea').style.display = 'block';
 
@@ -211,7 +211,7 @@
 
     // Start polling
     if (pollInterval) clearInterval(pollInterval);
-    pollInterval = setInterval(loadMessages, 3000);
+    pollInterval = setInterval(() => { loadMessages(); loadThreads(); }, 3000);
   }
 
   async function loadMessages() {

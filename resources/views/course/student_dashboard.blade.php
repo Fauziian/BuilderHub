@@ -4,7 +4,15 @@
 <div style="background:linear-gradient(135deg,#1E1260,#3D1FAF);color:#fff;padding:2.5rem 2rem;position:relative">
   <div style="position:absolute;inset:0;background:radial-gradient(ellipse 50% 50% at 80% 50%,rgba(255,255,255,.1) 0%,transparent 60%)"></div>
   <div style="max-width:1200px;margin:0 auto;display:flex;justify-content:flex-end;align-items:center;gap:.75rem;margin-bottom:1rem;position:relative;z-index:2">
-    <a href="{{ route('messages.index') }}" class="btn btn-ghost btn-sm" style="border-color:rgba(255,255,255,.25);color:#fff;background:rgba(255,255,255,.1);font-weight:600;display:inline-flex;align-items:center;gap:6px">💬 Pesan / Chat</a>
+    @php
+      $unreadMessagesCount = \App\Models\Message::where('receiver_id', Auth::id())->where('is_read', false)->count();
+    @endphp
+    <a href="{{ route('messages.index') }}" class="btn btn-ghost btn-sm" style="border-color:rgba(255,255,255,.25);color:#fff;background:rgba(255,255,255,.1);font-weight:600;display:inline-flex;align-items:center;gap:6px">
+      💬 Pesan / Chat
+      @if($unreadMessagesCount > 0)
+        <span style="background:var(--red);color:#fff;font-size:0.75rem;font-weight:800;padding:2px 7px;border-radius:99px;line-height:1;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(239,68,68,0.4)">{{ $unreadMessagesCount }}</span>
+      @endif
+    </a>
     <form method="POST" action="{{ route('logout') }}" style="display:inline">
       @csrf
       <button type="submit" class="btn btn-ghost btn-sm" style="border-color:rgba(255,255,255,.25);color:#fff;background:rgba(255,255,255,.1);font-weight:600" aria-label="Keluar dari akun">Keluar 🚪</button>
