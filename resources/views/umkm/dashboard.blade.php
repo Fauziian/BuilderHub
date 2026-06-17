@@ -197,7 +197,15 @@
           @endif
         </div>
       </div>
-      <p style="font-size:.85rem;color:var(--text2);margin-bottom:.75rem">{{ Str::limit($project->description, 120) }}</p>
+      <div style="font-size:.85rem;color:var(--text2);margin-bottom:.75rem;line-height:1.5">
+        @if(strlen($project->description) > 120)
+          <span class="desc-short">{{ Str::limit($project->description, 120) }}</span>
+          <span class="desc-full" style="display:none">{{ $project->description }}</span>
+          <button type="button" onclick="toggleDesc(this)" style="background:none;border:none;color:var(--primary);font-size:0.78rem;font-weight:700;cursor:pointer;padding:0;margin-left:4px;display:inline">Selengkapnya</button>
+        @else
+          <span>{{ $project->description }}</span>
+        @endif
+      </div>
 
       @if($project->status === 'open' && $project->bids->count())
       <div style="background:var(--bg2);border-radius:var(--radius);padding:1rem;margin-bottom:.75rem">

@@ -29,6 +29,10 @@
   --shadow-glow: 0 0 20px rgba(79, 70, 229, 0.25);
 }
 body { font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text); background: var(--bg); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+p, span, div, td, th, h1, h2, h3, h4, h5, h6, strong, a, label {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
 a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
 button, input, select, textarea { font-family: inherit; cursor: pointer; border: none; background: none; transition: all 0.2s ease; }
 input, select, textarea { cursor: text; }
@@ -929,6 +933,20 @@ document.addEventListener('submit', function(e) {
 document.querySelectorAll('.alert').forEach(el=>{
   setTimeout(()=>el.closest('div')?.remove(), 4500);
 });
+
+window.toggleDesc = function(btn) {
+  const shortEl = btn.previousElementSibling.previousElementSibling;
+  const fullEl = btn.previousElementSibling;
+  if (fullEl.style.display === 'none') {
+    fullEl.style.display = 'inline';
+    shortEl.style.display = 'none';
+    btn.textContent = 'Sembunyikan';
+  } else {
+    fullEl.style.display = 'none';
+    shortEl.style.display = 'inline';
+    btn.textContent = 'Selengkapnya';
+  }
+};
 </script>
 </body>
 </html>

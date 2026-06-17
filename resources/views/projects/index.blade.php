@@ -47,7 +47,15 @@
             @endif
           </div>
         </div>
-        <p style="color:var(--text2);font-size:.875rem;margin-bottom:.75rem;line-height:1.6">{{ Str::limit($project->description, 130) }}</p>
+        <div style="color:var(--text2);font-size:.875rem;margin-bottom:.75rem;line-height:1.6">
+          @if(strlen($project->description) > 130)
+            <span class="desc-short">{{ Str::limit($project->description, 130) }}</span>
+            <span class="desc-full" style="display:none">{{ $project->description }}</span>
+            <button type="button" onclick="toggleDesc(this)" style="background:none;border:none;color:var(--primary);font-size:0.78rem;font-weight:700;cursor:pointer;padding:0;margin-left:4px;display:inline">Selengkapnya</button>
+          @else
+            <span>{{ $project->description }}</span>
+          @endif
+        </div>
         <div class="tag-list" style="margin-bottom:.75rem">@foreach(($project->tags ?? []) as $tag)<span class="tag">{{ $tag }}</span>@endforeach</div>
         <div style="display:flex;justify-content:space-between;align-items:center;color:var(--text3);font-size:.78rem;padding-top:.75rem;border-top:1px solid var(--border)">
           <span>🕐 {{ $project->deadline->format('d M Y') }}</span>

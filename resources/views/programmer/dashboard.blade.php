@@ -403,7 +403,15 @@
             @endif
           </div>
         </div>
-        <p style="font-size:.85rem;color:var(--text2);margin-bottom:.75rem">{{ Str::limit($p->description, 100) }}</p>
+        <div style="font-size:.85rem;color:var(--text2);margin-bottom:.75rem;line-height:1.5">
+          @if(strlen($p->description) > 120)
+            <span class="desc-short">{{ Str::limit($p->description, 120) }}</span>
+            <span class="desc-full" style="display:none">{{ $p->description }}</span>
+            <button type="button" onclick="toggleDesc(this)" style="background:none;border:none;color:var(--primary);font-size:0.78rem;font-weight:700;cursor:pointer;padding:0;margin-left:4px;display:inline">Selengkapnya</button>
+          @else
+            <span>{{ $p->description }}</span>
+          @endif
+        </div>
         <div class="tag-list" style="margin-bottom:.75rem">
           @foreach(($p->tags ?? []) as $tag)<span class="tag">{{ $tag }}</span>@endforeach
         </div>
