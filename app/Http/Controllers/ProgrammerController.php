@@ -6,8 +6,10 @@ use App\Models\Bid;
 use App\Models\Certificate;
 use App\Models\Course;
 use App\Models\CourseEnrollment;
+use App\Models\Notification;
 use App\Models\Portfolio;
 use App\Models\Project;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -57,6 +59,11 @@ class ProgrammerController extends Controller
             return back()->with('error', 'Anda harus memiliki minimal 1 Portofolio atau 1 Sertifikat yang telah disetujui/diverifikasi oleh admin terlebih dahulu untuk mengajukan penawaran.');
         }
 
+        // Blokir penawaran jika deadline project sudah terlampaui
+        if ($project->deadline && now()->startOfDay()->gt($project->deadline->startOfDay())) {
+            return back()->with('error', '⛔ Deadline project ini sudah terlampaui (' . $project->deadline->format('d M Y') . '). Penawaran tidak dapat dikirim.');
+        }
+
         $daysRemaining = max(1, (int)now()->startOfDay()->diffInDays($project->deadline->startOfDay()));
 
         $request->validate([
@@ -78,12 +85,23 @@ class ProgrammerController extends Controller
         }
 
         Bid::create([
-            'project_id' => $project->id,
-            'programmer_id' => Auth::id(),
-            'amount' => $request->amount,
-            'message' => $request->message,
-            'timeline_days' => $request->timeline_days,
-            'status' => 'pending',
+            'project_id'      => $project->id,
+            'programmer_id'   => Auth::id(),
+            'amount'          => $request->amount,
+            'message'         => $request->message,
+            'timeline_days'   => $request->timeline_days,
+            'status'          => 'pending',
+            'is_seen_by_umkm' => false,
+        ]);
+
+        // Kirim notifikasi ke pemilik project (UMKM)
+        Notification::create([
+            'user_id' => $project->umkm_id,
+            'title'   => 'Penawaran Baru Masuk! 💰',
+            'message' => $user->name . ' mengajukan penawaran untuk project "' . $project->title . '" sebesar Rp ' . number_format($request->amount, 0, ',', '.'),
+            'type'    => 'bid',
+            'link'    => '/umkm/dashboard#projects',
+            'is_read' => false,
         ]);
 
         return back()->with('success', '✅ Penawaran berhasil dikirim! UMKM akan menghubungi Anda jika tertarik.');
@@ -315,6 +333,9 @@ class ProgrammerController extends Controller
                 'order'     => $index + 1,
             ]);
         }
+
+        // Notifikasi ke admin bahwa ada course baru yang perlu ditinjau
+        NotificationService::courseSubmitted($user->id, $user->name, $request->title);
 
         return redirect()->route('programmer.dashboard')->with('success', '✅ Course berhasil dibuat! Video materi sudah tersedia. Admin akan meninjaunya.');
     }

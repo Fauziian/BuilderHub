@@ -9,9 +9,9 @@
     100% { transform: translateY(0px) rotate(0deg); }
   }
   @keyframes pulse-glow {
-    0% { box-shadow: 0 0 20px rgba(129, 140, 248, 0.15); }
-    50% { box-shadow: 0 0 40px rgba(129, 140, 248, 0.45); }
-    100% { box-shadow: 0 0 20px rgba(129, 140, 248, 0.15); }
+    0% { box-shadow: 0 0 25px rgba(99, 102, 241, 0.2); }
+    50% { box-shadow: 0 0 50px rgba(99, 102, 241, 0.5); }
+    100% { box-shadow: 0 0 25px rgba(99, 102, 241, 0.2); }
   }
   
   .fantasy-card {
@@ -20,7 +20,7 @@
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 24px;
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
     overflow: hidden;
   }
@@ -32,29 +32,30 @@
     z-index: 1;
     pointer-events: none;
   }
-  .fantasy-card:hover {
-    transform: translateY(-8px) scale(1.02);
-    border-color: rgba(129, 140, 248, 0.4);
-    background: rgba(255, 255, 255, 0.04);
-  }
   
   .portal-umkm:hover {
-    box-shadow: 0 15px 35px rgba(79, 70, 229, 0.25);
-    border-color: rgba(79, 70, 229, 0.5);
+    transform: translateY(-8px);
+    box-shadow: 0 20px 50px rgba(99, 102, 241, 0.4);
+    border-color: #6366f1;
+    background: rgba(99, 102, 241, 0.04);
   }
   .portal-programmer:hover {
-    box-shadow: 0 15px 35px rgba(245, 158, 11, 0.25);
-    border-color: rgba(245, 158, 11, 0.5);
+    transform: translateY(-8px);
+    box-shadow: 0 20px 50px rgba(236, 72, 153, 0.4);
+    border-color: #ec4899;
+    background: rgba(236, 72, 153, 0.04);
   }
   .portal-student:hover {
-    box-shadow: 0 15px 35px rgba(16, 185, 129, 0.25);
-    border-color: rgba(16, 185, 129, 0.5);
+    transform: translateY(-8px);
+    box-shadow: 0 20px 50px rgba(16, 185, 129, 0.4);
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.04);
   }
 
   .earning-card {
-    transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     opacity: 0;
-    transform: translateX(100px) rotateY(-5deg) rotateX(5deg);
+    transform: translateX(50px) scale(0.97);
     position: absolute;
     top: 0;
     left: 0;
@@ -64,22 +65,22 @@
   
   .earning-card.active {
     opacity: 1;
-    transform: translateX(0) rotateY(-5deg) rotateX(5deg);
+    transform: translateX(0) scale(1);
     position: relative;
     pointer-events: auto;
   }
   
   .earning-card.exit {
     opacity: 0;
-    transform: translateX(-100px) rotateY(-5deg) rotateX(5deg);
+    transform: translateX(-50px) scale(0.97);
     position: absolute;
     pointer-events: none;
   }
   
   .earning-badge {
-    transition: opacity 0.6s ease, transform 0.6s ease !important;
+    transition: opacity 0.5s ease, transform 0.5s ease;
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(15px);
     pointer-events: none;
     display: none !important;
   }
@@ -95,9 +96,9 @@
 <!-- HERO & PORTALS SECTION (High-end Fantasy Theme) -->
 <section class="hero" style="background:linear-gradient(135deg, #0A0A14 0%, #121228 50%, #0F0F1A 100%);min-height:100vh;display:flex;align-items:center;padding:7rem 2rem 5rem 2rem;position:relative;overflow:hidden">
   <!-- Interactive Cosmic Orbs -->
-  <div style="position:absolute;top:-10%;right:-5%;width:700px;height:700px;background:radial-gradient(circle, rgba(129, 140, 248, 0.25) 0%, transparent 70%);border-radius:50%;filter:blur(80px);z-index:0;animation:pulse 12s infinite alternate;"></div>
-  <div style="position:absolute;bottom:-15%;left:-5%;width:600px;height:600px;background:radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%);border-radius:50%;filter:blur(80px);z-index:0;animation:pulse 15s infinite alternate-reverse;"></div>
-  <div style="position:absolute;top:40%;left:35%;width:400px;height:400px;background:radial-gradient(circle, rgba(245, 158, 11, 0.12) 0%, transparent 70%);border-radius:50%;filter:blur(60px);z-index:0;animation:pulse 10s infinite alternate;"></div>
+  <div style="position:absolute;top:-10%;right:-5%;width:700px;height:700px;background:radial-gradient(circle, rgba(99, 102, 241, 0.35) 0%, transparent 70%);border-radius:50%;filter:blur(80px);z-index:0;animation:pulse 12s infinite alternate;"></div>
+  <div style="position:absolute;bottom:-15%;left:-5%;width:600px;height:600px;background:radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, transparent 70%);border-radius:50%;filter:blur(80px);z-index:0;animation:pulse 15s infinite alternate-reverse;"></div>
+  <div style="position:absolute;top:40%;left:35%;width:500px;height:500px;background:radial-gradient(circle, rgba(236, 72, 153, 0.25) 0%, transparent 70%);border-radius:50%;filter:blur(70px);z-index:0;animation:pulse 10s infinite alternate;"></div>
 
   <div style="max-width:1300px;margin:0 auto;width:100%;position:relative;z-index:1;display:flex;flex-direction:column;gap:5rem">
     
@@ -132,7 +133,7 @@
       </div>
 
       <!-- Live Earning Simulation Hub -->
-      <div style="position:relative;perspective:1000px;min-height:510px">
+      <div id="earningHub" style="position:relative;min-height:510px;transition:all 0.5s ease;border-radius:24px;border:1px solid rgba(99, 102, 241, 0.3);box-shadow:0 25px 60px -10px rgba(99, 102, 241, 0.25)">
         <!-- Tabs Switcher -->
         <div style="display:flex;gap:8px;margin-bottom:1rem;background:rgba(255,255,255,0.03);backdrop-filter:blur(10px);padding:4px;border-radius:12px;border:1px solid rgba(255,255,255,0.08);position:relative;z-index:2">
           <button onclick="switchTab('project', true)" id="tabBtnProject" style="flex:1;background:var(--primary);border:none;border-radius:8px;padding:10px;color:#fff;font-size:0.8rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:0.3s">
@@ -146,7 +147,7 @@
         <!-- Wrapper for sliding cards -->
         <div style="position:relative;width:100%">
           <!-- Card Project Earning -->
-          <div id="cardProject" class="earning-card active" style="background:rgba(255,255,255,0.02);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);border-radius:var(--radius-xl);padding:2.5rem;color:#fff;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5)" onmouseover="this.style.transform='rotateY(0deg) rotateX(0deg)'" onmouseout="this.style.transform='rotateY(-5deg) rotateX(5deg)'">
+          <div id="cardProject" class="earning-card active" style="background:rgba(255,255,255,0.02);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);border-radius:var(--radius-xl);padding:2.5rem;color:#fff;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5)">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem">
               <div>
                 <div style="font-size:0.9rem;color:rgba(255,255,255,0.6);font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem">Pendapatan Programmer</div>
@@ -179,7 +180,7 @@
           </div>
 
           <!-- Card Course Earning -->
-          <div id="cardCourse" class="earning-card" style="background:rgba(255,255,255,0.02);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);border-radius:var(--radius-xl);padding:2.5rem;color:#fff;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5)" onmouseover="this.style.transform='rotateY(0deg) rotateX(0deg)'" onmouseout="this.style.transform='rotateY(-5deg) rotateX(5deg)'">
+          <div id="cardCourse" class="earning-card" style="background:rgba(255,255,255,0.02);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);border-radius:var(--radius-xl);padding:2.5rem;color:#fff;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5)">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem">
               <div>
                 <div style="font-size:0.9rem;color:rgba(255,255,255,0.6);font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem">Pendapatan Course (Programmer Expert)</div>
@@ -241,35 +242,35 @@
       <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:2rem">
         
         <!-- Portal UMKM -->
-        <div class="fantasy-card portal-umkm" style="padding:2.5rem;display:flex;flex-direction:column;justify-content:space-between;height:340px;background:radial-gradient(circle at top right, rgba(79, 70, 229, 0.08) 0%, transparent 60%)">
+        <div class="fantasy-card portal-umkm" style="padding:2.5rem;display:flex;flex-direction:column;justify-content:space-between;height:340px;background:radial-gradient(circle at top right, rgba(99, 102, 241, 0.12) 0%, transparent 60%)">
           <div>
-            <div style="width:52px;height:52px;border-radius:14px;background:rgba(79,70,229,0.15);border:1px solid rgba(79,70,229,0.3);display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin-bottom:1.5rem;box-shadow:0 0 15px rgba(79,70,229,0.2)">🏢</div>
+            <div style="width:52px;height:52px;border-radius:14px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin-bottom:1.5rem;box-shadow:0 0 15px rgba(99,102,241,0.2)">🏢</div>
             <h3 style="font-size:1.4rem;font-weight:800;color:#fff;margin-bottom:0.75rem">Digitalisasi UMKM</h3>
             <p style="color:rgba(255,255,255,0.6);font-size:0.9rem;line-height:1.6">
               Go digital dengan aman. Hubungkan bisnis Anda dengan programmer handal untuk membuat web, aplikasi mobile, atau software kustom.
             </p>
           </div>
-          <a href="{{ route('register') }}?role=umkm" class="btn btn-primary" style="width:100%;text-align:center;padding:12px;font-size:0.9rem;background:linear-gradient(135deg, var(--primary), #3b82f6);box-shadow:0 8px 20px rgba(79,70,229,0.3)">
+          <a href="{{ route('register') }}?role=umkm" class="btn" style="width:100%;text-align:center;padding:12px;font-size:0.9rem;color:#fff;border:none;background:linear-gradient(135deg, #6366f1, #a855f7);box-shadow:0 8px 20px rgba(99,102,241,0.35)">
             Mulai Project UMKM →
           </a>
         </div>
 
         <!-- Portal Programmer -->
-        <div class="fantasy-card portal-programmer" style="padding:2.5rem;display:flex;flex-direction:column;justify-content:space-between;height:340px;background:radial-gradient(circle at top right, rgba(245, 158, 11, 0.08) 0%, transparent 60%)">
+        <div class="fantasy-card portal-programmer" style="padding:2.5rem;display:flex;flex-direction:column;justify-content:space-between;height:340px;background:radial-gradient(circle at top right, rgba(236, 72, 153, 0.12) 0%, transparent 60%)">
           <div>
-            <div style="width:52px;height:52px;border-radius:14px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:1.5rem;box-shadow:0 0 15px rgba(245,158,11,0.2);color:#F59E0B;font-weight:900;font-family:monospace">&lt;/&gt;</div>
+            <div style="width:52px;height:52px;border-radius:14px;background:rgba(236,72,153,0.15);border:1px solid rgba(236,72,153,0.3);display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:1.5rem;box-shadow:0 0 15px rgba(236,72,153,0.2);color:#ec4899;font-weight:900;font-family:monospace">&lt;/&gt;</div>
             <h3 style="font-size:1.4rem;font-weight:800;color:#fff;margin-bottom:0.75rem">Programmer Realm</h3>
             <p style="color:rgba(255,255,255,0.6);font-size:0.9rem;line-height:1.6">
               Raih pendapatan melimpah. Kerjakan proyek terverifikasi dengan potongan minim, serta jual course pemrograman dengan bagi hasil 80%.
             </p>
           </div>
-          <a href="{{ route('register') }}?role=programmer" class="btn" style="width:100%;text-align:center;padding:12px;font-size:0.9rem;background:linear-gradient(135deg, var(--orange), #d97706);color:#fff;border:none;box-shadow:0 8px 20px rgba(245,158,11,0.3)">
+          <a href="{{ route('register') }}?role=programmer" class="btn" style="width:100%;text-align:center;padding:12px;font-size:0.9rem;background:linear-gradient(135deg, #ec4899, #f59e0b);color:#fff;border:none;box-shadow:0 8px 20px rgba(236,72,153,0.35)">
             Daftar Programmer →
           </a>
         </div>
 
         <!-- Portal Pelajar -->
-        <div class="fantasy-card portal-student" style="padding:2.5rem;display:flex;flex-direction:column;justify-content:space-between;height:340px;background:radial-gradient(circle at top right, rgba(16, 185, 129, 0.08) 0%, transparent 60%)">
+        <div class="fantasy-card portal-student" style="padding:2.5rem;display:flex;flex-direction:column;justify-content:space-between;height:340px;background:radial-gradient(circle at top right, rgba(16, 185, 129, 0.12) 0%, transparent 60%)">
           <div>
             <div style="width:52px;height:52px;border-radius:14px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin-bottom:1.5rem;box-shadow:0 0 15px rgba(16,185,129,0.2)">🎓</div>
             <h3 style="font-size:1.4rem;font-weight:800;color:#fff;margin-bottom:0.75rem">Akselerasi Pelajar</h3>
@@ -277,7 +278,7 @@
               Akselerasikan keahlian Anda. Pelajari studi kasus proyek industri nyata, buat tugas bersertifikat, dan hubungkan profil Anda ke UMKM.
             </p>
           </div>
-          <a href="{{ route('courses.index') }}" class="btn" style="width:100%;text-align:center;padding:12px;font-size:0.9rem;background:linear-gradient(135deg, #10B981, #059669);color:#fff;border:none;box-shadow:0 8px 20px rgba(16,185,129,0.3)">
+          <a href="{{ route('courses.index') }}" class="btn" style="width:100%;text-align:center;padding:12px;font-size:0.9rem;background:linear-gradient(135deg, #10b981, #0ea5e9);color:#fff;border:none;box-shadow:0 8px 20px rgba(16,185,129,0.35)">
             Jelajahi Course →
           </a>
         </div>
@@ -445,27 +446,29 @@
     <div class="course-grid">
       @foreach($courses as $course)
       <article class="course-card">
-        <div class="course-thumb" style="background:linear-gradient(135deg,#1E1260,#{{ ['6C38FF','0F4C75','7C3626','1A1A2E'][($loop->index % 4)] }})">
-          <span style="font-size:2.5rem">{{ ['⚛','🔌','🚀','📱'][$loop->index % 4] }}</span>
-          <span class="level-badge level-{{ $course->level }}">{{ $course->level_label }}</span>
-          @if($course->is_free)<span style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,.5);color:#fff;padding:3px 9px;border-radius:99px;font-size:.7rem;font-weight:700">Gratis</span>@endif
-        </div>
-        <div style="padding:1rem;flex:1">
-          <h3 style="font-size:.95rem;font-weight:700;margin-bottom:.4rem;line-height:1.4">{{ $course->title }}</h3>
-          <p style="font-size:.8rem;color:var(--text2);margin-bottom:.75rem;line-height:1.5">{{ Str::limit($course->description, 80) }}</p>
-          <div style="display:flex;align-items:center;gap:6px;margin-bottom:.5rem">
-            <div style="width:22px;height:22px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:#fff">{{ strtoupper(substr($course->instructor->name, 0, 1)) }}</div>
-            <span style="font-size:.78rem;color:var(--text2)">{{ $course->instructor->name }}</span>
-            <span style="color:var(--green);font-size:.75rem">✓</span>
+        <div style="display:flex;flex-direction:column;height:100%">
+          <div class="course-thumb" style="background:linear-gradient(135deg,#1E1260,#{{ ['6C38FF','0F4C75','7C3626','1A1A2E'][($loop->index % 4)] }})">
+            <span style="font-size:2.5rem">{{ ['⚛','🔌','🚀','📱'][$loop->index % 4] }}</span>
+            <span class="level-badge level-{{ $course->level }}">{{ $course->level_label }}</span>
+            @if($course->is_free)<span style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,.5);color:#fff;padding:3px 9px;border-radius:99px;font-size:.7rem;font-weight:700">Gratis</span>@endif
           </div>
-          <div style="display:flex;align-items:center;justify-content:space-between;font-size:.78rem;color:var(--text3)">
-            <span>⭐ {{ $course->rating }} · {{ number_format($course->total_students) }} siswa</span>
-            <span>▶ {{ $course->total_videos }} video · {{ $course->duration }}</span>
+          <div style="padding:1rem;flex:1">
+            <h3 style="font-size:.95rem;font-weight:700;margin-bottom:.4rem;line-height:1.4">{{ $course->title }}</h3>
+            <p style="font-size:.8rem;color:var(--text2);margin-bottom:.75rem;line-height:1.5">{{ Str::limit($course->description, 80) }}</p>
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:.5rem">
+              <div style="width:22px;height:22px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:#fff">{{ strtoupper(substr($course->instructor->name, 0, 1)) }}</div>
+              <span style="font-size:.78rem;color:var(--text2)">{{ $course->instructor->name }}</span>
+              <span style="color:var(--green);font-size:.75rem">✓</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;font-size:.78rem;color:var(--text3)">
+              <span>⭐ {{ $course->rating }} · {{ number_format($course->total_students) }} siswa</span>
+              <span>▶ {{ $course->total_videos }} video · {{ $course->duration }}</span>
+            </div>
           </div>
-        </div>
-        <div style="padding:.75rem 1rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:1rem;font-weight:800;color:{{ $course->is_free ? 'var(--green)' : 'var(--text)' }}">{{ $course->price_formatted }}</span>
-          <a href="{{ route('courses.detail', $course) }}" class="btn btn-primary btn-sm" aria-label="Lihat detail kursus {{ $course->title }}">Lihat Kursus</a>
+          <div style="padding:.75rem 1rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:1rem;font-weight:800;color:{{ $course->is_free ? 'var(--green)' : 'var(--text)' }}">{{ $course->price_formatted }}</span>
+            <a href="{{ route('courses.detail', $course) }}" class="btn btn-primary btn-sm" aria-label="Lihat detail kursus {{ $course->title }}">Lihat Kursus</a>
+          </div>
         </div>
       </article>
       @endforeach
@@ -503,15 +506,19 @@
     const cardCourse = document.getElementById('cardCourse');
     const badgeProject = document.getElementById('badgeProject');
     const badgeCourse = document.getElementById('badgeCourse');
+    const earningHub = document.getElementById('earningHub');
 
     currentTab = type;
 
     if (type === 'project') {
       // Button states
-      btnProject.style.background = 'var(--primary)';
+      btnProject.style.background = 'linear-gradient(135deg, #6366f1, #a855f7)';
       btnProject.style.color = '#fff';
+      btnProject.style.boxShadow = '0 4px 15px rgba(99, 102, 241, 0.4)';
+      
       btnCourse.style.background = 'transparent';
       btnCourse.style.color = 'rgba(255,255,255,0.6)';
+      btnCourse.style.boxShadow = 'none';
 
       // Card states
       cardCourse.classList.remove('active');
@@ -523,12 +530,21 @@
       // Badge states
       badgeCourse.classList.remove('active');
       badgeProject.classList.add('active');
+
+      // Container border & glow
+      if (earningHub) {
+        earningHub.style.borderColor = 'rgba(99, 102, 241, 0.3)';
+        earningHub.style.boxShadow = '0 25px 60px -10px rgba(99, 102, 241, 0.25)';
+      }
     } else {
       // Button states
-      btnCourse.style.background = 'var(--orange)';
+      btnCourse.style.background = 'linear-gradient(135deg, #ec4899, #f59e0b)';
       btnCourse.style.color = '#fff';
+      btnCourse.style.boxShadow = '0 4px 15px rgba(236, 72, 153, 0.4)';
+      
       btnProject.style.background = 'transparent';
       btnProject.style.color = 'rgba(255,255,255,0.6)';
+      btnProject.style.boxShadow = 'none';
 
       // Card states
       cardProject.classList.remove('active');
@@ -540,6 +556,12 @@
       // Badge states
       badgeProject.classList.remove('active');
       badgeCourse.classList.add('active');
+
+      // Container border & glow
+      if (earningHub) {
+        earningHub.style.borderColor = 'rgba(236, 72, 153, 0.3)';
+        earningHub.style.boxShadow = '0 25px 60px -10px rgba(236, 72, 153, 0.25)';
+      }
     }
   }
 

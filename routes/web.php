@@ -36,6 +36,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/chat/threads', [ChatController::class, 'getThreads'])->name('chat.threads');
     Route::get('/api/chat/messages/{contact}', [ChatController::class, 'getMessages'])->name('chat.messages');
     Route::post('/api/chat/send', [ChatController::class, 'sendMessage'])->name('chat.send');
+
+    // Notifikasi bell global (semua role)
+    Route::get('/api/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/api/notifications/mark-read', [\App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('notifications.mark-read');
+    Route::post('/api/notifications/{notification}/read', [\App\Http\Controllers\NotificationController::class, 'markRead'])->name('notifications.read');
 });
 
 // Programmer routes
@@ -88,6 +93,10 @@ Route::prefix('umkm')->name('umkm.')->middleware('auth')->group(function () {
     // Chat with Programmer
     Route::post('/project/{project}/message', [UmkmController::class, 'sendMessage'])->name('project.message');
     Route::get('/project/{project}/messages', [UmkmController::class, 'getMessages'])->name('project.messages');
+
+    // Notifikasi bid baru
+    Route::post('/bids/mark-seen', [UmkmController::class, 'markBidsSeen'])->name('bids.mark-seen');
+    Route::get('/bids/unseen-count', [UmkmController::class, 'getUnseenBidsCount'])->name('bids.unseen-count');
 });
 
 // Course Manager & Student routes

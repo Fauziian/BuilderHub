@@ -72,7 +72,7 @@ input, select, textarea { cursor: text; }
 
 /* CARDS */
 .card { background: var(--bg2); border: 1px solid rgba(129,140,248,0.15); border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: 0 4px 25px rgba(0,0,0,0.02); transition: all 0.4s cubic-bezier(0.16,1,0.3,1); position: relative; overflow: hidden; }
-.card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--primary), var(--accent)); opacity: 0.8; transition: all 0.3s ease; }
+.card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--primary), var(--accent)); opacity: 0.8; transition: all 0.3s ease; clip-path: inset(0 0 0 0 round var(--radius-lg) var(--radius-lg) 0 0); }
 .card:hover { box-shadow: 0 20px 40px rgba(129,140,248,0.12); transform: translateY(-5px); border-color: rgba(129,140,248,0.45); }
 .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
 .card-title { font-size: 1.1rem; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 8px; }
@@ -157,6 +157,8 @@ input, select, textarea { cursor: text; }
 .project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem; }
 .project-card { border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; background: var(--bg2); transition: all 0.3s ease; display: flex; flex-direction: column; }
 .project-card:hover { box-shadow: var(--shadow-lg); border-color: var(--primary); transform: translateY(-4px); }
+.project-card.overdue-card { border-color: rgba(239,68,68,0.35); background: linear-gradient(135deg, #fff 80%, #FEF2F2 100%); }
+.project-card.overdue-card:hover { border-color: var(--red); box-shadow: 0 8px 24px rgba(239,68,68,0.12); transform: translateY(-4px); }
 
 .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem; }
 .course-card { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; background: var(--bg2); transition: all 0.3s ease; display: flex; flex-direction: column; box-shadow: var(--shadow); }
@@ -627,6 +629,190 @@ footer { background: var(--dark); color: rgba(255,255,255,0.7); padding: 5rem 2r
 </nav>
 @endguest
 
+@auth
+<nav class="navbar" aria-label="Navigasi utama BuilderHub">
+  <div class="navbar-inner" style="justify-content: flex-end;">
+    <div class="nav-right" style="gap:.75rem">
+      {{-- BELL NOTIFIKASI --}}
+      <div id="notifBellWrapper" style="position:relative">
+        <button id="notifBellBtn" onclick="toggleNotifDropdown()" style="position:relative;width:42px;height:42px;border-radius:12px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;background:var(--bg2);cursor:pointer;transition:.2s;font-size:1.15rem" title="Notifikasi" aria-label="Buka notifikasi">
+          🔔
+          <span id="notifBadge" style="display:none;position:absolute;top:4px;right:4px;min-width:16px;height:16px;background:var(--red);color:#fff;font-size:0.68rem;font-weight:800;border-radius:99px;padding:0 4px;line-height:16px;text-align:center;border:2px solid #fff;box-shadow:0 2px 6px rgba(239,68,68,0.5)">0</span>
+        </button>
+        {{-- DROPDOWN NOTIF --}}
+        <div id="notifDropdown" style="display:none;position:absolute;top:calc(100% + 10px);right:0;width:360px;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius-lg);box-shadow:0 20px 50px rgba(0,0,0,0.12);z-index:9999;overflow:hidden">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:.85rem 1rem;border-bottom:1px solid var(--border);background:var(--bg3)">
+            <span style="font-size:.95rem;font-weight:800">🔔 Notifikasi</span>
+            <button onclick="markAllNotifRead()" style="font-size:.75rem;color:var(--primary);font-weight:700;background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:8px;transition:.2s" id="markAllReadBtn">Tandai Semua Dibaca</button>
+          </div>
+          <div id="notifList" style="max-height:380px;overflow-y:auto">
+            <div style="text-align:center;padding:2rem;color:var(--text3);font-size:.875rem">Memuat notifikasi...</div>
+          </div>
+          <div style="padding:.6rem 1rem;border-top:1px solid var(--border);background:var(--bg3);text-align:center">
+            <span style="font-size:.78rem;color:var(--text3)">Hanya menampilkan 15 notifikasi terbaru</span>
+          </div>
+        </div>
+      </div>
+
+      {{-- USER AVATAR --}}
+      <a href="{{ route('dashboard') }}" class="nav-avatar-btn" style="text-decoration:none">
+        <div class="nav-av">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
+        <div>
+          <div style="font-size:.85rem;font-weight:700;color:var(--text)">{{ Str::limit(Auth::user()->name, 14) }}</div>
+          <div style="font-size:.72rem;color:var(--text3);font-weight:600;text-transform:capitalize">{{ Auth::user()->role }}</div>
+        </div>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<style>
+#notifBellBtn:hover { background: var(--bg3) !important; border-color: var(--primary) !important; }
+.notif-item { display:flex;align-items:flex-start;gap:.75rem;padding:.85rem 1rem;border-bottom:1px solid var(--border);cursor:pointer;transition:.15s;text-decoration:none; }
+.notif-item:hover { background:var(--bg3); }
+.notif-item.unread { background:linear-gradient(135deg,#F8F7FF,#fff); }
+.notif-item-icon { width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;background:var(--bg3); }
+.notif-item-body { flex:1;min-width:0; }
+.notif-item-title { font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:2px;line-height:1.3; }
+.notif-item-msg { font-size:.76rem;color:var(--text2);line-height:1.4; }
+.notif-item-time { font-size:.7rem;color:var(--text3);margin-top:3px; }
+.notif-unread-dot { width:8px;height:8px;background:var(--primary);border-radius:50%;flex-shrink:0;margin-top:4px; }
+@keyframes notifSlide { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+#notifDropdown.open { animation: notifSlide 0.2s ease; }
+</style>
+
+<script>
+// ===== NOTIFICATION BELL SYSTEM =====
+let notifOpen = false;
+let notifData = [];
+
+const NOTIF_ICONS = {
+  'bid': '💰', 'bid_accepted': '🎉', 'bid_rejected': '❌',
+  'project_pending': '📋', 'project_approved': '✅', 'project_rejected': '🚫',
+  'new_project': '🔥', 'project_completed': '🏆',
+  'course_pending': '📚', 'course_published': '🎉', 'course_unpublished': '⚠️', 'new_course': '🆕',
+  'account_verified': '✅', 'portfolio_approved': '✅', 'portfolio_rejected': '❌',
+  'certificate_approved': '✅', 'certificate_rejected': '❌',
+  'info': 'ℹ️', 'default': '🔔'
+};
+const NOTIF_COLORS = {
+  'bid': '#EEF2FF', 'bid_accepted': '#ECFDF5', 'bid_rejected': '#FEF2F2',
+  'project_approved': '#ECFDF5', 'project_rejected': '#FEF2F2', 'new_project': '#FFF7ED',
+  'project_completed': '#FFFBEB', 'course_published': '#ECFDF5', 'new_course': '#EEF2FF',
+  'account_verified': '#ECFDF5', 'portfolio_approved': '#ECFDF5', 'certificate_approved': '#ECFDF5',
+  'default': '#F8FAFC'
+};
+
+function toggleNotifDropdown() {
+  notifOpen = !notifOpen;
+  const dd = document.getElementById('notifDropdown');
+  if (notifOpen) {
+    dd.style.display = 'block';
+    dd.classList.add('open');
+    loadNotifications();
+  } else {
+    dd.style.display = 'none';
+    dd.classList.remove('open');
+  }
+}
+
+function loadNotifications() {
+  fetch(window.APP_URL + '/api/notifications', {
+    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+  }).then(r => r.json()).then(data => {
+    notifData = data.notifications || [];
+    renderNotifications(notifData);
+    updateBadge(data.unread_count);
+  }).catch(() => {
+    document.getElementById('notifList').innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text3);font-size:.875rem">Gagal memuat notifikasi.</div>';
+  });
+}
+
+function renderNotifications(notifications) {
+  const list = document.getElementById('notifList');
+  if (!notifications.length) {
+    list.innerHTML = '<div style="text-align:center;padding:2.5rem 1rem"><div style="font-size:2rem;margin-bottom:.5rem">🔕</div><div style="color:var(--text3);font-size:.875rem">Belum ada notifikasi</div></div>';
+    return;
+  }
+  list.innerHTML = notifications.map(n => {
+    const icon = NOTIF_ICONS[n.type] || NOTIF_ICONS.default;
+    const bg = NOTIF_COLORS[n.type] || NOTIF_COLORS.default;
+    return `
+      <a class="notif-item${n.is_read ? '' : ' unread'}" href="${n.link || '#'}" onclick="markNotifRead(${n.id}, this, event)">
+        <div class="notif-item-icon" style="background:${bg}">${icon}</div>
+        <div class="notif-item-body">
+          <div class="notif-item-title">${n.title}</div>
+          <div class="notif-item-msg">${n.message.substring(0, 100)}${n.message.length > 100 ? '...' : ''}</div>
+          <div class="notif-item-time">${n.created_at}</div>
+        </div>
+        ${n.is_read ? '' : '<div class="notif-unread-dot"></div>'}
+      </a>`;
+  }).join('');
+}
+
+function updateBadge(count) {
+  const badge = document.getElementById('notifBadge');
+  if (!badge) return;
+  if (count > 0) {
+    badge.textContent = count > 99 ? '99+' : count;
+    badge.style.display = 'block';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function markNotifRead(id, el, event) {
+  const token = document.querySelector('meta[name="csrf-token"]')?.content || '';
+  fetch(window.APP_URL + '/api/notifications/' + id + '/read', {
+    method: 'POST',
+    headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json' }
+  }).catch(() => {});
+  // Hilangkan titik biru secara visual langsung
+  el.classList.remove('unread');
+  el.querySelector('.notif-unread-dot')?.remove();
+}
+
+function markAllNotifRead() {
+  const token = document.querySelector('meta[name="csrf-token"]')?.content || '';
+  fetch(window.APP_URL + '/api/notifications/mark-read', {
+    method: 'POST',
+    headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json' }
+  }).then(() => {
+    // Update UI
+    document.querySelectorAll('.notif-item.unread').forEach(el => {
+      el.classList.remove('unread');
+      el.querySelector('.notif-unread-dot')?.remove();
+    });
+    updateBadge(0);
+    // Update bid badge juga jika ada (UMKM)
+    const projectsBadge = document.getElementById('projectsBadge');
+    if (projectsBadge) projectsBadge.style.display = 'none';
+  }).catch(() => {});
+}
+
+// Tutup dropdown saat klik di luar
+document.addEventListener('click', function(e) {
+  if (notifOpen && !document.getElementById('notifBellWrapper')?.contains(e.target)) {
+    notifOpen = false;
+    const dd = document.getElementById('notifDropdown');
+    if (dd) { dd.style.display = 'none'; dd.classList.remove('open'); }
+  }
+});
+
+// Poll notifikasi badge setiap 30 detik
+function pollNotifBadge() {
+  fetch(window.APP_URL + '/api/notifications', {
+    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+  }).then(r => r.json()).then(data => {
+    updateBadge(data.unread_count);
+  }).catch(() => {});
+}
+setInterval(pollNotifBadge, 30000);
+// Load awal saat halaman dimuat
+window.addEventListener('load', () => setTimeout(pollNotifBadge, 1000));
+</script>
+@endauth
+
 <main id="main-content" role="main">
   @yield('content')
 </main>
@@ -691,7 +877,7 @@ footer { background: var(--dark); color: rgba(255,255,255,0.7); padding: 5rem 2r
         <div style="display:flex;flex-direction:column;gap:.5rem;font-size:.82rem">
           <div>📧 hello@builderhub.id</div>
           <div>📞 +62 812-3456-7890</div>
-          <div>📍 Jakarta Selatan, Indonesia</div>
+          <div>📍 Cimahi, Indonesia</div>
         </div>
       </div>
     </div>

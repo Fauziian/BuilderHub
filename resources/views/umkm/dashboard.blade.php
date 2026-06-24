@@ -35,7 +35,14 @@
   <!-- IMK: Tabs for distinct task separation -->
   <div class="tab-bar" role="tablist">
     <button class="tab-btn active" onclick="showUTab('overview')" id="utab-overview" role="tab" aria-selected="true" style="color:var(--accent);border-bottom-color:var(--accent)">📊 Overview</button>
-    <button class="tab-btn" onclick="showUTab('projects')" id="utab-projects" role="tab">📋 Project Saya</button>
+    <button class="tab-btn" onclick="showUTab('projects')" id="utab-projects" role="tab">
+      📋 Project Saya
+      @if($unseenBidsCount > 0)
+        <span id="projectsBadge" style="display:inline-flex;align-items:center;justify-content:center;background:var(--red);color:#fff;font-size:0.72rem;font-weight:800;min-width:18px;height:18px;padding:0 5px;border-radius:99px;margin-left:5px;line-height:1;box-shadow:0 2px 6px rgba(239,68,68,0.5);animation:badgePulse 1.5s ease-in-out infinite">{{ $unseenBidsCount }}</span>
+      @else
+        <span id="projectsBadge" style="display:none;align-items:center;justify-content:center;background:var(--red);color:#fff;font-size:0.72rem;font-weight:800;min-width:18px;height:18px;padding:0 5px;border-radius:99px;margin-left:5px;line-height:1;box-shadow:0 2px 6px rgba(239,68,68,0.5);animation:badgePulse 1.5s ease-in-out infinite">0</span>
+      @endif
+    </button>
     <button class="tab-btn" onclick="showUTab('posting')" id="utab-posting" role="tab">+ Posting Project</button>
     <button class="tab-btn" onclick="showUTab('programmers')" id="utab-programmers" role="tab">🧑‍💻 Daftar Programmer</button>
   </div>
@@ -172,8 +179,30 @@
 
   <!-- PROJECTS LIST -->
   <div id="upane-projects" style="display:none" role="tabpanel">
+    {{-- BAR PENCARIAN & FILTER --}}
+    <div class="card" style="margin-bottom:1.5rem;padding:1.25rem;">
+      <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap">
+        <div style="flex:1;min-width:260px;position:relative">
+          <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:1.1rem;color:var(--text3)">🔍</span>
+          <input type="text" id="umkmSearchProject" placeholder="Cari judul atau deskripsi project Anda..." oninput="filterUmkmProjects()" style="width:100%;padding:10px 16px 10px 42px;border:1.5px solid var(--border);border-radius:12px;font-size:.9rem;background:var(--bg);color:var(--text);font-family:inherit" />
+        </div>
+        <div style="min-width:180px">
+          <select id="umkmFilterStatus" onchange="filterUmkmProjects()" style="width:100%;padding:10px 16px;border:1.5px solid var(--border);border-radius:12px;font-size:.9rem;background:var(--bg);color:var(--text);font-family:inherit">
+            <option value="">🟢 Semua Status</option>
+            <option value="pending">⏳ Menunggu ACC</option>
+            <option value="open">🔓 Dibuka / Estimasi</option>
+            <option value="in_progress">⚙️ Berjalan</option>
+            <option value="completed">🏆 Selesai</option>
+          </select>
+        </div>
+      </div>
+      <div id="umkmProjectsSearchResultText" style="font-size:.82rem;color:var(--text3);margin-top:.75rem;display:none;font-weight:600">
+        Menampilkan <span id="umkmFilteredCount">0</span> dari <span id="umkmTotalCount">0</span> project
+      </div>
+    </div>
+
     @forelse($projects as $project)
-    <div class="card" style="margin-bottom:1rem">
+    <div class="card umkm-project-card" style="margin-bottom:1rem" data-title="{{ strtolower($project->title) }}" data-desc="{{ strtolower($project->description) }}" data-status="{{ $project->status }}">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem">
         <div>
           <span style="font-size:1rem;font-weight:700">{{ $project->title }}</span>
@@ -206,6 +235,29 @@
           <span>{{ $project->description }}</span>
         @endif
       </div>
+
+      {{-- ALERT: Deadline Terlampaui & Belum Ada Programmer --}}
+      @php
+        $isOverdue = $project->deadline && now()->startOfDay()->gt($project->deadline->startOfDay());
+        $hasNoProgrammer = !$project->assigned_programmer_id;
+        $hasPendingBids = $project->bids->where('status', 'pending')->count() > 0;
+      @endphp
+      @if($isOverdue && $hasNoProgrammer && $project->status === 'open')
+      <div style="background:linear-gradient(135deg,#FEF2F2,#FFF5F5);border:1.5px solid rgba(239,68,68,0.4);border-radius:var(--radius);padding:.85rem 1rem;margin-bottom:.75rem;display:flex;align-items:flex-start;gap:.75rem;box-shadow:0 2px 8px rgba(239,68,68,0.1)">
+        <span style="font-size:1.3rem;flex-shrink:0">⚠️</span>
+        <div>
+          <div style="font-size:.875rem;font-weight:800;color:#991B1B;margin-bottom:.2rem">Deadline Terlampaui — Belum Ada Programmer</div>
+          <div style="font-size:.8rem;color:#B91C1C;line-height:1.5">
+            Deadline project ini (<strong>{{ $project->deadline->format('d M Y') }}</strong>) sudah lewat dan belum ada programmer yang mengambil.
+            @if($hasPendingBids)
+              Namun ada <strong>{{ $project->bids->where('status', 'pending')->count() }} penawaran</strong> yang menunggu persetujuan Anda.
+            @else
+              Pertimbangkan untuk memperbarui deadline atau menghapus project ini.
+            @endif
+          </div>
+        </div>
+      </div>
+      @endif
 
       @if($project->status === 'open' && $project->bids->count())
       <div style="background:var(--bg2);border-radius:var(--radius);padding:1rem;margin-bottom:.75rem">
@@ -433,23 +485,32 @@
         <div class="form-row">
           <div class="form-group">
             <label for="category" class="form-label">Kategori <span class="required">*</span></label>
-            <select id="category" name="category" class="form-select" required aria-required="true">
-              <option value="">Pilih kategori</option>
-              @foreach(['E-Commerce','Marketplace','Kuliner & Food Tech','Business Tools','Mobile App','Landing Page','Lainnya'] as $cat)
-              <option value="{{ $cat }}" {{ old('category') === $cat ? 'selected' : '' }}>{{ $cat }}</option>
-              @endforeach
-            </select>
+            <input type="text" id="category" name="category" class="form-input" placeholder="Contoh: E-Commerce, Landing Page (pisahkan dengan koma)" value="{{ old('category') }}" required aria-required="true" list="category_suggestions" autocomplete="off">
+            <datalist id="category_suggestions">
+              <option value="E-Commerce">
+              <option value="Marketplace">
+              <option value="Kuliner & Food Tech">
+              <option value="Business Tools">
+              <option value="Mobile App">
+              <option value="Landing Page">
+              <option value="FinTech">
+              <option value="AI / Machine Learning">
+            </datalist>
+            <div class="form-hint">Anda bisa mengetik bebas lebih dari 1 kategori (pisahkan dengan koma)</div>
             @error('category')<div class="field-error">⚠ {{ $message }}</div>@enderror
           </div>
           <div class="form-group">
             <label for="app_type" class="form-label">Jenis Aplikasi <span class="required">*</span></label>
-            <select id="app_type" name="app_type" class="form-select" required aria-required="true">
-              <option value="">Pilih jenis aplikasi</option>
-              @foreach(['Aplikasi Web (Web-based)','Aplikasi Mobile (iOS/Android)','Aplikasi Desktop / Sistem Kasir','Sistem Informasi / ERP','Lainnya'] as $type)
-              <option value="{{ $type }}" {{ old('app_type') === $type ? 'selected' : '' }}>{{ $type }}</option>
-              @endforeach
-            </select>
-            <div class="form-hint">Tentukan platform media utama aplikasi Anda</div>
+            <input type="text" id="app_type" name="app_type" class="form-input" placeholder="Contoh: Aplikasi Web, Aplikasi Mobile (iOS/Android)" value="{{ old('app_type') }}" required aria-required="true" list="app_type_suggestions" autocomplete="off">
+            <datalist id="app_type_suggestions">
+              <option value="Aplikasi Web (Web-based)">
+              <option value="Aplikasi Mobile (iOS/Android)">
+              <option value="Aplikasi Desktop / Sistem Kasir">
+              <option value="Sistem Informasi / ERP">
+              <option value="PWA (Progressive Web App)">
+              <option value="Aplikasi IoT (Internet of Things)">
+            </datalist>
+            <div class="form-hint">Pilih dari saran atau ketik sendiri jenis aplikasi Anda</div>
             @error('app_type')<div class="field-error">⚠ {{ $message }}</div>@enderror
           </div>
         </div>
@@ -524,6 +585,16 @@
 </div>
 
 @push('scripts')
+<style>
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 2px 6px rgba(239,68,68,0.5); }
+  50% { transform: scale(1.15); box-shadow: 0 4px 12px rgba(239,68,68,0.7); }
+}
+/* Sembunyikan panah drop-down bawaan browser yang kaku pada input datalist */
+input[list]::-webkit-calendar-picker-indicator {
+  display: none !important;
+}
+</style>
 <script>
 function showUTab(name){
   ['overview','projects','posting','programmers'].forEach(t=>{
@@ -538,7 +609,46 @@ function showUTab(name){
   if(activeBtn){ activeBtn.classList.add('active'); activeBtn.style.color='var(--accent)'; activeBtn.style.borderBottomColor='var(--accent)'; }
   history.replaceState(null,'','#'+name);
   if(window.checkMascotVisibility) window.checkMascotVisibility(name);
+
+  // Ketika tab Projects dibuka, mark semua bid sebagai sudah dilihat
+  if (name === 'projects') {
+    markBidsSeen();
+  }
 }
+
+// Mark bid sebagai sudah dilihat oleh UMKM via AJAX
+function markBidsSeen() {
+  const token = document.querySelector('meta[name="csrf-token"]')?.content || '';
+  fetch(window.APP_URL + '/umkm/bids/mark-seen', {
+    method: 'POST',
+    headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json', 'Content-Type': 'application/json' }
+  }).then(r => r.json()).then(data => {
+    if (data.ok) {
+      // Sembunyikan badge
+      const badge = document.getElementById('projectsBadge');
+      if (badge) badge.style.display = 'none';
+    }
+  }).catch(() => {});
+}
+
+// Poll badge count setiap 30 detik (agar jika programmer baru kirim bid, badge muncul tanpa reload)
+function pollUnseenBidsCount() {
+  fetch(window.APP_URL + '/umkm/bids/unseen-count', {
+    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+  }).then(r => r.json()).then(data => {
+    const badge = document.getElementById('projectsBadge');
+    if (!badge) return;
+    if (data.count > 0) {
+      badge.textContent = data.count;
+      badge.style.display = 'inline-flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  }).catch(() => {});
+}
+
+// Jalankan polling setiap 30 detik
+setInterval(pollUnseenBidsCount, 30000);
 function calcFee(){ /* removed - budget now set by programmer */ }
 // IMK: Real-time description character count
 document.getElementById('description')?.addEventListener('input', function(){
@@ -548,8 +658,15 @@ document.getElementById('description')?.addEventListener('input', function(){
   else { el.textContent = `${l} karakter ✓`; el.style.color = 'var(--green)'; }
 });
 
+// Restore active tab
 const hash = location.hash.replace('#','');
 if(['overview','projects','posting','programmers'].includes(hash)) showUTab(hash);
+
+// Dengarkan perubahan hash secara dinamis (misal klik notifikasi)
+window.addEventListener('hashchange', () => {
+  const newHash = location.hash.replace('#','');
+  if(['overview','projects','posting','programmers'].includes(newHash)) showUTab(newHash);
+});
 
 // ===== CHAT / NEGOTIATION SYSTEM =====
 let chatProjectId = null, chatReceiverId = null, chatPollInterval = null;
@@ -654,6 +771,43 @@ document.addEventListener('DOMContentLoaded', function() {
     window.updateEditProjectCounter = updateEditCount;
   }
 });
+
+// Real-time filtering project UMKM
+function filterUmkmProjects() {
+  const query = document.getElementById('umkmSearchProject').value.toLowerCase().trim();
+  const status = document.getElementById('umkmFilterStatus').value;
+  const cards = document.querySelectorAll('.umkm-project-card');
+  const resultText = document.getElementById('umkmProjectsSearchResultText');
+  const filteredCountEl = document.getElementById('umkmFilteredCount');
+  const totalCountEl = document.getElementById('umkmTotalCount');
+  
+  let visibleCount = 0;
+  
+  cards.forEach(card => {
+    const title = card.getAttribute('data-title') || '';
+    const desc = card.getAttribute('data-desc') || '';
+    const cardStatus = card.getAttribute('data-status') || '';
+    
+    const matchesQuery = title.includes(query) || desc.includes(query);
+    const matchesStatus = status === '' || cardStatus === status;
+    
+    if (matchesQuery && matchesStatus) {
+      card.style.display = 'block';
+      visibleCount++;
+    } else {
+      card.style.display = 'none';
+    }
+  });
+  
+  totalCountEl.textContent = cards.length;
+  filteredCountEl.textContent = visibleCount;
+  
+  if (query !== '' || status !== '') {
+    resultText.style.display = 'block';
+  } else {
+    resultText.style.display = 'none';
+  }
+}
 </script>
 @endpush
 
@@ -682,19 +836,11 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class="form-row">
         <div class="form-group">
           <label class="form-label" for="editProjCategory">Kategori</label>
-          <select id="editProjCategory" name="category" class="form-select" required>
-            @foreach(['E-Commerce','Marketplace','Kuliner & Food Tech','Business Tools','Mobile App','Landing Page','Lainnya'] as $cat)
-            <option value="{{ $cat }}">{{ $cat }}</option>
-            @endforeach
-          </select>
+          <input type="text" id="editProjCategory" name="category" class="form-input" placeholder="Contoh: E-Commerce, Landing Page (pisahkan koma)" required list="category_suggestions" autocomplete="off">
         </div>
         <div class="form-group">
           <label class="form-label" for="editProjAppType">Jenis Aplikasi</label>
-          <select id="editProjAppType" name="app_type" class="form-select" required>
-            @foreach(['Aplikasi Web (Web-based)','Aplikasi Mobile (iOS/Android)','Aplikasi Desktop / Sistem Kasir','Sistem Informasi / ERP','Lainnya'] as $type)
-            <option value="{{ $type }}">{{ $type }}</option>
-            @endforeach
-          </select>
+          <input type="text" id="editProjAppType" name="app_type" class="form-input" placeholder="Contoh: Aplikasi Web, Aplikasi Mobile" required list="app_type_suggestions" autocomplete="off">
         </div>
       </div>
       <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:1.5rem">

@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Bid;
 use App\Models\Message;
+use App\Models\Notification;
 use App\Models\Project;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -33,7 +35,19 @@ class UmkmController extends Controller
             ->get()
             ->keyBy('project_id');
 
-        return view('umkm.dashboard', compact('user', 'projects', 'totalBudget', 'programmers', 'givenReviews'));
+        // Hitung bid baru yang belum dilihat UMKM (untuk badge notifikasi di tab Project Saya)
+        $unseenBidsCount = Bid::whereIn('project_id', $projects->pluck('id'))
+            ->where('is_seen_by_umkm', false)
+            ->where('status', 'pending')
+            ->count();
+
+        // Hitung notifikasi bid yang belum dibaca
+        $unreadNotificationsCount = Notification::where('user_id', $user->id)
+            ->where('type', 'bid')
+            ->where('is_read', false)
+            ->count();
+
+        return view('umkm.dashboard', compact('user', 'projects', 'totalBudget', 'programmers', 'givenReviews', 'unseenBidsCount', 'unreadNotificationsCount'));
     }
 
     public function storeProject(Request $request)
@@ -68,6 +82,9 @@ class UmkmController extends Controller
             'platform_fee'       => 0,
             'programmer_earning' => 0,
         ]);
+
+        // Notifikasi ke admin bahwa ada project baru yang perlu di-ACC
+        NotificationService::projectSubmitted(Auth::id(), Auth::user()->name, $request->title);
 
         return back()->with('success', '✅ Project berhasil diajukan! Menunggu ACC/Persetujuan Admin sebelum dipublikasikan ke Programmer.');
     }
@@ -123,6 +140,49 @@ class UmkmController extends Controller
         return back()->with('success', 'Project berhasil dihapus.');
     }
 
+    /**
+     * Mark semua bid pada project UMKM ini sebagai sudah dilihat
+     * Dipanggil via AJAX ketika UMKM membuka tab "Project Saya"
+     */
+    public function markBidsSeen()
+    {
+        $this->checkAccess();
+        $user = Auth::user();
+
+        // Ambil semua project milik user ini
+        $projectIds = Project::where('umkm_id', $user->id)->pluck('id');
+
+        // Mark semua bid yang belum dilihat sebagai sudah dilihat
+        Bid::whereIn('project_id', $projectIds)
+            ->where('is_seen_by_umkm', false)
+            ->update(['is_seen_by_umkm' => true]);
+
+        // Mark juga notifikasi bid sebagai sudah dibaca
+        Notification::where('user_id', $user->id)
+            ->where('type', 'bid')
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
+
+        return response()->json(['ok' => true]);
+    }
+
+    /**
+     * Hitung jumlah bid baru yang belum dilihat (untuk badge real-time)
+     */
+    public function getUnseenBidsCount()
+    {
+        $this->checkAccess();
+        $user = Auth::user();
+
+        $projectIds = Project::where('umkm_id', $user->id)->pluck('id');
+        $count = Bid::whereIn('project_id', $projectIds)
+            ->where('is_seen_by_umkm', false)
+            ->where('status', 'pending')
+            ->count();
+
+        return response()->json(['count' => $count]);
+    }
+
     public function acceptBid(Bid $bid)
     {
         $this->checkAccess();
@@ -131,7 +191,11 @@ class UmkmController extends Controller
             abort(403);
         }
 
-        // Tolak semua bid lain
+        // Tolak semua bid lain + notifikasi ke programmer yang ditolak
+        $otherBids = Bid::where('project_id', $project->id)->where('id', '!=', $bid->id)->get();
+        foreach ($otherBids as $otherBid) {
+            NotificationService::bidRejected($otherBid->programmer_id, Auth::user()->business_name ?? Auth::user()->name, $project->title, true);
+        }
         Bid::where('project_id', $project->id)->where('id', '!=', $bid->id)->update(['status' => 'rejected']);
         $bid->update(['status' => 'accepted']);
 
@@ -143,6 +207,14 @@ class UmkmController extends Controller
             'platform_fee'            => $bid->amount * 0.80,
             'programmer_earning'      => $bid->amount * 0.20,
         ]);
+
+        // Notifikasi ke programmer pemenang
+        NotificationService::bidAccepted(
+            $bid->programmer_id,
+            Auth::user()->business_name ?? Auth::user()->name,
+            $project->title,
+            'Rp ' . number_format($bid->amount, 0, ',', '.')
+        );
 
         return back()->with('success', "✅ Penawaran Rp " . number_format($bid->amount, 0, ',', '.') . " dari {$bid->programmer->name} diterima! Project sekarang berstatus Berjalan.");
     }
@@ -160,9 +232,11 @@ class UmkmController extends Controller
 
         if ($bid->rejection_count >= 2) {
             $bid->update(['status' => 'rejected']);
+            NotificationService::bidRejected($bid->programmer_id, Auth::user()->business_name ?? Auth::user()->name, $project->title, true);
             return back()->with('success', "Penawaran dari {$bid->programmer->name} ditolak secara permanen (Ditolak!).");
         } else {
             $bid->update(['status' => 'pending']);
+            NotificationService::bidRejected($bid->programmer_id, Auth::user()->business_name ?? Auth::user()->name, $project->title, false);
             return back()->with('success', "Penawaran dari {$bid->programmer->name} ditolak. Programmer dapat mengajukan penawaran kembali.");
         }
     }
@@ -180,6 +254,13 @@ class UmkmController extends Controller
             $programmer = $project->programmer;
             $programmer->increment('total_earnings', $project->budget * 0.20);
             $programmer->increment('total_projects');
+
+            // Notifikasi ke programmer bahwa project selesai dan pembayaran diproses
+            NotificationService::projectCompleted(
+                $programmer->id,
+                $project->title,
+                'Rp ' . number_format($project->budget * 0.20, 0, ',', '.')
+            );
         }
 
         return back()->with('success', '✅ Project selesai! Pembayaran akan segera diproses.');

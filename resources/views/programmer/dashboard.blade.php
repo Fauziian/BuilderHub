@@ -381,17 +381,52 @@
       </div>
     </div>
     @else
-    <div style="background:linear-gradient(135deg,#1E1260,#6C38FF);border-radius:var(--radius-lg);padding:1.5rem;margin-bottom:1.5rem;color:#fff">
+    <div style="background:linear-gradient(135deg,#1E1260,#6C38FF);border-radius:var(--radius-lg);padding:1.5rem;margin-bottom:1rem;color:#fff">
       <h2 style="color:#fff;font-size:1.25rem;margin-bottom:.25rem">{{ $availableProjects->count() }} project tersedia untuk Anda</h2>
       <p style="color:rgba(255,255,255,.7);font-size:.875rem">Klik "Ajukan Penawaran" untuk mengirim bid ke UMKM</p>
     </div>
-    <div class="project-grid">
+
+    {{-- BAR PENCARIAN & FILTER CARI PROJECT --}}
+    <div class="card" style="margin-bottom:1.5rem;padding:1.25rem;">
+      <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap">
+        <div style="flex:2;min-width:280px;position:relative">
+          <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:1.1rem;color:var(--text3)">🔍</span>
+          <input type="text" id="progSearchProject" placeholder="Cari judul project, deskripsi, atau tags..." oninput="filterProgrammerProjects()" style="width:100%;padding:10px 16px 10px 42px;border:1.5px solid var(--border);border-radius:12px;font-size:.9rem;background:var(--bg);color:var(--text);font-family:inherit" />
+        </div>
+        <div style="flex:1;min-width:160px">
+          <select id="progFilterCategory" onchange="filterProgrammerProjects()" style="width:100%;padding:10px 16px;border:1.5px solid var(--border);border-radius:12px;font-size:.9rem;background:var(--bg);color:var(--text);font-family:inherit">
+            <option value="">🟢 Semua Kategori</option>
+            @foreach(['E-Commerce','Marketplace','Kuliner & Food Tech','Business Tools','Mobile App','Landing Page','Lainnya'] as $cat)
+              <option value="{{ $cat }}">{{ $cat }}</option>
+            @endforeach
+          </select>
+        </div>
+        <div style="flex:1;min-width:160px">
+          <select id="progFilterAppType" onchange="filterProgrammerProjects()" style="width:100%;padding:10px 16px;border:1.5px solid var(--border);border-radius:12px;font-size:.9rem;background:var(--bg);color:var(--text);font-family:inherit">
+            <option value="">📱 Semua Jenis Apps</option>
+            @foreach(['Aplikasi Web (Web-based)','Aplikasi Mobile (iOS/Android)','Aplikasi Desktop / Sistem Kasir','Sistem Informasi / ERP','Lainnya'] as $type)
+              <option value="{{ $type }}">{{ $type }}</option>
+            @endforeach
+          </select>
+        </div>
+      </div>
+      <div id="progProjectsSearchResultText" style="font-size:.82rem;color:var(--text3);margin-top:.75rem;display:none;font-weight:600">
+        Menampilkan <span id="progFilteredCount">0</span> dari <span id="progTotalCount">0</span> project tersedia
+      </div>
+    </div>
+
+    <div class="project-grid" id="programmerProjectsGrid">
       @foreach($availableProjects as $p)
-      <div class="project-card">
+      @php $pOverdue = $p->deadline && now()->startOfDay()->gt($p->deadline->startOfDay()); @endphp
+      <div class="project-card{{ $pOverdue ? ' overdue-card' : '' }} programmer-project-card" data-title="{{ strtolower($p->title) }}" data-desc="{{ strtolower($p->description) }}" data-category="{{ $p->category }}" data-apptype="{{ $p->app_type }}" data-tags="{{ strtolower(implode(',', $p->tags ?? [])) }}">
         <div style="display:flex;justify-content:space-between;margin-bottom:.5rem">
           <div>
             <span style="font-size:.95rem;font-weight:700">&lt;/&gt; {{ $p->title }}</span>
-            <span class="badge badge-open" style="margin-left:.5rem">Dibuka</span>
+            @if($pOverdue)
+              <span class="badge" style="margin-left:.5rem;background:var(--red-light);color:var(--red);border:1px solid rgba(239,68,68,0.3)">⏰ DEADLINE TERLAMPAUI</span>
+            @else
+              <span class="badge badge-open" style="margin-left:.5rem">Dibuka</span>
+            @endif
           </div>
           <div style="text-align:right">
             @if($p->budget > 0)
@@ -416,8 +451,12 @@
           @foreach(($p->tags ?? []) as $tag)<span class="tag">{{ $tag }}</span>@endforeach
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding-top:.75rem">
-          <span style="font-size:.78rem;color:var(--text3)">⏰ Deadline: {{ $p->deadline->format('d M Y') }}</span>
-          @if($p->bids->contains('programmer_id', $user->id))
+          <span style="font-size:.78rem;color:{{ $pOverdue ? 'var(--red)' : 'var(--text3)' }};font-weight:{{ $pOverdue ? '700' : '400' }}">
+            {{ $pOverdue ? '⛔' : '⏰' }} Deadline: {{ $p->deadline->format('d M Y') }}
+          </span>
+          @if($pOverdue)
+            <button class="btn btn-sm" style="background:var(--red-light);color:var(--red);border:1.5px solid rgba(239,68,68,0.35);cursor:not-allowed;font-weight:700;font-size:.8rem" disabled title="Deadline project ini sudah terlampaui">⛔ Deadline Terlampaui</button>
+          @elseif($p->bids->contains('programmer_id', $user->id))
             <button class="btn btn-sm" style="background:var(--orange-light);color:#92400E;border-color:rgba(245,158,11,.3);cursor:default;font-weight:600" disabled>Menunggu Persetujuan UMKM ⏳</button>
           @elseif($approvedPortCount === 0 && $approvedCertCount === 0)
             <button class="btn btn-sm" style="background:var(--bg3);color:var(--text3);border-color:var(--border);cursor:not-allowed" title="Tambahkan minimal 1 Portofolio atau Sertifikat yang disetujui terlebih dahulu" disabled>Kunci Penawaran 🔒</button>
@@ -463,8 +502,22 @@
     @endif
 
     <h3 style="font-size:1rem;font-weight:700;margin-bottom:1rem">Course Saya ({{ $myCourses->count() }})</h3>
+
+    {{-- BILAH PENCARIAN COURSE SAYA --}}
+    @if($myCourses->count() > 0)
+    <div class="card" style="margin-bottom:1.5rem;padding:1.25rem;">
+      <div style="position:relative">
+        <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:1.1rem;color:var(--text3)">🔍</span>
+        <input type="text" id="progSearchCourse" placeholder="Cari nama course Anda..." oninput="filterProgrammerCourses()" style="width:100%;padding:10px 16px 10px 42px;border:1.5px solid var(--border);border-radius:12px;font-size:.9rem;background:var(--bg);color:var(--text);font-family:inherit" />
+      </div>
+      <div id="progCoursesSearchResultText" style="font-size:.82rem;color:var(--text3);margin-top:.75rem;display:none;font-weight:600">
+        Menampilkan <span id="progCourseFilteredCount">0</span> dari <span id="progCourseTotalCount">0</span> course
+      </div>
+    </div>
+    @endif
+
     @forelse($myCourses as $course)
-    <div style="border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1rem;display:flex;gap:1rem;align-items:flex-start">
+    <div class="prog-course-card" style="border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1rem;display:flex;gap:1rem;align-items:flex-start" data-title="{{ strtolower($course->title) }}">
       <div style="width:90px;height:70px;border-radius:var(--radius);background:linear-gradient(135deg,#1E1260,#3D1FAF);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.5rem">📚</div>
       <div style="flex:1">
         <div style="display:flex;gap:.5rem;margin-bottom:.25rem">
@@ -691,18 +744,65 @@ function showTab(name){
   if(window.checkMascotVisibility) window.checkMascotVisibility(name);
 }
 
-// IMK: Restore tab from URL hash
-const hash = location.hash.replace('#','');
+// IMK: Restore tab from URL hash & support real-time search from notifications
 const allowedTabs = [
   'overview',
   @if($showAllTabs) 'projects','courses', @endif
   'verify'
 ];
-if(hash && allowedTabs.includes(hash)) {
-  showTab(hash);
-} else {
-  showTab('overview');
+
+function handleProgrammerUrlState() {
+  const hash = location.hash.replace('#','');
+  
+  // Baca parameter pencarian dari query string jika ada
+  const urlParams = new URLSearchParams(window.location.search);
+  const searchQuery = urlParams.get('search');
+  
+  if (searchQuery) {
+    showTab('projects');
+    const searchInput = document.getElementById('progSearchProject');
+    if (searchInput) {
+      searchInput.value = searchQuery;
+      // Trigger filter real-time
+      filterProgrammerProjects();
+      
+      // Highlight project card yang sesuai
+      setTimeout(() => {
+        const queryLower = searchQuery.toLowerCase().trim();
+        const cards = document.querySelectorAll('.programmer-project-card');
+        let foundCard = null;
+        
+        cards.forEach(card => {
+          const title = (card.getAttribute('data-title') || '').toLowerCase();
+          if (title.includes(queryLower)) {
+            foundCard = card;
+          }
+        });
+        
+        if (foundCard) {
+          foundCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          foundCard.style.transition = 'all 0.3s ease';
+          foundCard.style.borderColor = 'var(--primary)';
+          foundCard.style.boxShadow = '0 0 30px rgba(79, 70, 229, 0.6)';
+          foundCard.style.transform = 'scale(1.03)';
+          
+          setTimeout(() => {
+            foundCard.style.boxShadow = '';
+            foundCard.style.transform = '';
+          }, 4000);
+        }
+      }, 300);
+    }
+  } else if (hash && allowedTabs.includes(hash)) {
+    showTab(hash);
+  } else {
+    showTab('overview');
+  }
 }
+
+// Dengarkan event load dan perubahan hash
+window.addEventListener('load', handleProgrammerUrlState);
+window.addEventListener('hashchange', handleProgrammerUrlState);
 
 let bidProjectId, bidBudget;
 function openBidModal(id, title, budget, daysRemaining){
@@ -827,6 +927,82 @@ function closeEditPortfolioModal() {
   const mascot = document.getElementById('buddyMascot');
   if(mascot) mascot.style.removeProperty('display');
   if(window.checkMascotVisibility) window.checkMascotVisibility();
+}
+
+// Real-time filtering project untuk Programmer
+function filterProgrammerProjects() {
+  const query = document.getElementById('progSearchProject').value.toLowerCase().trim();
+  const category = document.getElementById('progFilterCategory').value;
+  const appType = document.getElementById('progFilterAppType').value;
+  
+  const cards = document.querySelectorAll('.programmer-project-card');
+  const resultText = document.getElementById('progProjectsSearchResultText');
+  const filteredCountEl = document.getElementById('progFilteredCount');
+  const totalCountEl = document.getElementById('progTotalCount');
+  
+  let visibleCount = 0;
+  
+  cards.forEach(card => {
+    const title = card.getAttribute('data-title') || '';
+    const desc = card.getAttribute('data-desc') || '';
+    const tags = card.getAttribute('data-tags') || '';
+    const cardCategory = card.getAttribute('data-category') || '';
+    const cardAppType = card.getAttribute('data-apptype') || '';
+    
+    const matchesQuery = title.includes(query) || desc.includes(query) || tags.includes(query);
+    const matchesCategory = category === '' || cardCategory === category;
+    const matchesAppType = appType === '' || cardAppType === appType;
+    
+    if (matchesQuery && matchesCategory && matchesAppType) {
+      card.style.display = 'block';
+      visibleCount++;
+    } else {
+      card.style.display = 'none';
+    }
+  });
+  
+  totalCountEl.textContent = cards.length;
+  filteredCountEl.textContent = visibleCount;
+  
+  if (query !== '' || category !== '' || appType !== '') {
+    resultText.style.display = 'block';
+  } else {
+    resultText.style.display = 'none';
+  }
+}
+
+// Real-time filtering course untuk Programmer
+function filterProgrammerCourses() {
+  const query = document.getElementById('progSearchCourse').value.toLowerCase().trim();
+  const cards = document.querySelectorAll('.prog-course-card');
+  const resultText = document.getElementById('progCoursesSearchResultText');
+  const filteredCountEl = document.getElementById('progCourseFilteredCount');
+  const totalCountEl = document.getElementById('progCourseTotalCount');
+  
+  let visibleCount = 0;
+  
+  cards.forEach(card => {
+    const title = card.getAttribute('data-title') || '';
+    const matchesQuery = title.includes(query);
+    
+    if (matchesQuery) {
+      card.style.display = 'flex';
+      visibleCount++;
+    } else {
+      card.style.display = 'none';
+    }
+  });
+  
+  if (totalCountEl) totalCountEl.textContent = cards.length;
+  if (filteredCountEl) filteredCountEl.textContent = visibleCount;
+  
+  if (resultText) {
+    if (query !== '') {
+      resultText.style.display = 'block';
+    } else {
+      resultText.style.display = 'none';
+    }
+  }
 }
 </script>
 @endpush

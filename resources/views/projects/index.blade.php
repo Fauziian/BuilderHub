@@ -27,26 +27,34 @@
     <p style="font-size:.82rem;color:var(--text3);margin-bottom:1rem">{{ $projects->total() }} project ditemukan</p>
     <div class="project-grid">
       @forelse($projects as $project)
-      <div class="project-card">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem">
-          <div>
+      @php $isOverdue = $project->deadline && now()->startOfDay()->gt($project->deadline->startOfDay()); @endphp
+      <div class="project-card{{ $isOverdue ? ' overdue-card' : '' }}">
+        {{-- HEADER: Judul + Budget/Estimasi --}}
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.75rem;margin-bottom:.75rem">
+          <div style="flex:1;min-width:0">
             <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:.3rem">
-              <span style="font-size:1rem;font-weight:700">&lt;/&gt; {{ $project->title }}</span>
-              <span class="badge badge-open">Dibuka</span>
+              <span style="font-size:1rem;font-weight:700;word-break:break-word">&lt;/&gt; {{ $project->title }}</span>
+              @if($isOverdue)
+                <span class="badge" style="background:var(--red-light);color:var(--red);border:1px solid rgba(239,68,68,0.3);white-space:nowrap">⏰ DEADLINE TERLAMPAUI</span>
+              @else
+                <span class="badge badge-open">Dibuka</span>
+              @endif
               @if($project->umkm->umkm_verified)<span class="badge badge-verified">✅ UMKM Verified</span>@endif
             </div>
             <div style="font-size:.8rem;color:var(--text3)">{{ $project->umkm->business_name ?? $project->umkm->name }} · {{ $project->umkm->name }}</div>
           </div>
-          <div style="text-align:right;flex-shrink:0">
+          <div style="text-align:right;flex-shrink:0;max-width:130px">
             @if($project->budget > 0)
-              <div style="font-size:1.1rem;font-weight:800">Rp {{ number_format($project->budget, 0, ',', '.') }}</div>
-              <div style="font-size:.82rem;font-weight:600;color:var(--green)">Dapat: Rp {{ number_format($project->budget * 0.20, 0, ',', '.') }} (20%)</div>
+              <div style="font-size:1rem;font-weight:800">Rp {{ number_format($project->budget, 0, ',', '.') }}</div>
+              <div style="font-size:.78rem;font-weight:600;color:var(--green)">Dapat: Rp {{ number_format($project->budget * 0.20, 0, ',', '.') }} (20%)</div>
             @else
-              <div style="font-size:1.0rem;font-weight:700;color:var(--accent)">Menunggu Estimasi</div>
-              <div style="font-size:.82rem;color:var(--text3)">Harga ditentukan Programmer</div>
+              <div style="font-size:.9rem;font-weight:700;color:var(--accent);line-height:1.3">Menunggu<br>Estimasi</div>
+              <div style="font-size:.75rem;color:var(--text3);line-height:1.3">Harga ditentukan<br>Programmer</div>
             @endif
           </div>
         </div>
+
+        {{-- DESKRIPSI --}}
         <div style="color:var(--text2);font-size:.875rem;margin-bottom:.75rem;line-height:1.6">
           @if(strlen($project->description) > 130)
             <span class="desc-short">{{ Str::limit($project->description, 130) }}</span>
@@ -56,23 +64,37 @@
             <span>{{ $project->description }}</span>
           @endif
         </div>
+
+        {{-- TAGS --}}
         <div class="tag-list" style="margin-bottom:.75rem">@foreach(($project->tags ?? []) as $tag)<span class="tag">{{ $tag }}</span>@endforeach</div>
-        <div style="display:flex;justify-content:space-between;align-items:center;color:var(--text3);font-size:.78rem;padding-top:.75rem;border-top:1px solid var(--border)">
-          <span>🕐 {{ $project->deadline->format('d M Y') }}</span>
+
+        {{-- FOOTER: Info baris pertama --}}
+        <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;color:var(--text3);font-size:.78rem;padding-top:.75rem;border-top:1px solid var(--border);margin-bottom:.6rem">
+          <span style="color:{{ $isOverdue ? 'var(--red)' : 'inherit' }};font-weight:{{ $isOverdue ? '700' : '400' }}">
+            {{ $isOverdue ? '⛔' : '🕐' }} {{ $project->deadline->format('d M Y') }}
+          </span>
+          <span style="color:var(--border2)">·</span>
           <span>👥 {{ $project->bids->count() }} penawaran</span>
-          <span>💳 Fee: {{ $project->budget > 0 ? 'Rp ' . number_format($project->budget * 0.80, 0, ',', '.') : 'Menunggu Estimasi' }}</span>
+          <span style="color:var(--border2)">·</span>
+          <span>💳 Fee: {{ $project->budget > 0 ? 'Rp ' . number_format($project->budget * 0.80, 0, ',', '.') : 'Estimasi' }}</span>
+        </div>
+
+        {{-- FOOTER: Tombol aksi --}}
+        <div style="display:flex;justify-content:flex-end">
           @auth
             @if(auth()->user()->role === 'programmer')
-              @if($project->bids->contains('programmer_id', auth()->id()))
+              @if($isOverdue)
+                <button class="btn btn-sm" style="background:var(--red-light);color:var(--red);border:1.5px solid rgba(239,68,68,0.35);cursor:not-allowed;font-weight:700;font-size:.8rem" disabled title="Deadline project ini sudah terlampaui">⛔ Deadline Terlampaui</button>
+              @elseif($project->bids->contains('programmer_id', auth()->id()))
                 <button class="btn btn-sm" style="background:var(--orange-light);color:#92400E;border-color:rgba(245,158,11,.3);cursor:default;font-weight:600" disabled>Menunggu Persetujuan UMKM ⏳</button>
               @else
-                <button onclick="window.location='{{ route('programmer.dashboard') }}#projects'" class="btn btn-primary btn-sm" aria-label="Ajukan penawaran untuk {{ $project->title }}">Ajukan →</button>
+                <button onclick="window.location='{{ route('programmer.dashboard') }}#projects'" class="btn btn-primary btn-sm" aria-label="Ajukan penawaran untuk {{ $project->title }}">Ajukan Penawaran →</button>
               @endif
             @else
               <a href="{{ route('dashboard') }}" class="btn btn-primary btn-sm">Dashboard →</a>
             @endif
           @else
-            <a href="{{ route('login') }}" class="btn btn-primary btn-sm" aria-label="Login untuk ajukan penawaran">Login →</a>
+            <a href="{{ route('login') }}" class="btn btn-primary btn-sm" aria-label="Login untuk ajukan penawaran">Login untuk Ajukan →</a>
           @endauth
         </div>
       </div>

@@ -9,6 +9,7 @@ use App\Models\Project;
 use App\Models\User;
 use App\Models\Portfolio;
 use App\Models\Certificate;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -60,6 +61,7 @@ class AdminController extends Controller
     {
         $this->checkAccess();
         $user->update(['is_verified' => true]);
+        NotificationService::programmerVerified($user->id, $user->name);
         return back()->with('success', "Programmer {$user->name} berhasil diverifikasi.");
     }
 
@@ -67,6 +69,7 @@ class AdminController extends Controller
     {
         $this->checkAccess();
         $user->update(['umkm_verified' => true]);
+        NotificationService::umkmVerified($user->id, $user->name);
         return back()->with('success', "UMKM {$user->name} berhasil diverifikasi.");
     }
 
@@ -99,6 +102,20 @@ class AdminController extends Controller
         $this->checkAccess();
         $course->update(['is_published' => !$course->is_published]);
         $status = $course->is_published ? 'dipublikasikan' : 'disembunyikan';
+
+        if ($course->is_published) {
+            // Course baru dipublikasikan → notifikasi ke instructor + semua pelajar
+            NotificationService::coursePublished(
+                $course->instructor_id,
+                $course->instructor->name,
+                $course->title,
+                $course->id
+            );
+        } else {
+            // Course disembunyikan → notifikasi ke instructor
+            NotificationService::courseUnpublished($course->instructor_id, $course->title);
+        }
+
         return back()->with('success', "Course berhasil $status.");
     }
 
@@ -106,18 +123,29 @@ class AdminController extends Controller
     {
         $this->checkAccess();
         $project->update(['status' => 'open']);
+
+        // Kirim notifikasi ke UMKM pemilik + semua programmer terverifikasi
+        NotificationService::projectApproved($project->umkm_id, $project->title, $project->id);
+
         return back()->with('success', "Project \"{$project->title}\" berhasil di-ACC (disetujui) dan dipublikasikan.");
     }
 
     public function deleteProject(Project $project)
     {
         $this->checkAccess();
+        $umkmId = $project->umkm_id;
+        $title  = $project->title;
+        $wasPending = $project->status === 'pending';
         $programmerId = $project->assigned_programmer_id;
         $project->delete();
         if ($programmerId) {
             User::recalcRatings($programmerId);
         }
-        return back()->with('success', "Project \"{$project->title}\" berhasil dihapus.");
+        // Jika project masih pending (belum pernah di-acc), beri tahu UMKM bahwa ditolak
+        if ($wasPending) {
+            NotificationService::projectRejected($umkmId, $title);
+        }
+        return back()->with('success', "Project \"{$title}\" berhasil dihapus.");
     }
 
     public function deleteCourse(Course $course)
@@ -147,6 +175,7 @@ class AdminController extends Controller
         $portfolio->status = 'approved';
         $portfolio->save();
         $this->recalculateBadges($portfolio->programmer);
+        NotificationService::portfolioApproved($portfolio->programmer_id, $portfolio->title);
         return back()->with('success', '✅ Portofolio berhasil disetujui!');
     }
 
@@ -156,6 +185,7 @@ class AdminController extends Controller
         $portfolio->status = 'rejected';
         $portfolio->save();
         $this->recalculateBadges($portfolio->programmer);
+        NotificationService::portfolioRejected($portfolio->programmer_id, $portfolio->title);
         return back()->with('success', '❌ Portofolio telah ditolak.');
     }
 
@@ -165,6 +195,7 @@ class AdminController extends Controller
         $certificate->status = 'approved';
         $certificate->save();
         $this->recalculateBadges($certificate->programmer);
+        NotificationService::certificateApproved($certificate->programmer_id, $certificate->name);
         return back()->with('success', '✅ Sertifikat berhasil disetujui!');
     }
 
@@ -174,6 +205,7 @@ class AdminController extends Controller
         $certificate->status = 'rejected';
         $certificate->save();
         $this->recalculateBadges($certificate->programmer);
+        NotificationService::certificateRejected($certificate->programmer_id, $certificate->name);
         return back()->with('success', '❌ Sertifikat telah ditolak.');
     }
 }

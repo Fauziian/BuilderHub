@@ -499,22 +499,46 @@
     <!-- Player Panel -->
     <div style="padding:2rem;display:flex;flex-direction:column;justify-content:space-between;overflow-y:auto;background:radial-gradient(circle at top left, rgba(79,70,229,0.05), transparent)">
       <div style="width:100%;aspect-ratio:16/9;background:#000;border-radius:var(--radius-lg);overflow:hidden;border:2px solid rgba(79, 70, 229, 0.4);box-shadow:0 0 35px rgba(79, 70, 229, 0.3)">
-        <iframe id="videoIframe" style="width:100%;height:100%;border:none" src="" allowfullscreen></iframe>
+        <div id="ytPlayerContainer" style="width:100%;height:100%"></div>
+      </div>
+
+      <!-- Video Now Playing Info -->
+      <div id="nowPlayingInfo" style="margin-top:.75rem;display:flex;align-items:center;gap:8px;padding:.6rem 1rem;background:rgba(79,70,229,0.12);border-radius:var(--radius);border:1px solid rgba(79,70,229,0.25);display:none">
+        <span style="font-size:.75rem;color:rgba(255,255,255,.5);white-space:nowrap">▶ Sedang diputar:</span>
+        <span id="nowPlayingTitle" style="font-size:.82rem;font-weight:700;color:#fff">-</span>
       </div>
       
-      <div class="card glass-card" style="margin-top:1.5rem;padding:1.5rem 1.5rem 2rem 1.5rem;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);overflow:visible">
-        <h4 style="font-size:1.05rem;font-weight:700;margin-bottom:.5rem;color:#FFF">Progress Belajar Anda</h4>
-        <p style="font-size:.82rem;color:rgba(255,255,255,.6);margin-bottom:1.25rem">Tonton seluruh video pembelajaran dari Programmer untuk menguasai materi secara komprehensif. Setelah siap, Anda dapat menyatakan kelulusan di bawah.</p>
-        
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem">
-          <div style="font-size:.85rem;color:#34D399;font-weight:600;display:flex;align-items:center;gap:6px">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="#10B981"/></svg>
-            Pastikan semua materi dipahami dengan baik
+      <div style="margin-top:1.5rem;border-radius:var(--radius-lg);border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 12px 40px 0 rgba(31,38,135,0.06);position:relative">
+        <!-- Gradient top stripe: wrapper itself has overflow:hidden + border-radius to clip gradient -->
+        <!-- Outer card has NO overflow:hidden so button 3D shadow is never clipped -->
+        <div style="height:4px;border-radius:var(--radius-lg) var(--radius-lg) 0 0;overflow:hidden">
+          <div style="height:100%;background:linear-gradient(90deg,var(--primary),var(--accent));opacity:0.8"></div>
+        </div>
+        <!-- Inner content: padding only, button 3D shadow not clipped -->
+        <div style="padding:1.5rem 1.5rem 2rem 1.5rem">
+          <h4 style="font-size:1.05rem;font-weight:700;margin-bottom:.5rem;color:#FFF">Progress Belajar Anda</h4>
+          <p style="font-size:.82rem;color:rgba(255,255,255,.6);margin-bottom:.75rem">Tonton seluruh video dari awal hingga selesai secara berurutan. Video berikutnya akan terbuka setelah video sebelumnya selesai ditonton.</p>
+
+          <!-- Progress Bar -->
+          <div style="margin-bottom:1.25rem">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem">
+              <span style="font-size:.78rem;color:rgba(255,255,255,.5)">Video selesai ditonton</span>
+              <span id="progressText" style="font-size:.8rem;font-weight:700;color:#34D399">0 / 0</span>
+            </div>
+            <div style="width:100%;height:6px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden">
+              <div id="progressBar" style="height:100%;width:0%;background:linear-gradient(90deg,#10B981,#34D399);border-radius:99px;transition:width .5s ease"></div>
+            </div>
           </div>
-          <form id="completeCourseForm" method="POST" style="margin:0;display:inline-block">
-            @csrf
-            <button type="submit" class="btn btn-success btn-3d-green" style="font-size:.85rem;font-weight:700;padding:8px 16px">Selesaikan Kelas & Claim Sertifikat 📜</button>
-          </form>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;padding-bottom:4px">
+            <div id="progressStatusMsg" style="font-size:.83rem;color:rgba(255,255,255,.5);font-weight:600;display:flex;align-items:center;gap:6px">
+              &#x1F512; Selesaikan semua video untuk membuka klaim sertifikat
+            </div>
+            <form id="completeCourseForm" method="POST" style="margin:0;display:inline-block">
+              @csrf
+              <button type="submit" id="completeCourseBtn" class="btn btn-success btn-3d-green" style="font-size:.85rem;font-weight:700;padding:8px 16px;opacity:.4;cursor:not-allowed" disabled>Selesaikan Kelas &amp; Claim Sertifikat &#x1F4DC;</button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
@@ -664,6 +688,32 @@
   color: #fff !important;
   box-shadow: 0 2px 8px rgba(79,70,229,0.4);
 }
+
+/* IMK: Animasi premium untuk lencana merah Baru & highlight merah berdenyut */
+@keyframes badgePulseRed {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 8px rgba(255,46,46,0.6); }
+  50% { transform: scale(1.08); box-shadow: 0 0 18px rgba(255,46,46,0.9); }
+}
+
+@keyframes pulseRedCard {
+  0% {
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+    border-color: rgba(239, 68, 68, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(239, 68, 68, 0.95);
+    border-color: #EF4444;
+  }
+  100% {
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+    border-color: rgba(239, 68, 68, 0.6);
+  }
+}
+.pulse-red-highlight {
+  animation: pulseRedCard 1.5s infinite ease-in-out !important;
+  border: 2px solid #EF4444 !important;
+  background: rgba(239, 68, 68, 0.05) !important;
+}
 </style>
 @endpush
 
@@ -682,9 +732,65 @@ function showTab(name){
   if(window.checkMascotVisibility) window.checkMascotVisibility(name);
 }
 
-// Restore active tab
-const hash = location.hash.replace('#','');
-if(['my-courses','explore','certificates'].includes(hash)) showTab(hash);
+// Restore active tab dan tangani auto-search dari notifikasi secara interaktif
+function handleUrlState() {
+  const hash = location.hash.replace('#','');
+  const allowed = ['my-courses','explore','certificates'];
+  
+  // Baca parameter pencarian dari query string
+  const urlParams = new URLSearchParams(window.location.search);
+  const searchQuery = urlParams.get('search');
+  
+  if (searchQuery) {
+    // Arahkan ke tab explore jika ada query pencarian
+    showTab('explore');
+    const exploreSearchInput = document.getElementById('exploreSearch');
+    if (exploreSearchInput) {
+      exploreSearchInput.value = searchQuery;
+      // Trigger filter real-time dengan men-dispatch input event
+      const event = new Event('input', { bubbles: true });
+      exploreSearchInput.dispatchEvent(event);
+      
+      // Temukan kartu course yang dicari dan beri highlight premium
+      setTimeout(() => {
+        const queryLower = searchQuery.toLowerCase().trim();
+        const items = document.querySelectorAll('.explore-course-item');
+        let foundCard = null;
+        
+        items.forEach(item => {
+          const title = (item.getAttribute('data-title') || '').toLowerCase();
+          if (title.includes(queryLower)) {
+            foundCard = item;
+          }
+        });
+        
+        if (foundCard) {
+          // Scroll secara halus ke kartu
+          foundCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          
+          // Beri efek glow highlight merah berdenyut (pulse) yang super responsif
+          foundCard.style.transition = 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+          foundCard.classList.add('pulse-red-highlight');
+          foundCard.style.transform = 'scale(1.04) translateY(-8px)';
+          
+          // Kembalikan ke normal setelah beberapa detik secara halus
+          setTimeout(() => {
+            foundCard.classList.remove('pulse-red-highlight');
+            foundCard.style.transform = '';
+          }, 6000);
+        }
+      }, 400);
+    }
+  } else if (hash && allowed.includes(hash)) {
+    showTab(hash);
+  } else {
+    showTab('my-courses');
+  }
+}
+
+// Jalankan saat load awal dan saat hash berubah
+window.addEventListener('load', handleUrlState);
+window.addEventListener('hashchange', handleUrlState);
 
 // Checkout Modal logic
 let countdownInterval;
@@ -825,75 +931,315 @@ function closeCheckoutModal(){
   if (countdownInterval) clearInterval(countdownInterval);
 }
 
-// Learning room logic
-function openLearningRoom(id, title, videos, courseId, instructorId){
+// ==========================================
+// LEARNING ROOM – Sequential Video Progress
+// ==========================================
+
+let ytPlayer = null;          // YouTube IFrame API player instance
+let currentVideoIndex = 0;    // Index of currently playing video
+let courseVideos = [];         // All videos for this course
+let completedVideos = new Set(); // Indexes of fully-watched videos
+let playerReady = false;      // Is YT player initialized?
+let ytApiLoaded = false;
+let activeCourseId = null;    // Current course ID for localStorage key
+
+// Current logged-in user ID (from server)
+const CURRENT_USER_ID = {{ Auth::id() }};
+
+// ---- localStorage progress helpers ----
+function getProgressKey(courseId) {
+  return `bh_progress_u${CURRENT_USER_ID}_c${courseId}`;
+}
+function saveProgress(courseId) {
+  if (!courseId) return;
+  const data = { completed: Array.from(completedVideos), ts: Date.now() };
+  try { localStorage.setItem(getProgressKey(courseId), JSON.stringify(data)); } catch(e){}
+}
+function loadProgress(courseId) {
+  try {
+    const raw = localStorage.getItem(getProgressKey(courseId));
+    if (!raw) return new Set();
+    const data = JSON.parse(raw);
+    return new Set((data.completed || []).map(Number));
+  } catch(e) { return new Set(); }
+}
+function clearProgress(courseId) {
+  try { localStorage.removeItem(getProgressKey(courseId)); } catch(e){}
+}
+
+// Load YouTube IFrame API (once)
+function loadYouTubeAPI() {
+  if (window.YT && window.YT.Player) { ytApiLoaded = true; return; }
+  if (document.getElementById('yt-iframe-api')) return;
+  const tag = document.createElement('script');
+  tag.id = 'yt-iframe-api';
+  tag.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(tag);
+}
+
+// Called automatically by YouTube API when ready
+window.onYouTubeIframeAPIReady = function() {
+  ytApiLoaded = true;
+  if (window._pendingYTInit) {
+    window._pendingYTInit();
+    window._pendingYTInit = null;
+  }
+};
+
+// Extract YouTube Video ID from any YouTube URL format
+function extractYouTubeId(url) {
+  if (!url) return null;
+  // embed URL: youtube.com/embed/ID
+  let m = url.match(/youtube\.com\/embed\/([^?&]+)/);
+  if (m) return m[1];
+  // watch URL: youtube.com/watch?v=ID
+  m = url.match(/[?&]v=([^&]+)/);
+  if (m) return m[1];
+  // short URL: youtu.be/ID
+  m = url.match(/youtu\.be\/([^?&]+)/);
+  if (m) return m[1];
+  return null;
+}
+
+function openLearningRoom(id, title, videos, courseId, instructorId) {
   const mascot = document.getElementById('buddyMascot');
-  if(mascot) mascot.style.setProperty('display', 'none', 'important');
+  if (mascot) mascot.style.setProperty('display', 'none', 'important');
 
   document.getElementById('learnCourseTitle').textContent = title;
   document.getElementById('completeCourseForm').action = `${window.APP_URL}/course-manager/course/${courseId}/complete`;
-  
-  // Bind chat instructor button action
   document.getElementById('chatInstructorBtn').onclick = () => {
     window.location.href = `${window.APP_URL}/messages?contact_id=${instructorId}&course_id=${courseId}`;
   };
-  
+
+  // Reset state – load saved progress from localStorage
+  courseVideos = Array.isArray(videos) ? videos : [];
+  activeCourseId = courseId;
+  completedVideos = loadProgress(courseId); // ← restore saved progress
+  playerReady = false;
+
+  // Find first unwatched video to resume from
+  currentVideoIndex = 0;
+  for (let i = 0; i < courseVideos.length; i++) {
+    if (!completedVideos.has(i)) { currentVideoIndex = i; break; }
+    // If all videos are completed, stay at the last one
+    if (i === courseVideos.length - 1) currentVideoIndex = i;
+  }
+
   const container = document.getElementById('videoListContainer');
   container.innerHTML = '';
-  
-  if(!videos || videos.length === 0){
+
+  if (!courseVideos || courseVideos.length === 0) {
     container.innerHTML = '<div style="color:rgba(255,255,255,.5);font-size:.8rem;text-align:center;padding:1rem">Materi video belum diunggah oleh Programmer.</div>';
-    document.getElementById('videoIframe').src = '';
-  } else {
-    videos.forEach((vid, index) => {
-      const item = document.createElement('div');
-      item.className = 'video-list-item';
-      item.onclick = () => selectVideo(vid.video_url, item);
-      item.innerHTML = `
-        <div style="display:flex;align-items:center;gap:10px">
-          <span class="video-index-badge">${index + 1}</span>
-          <div style="display:flex;flex-direction:column;gap:2px">
-            <span style="font-size:.8rem;font-weight:700;color:#fff">${vid.title}</span>
-            <span style="font-size:.7rem;color:rgba(255,255,255,.5);display:inline-flex;align-items:center;gap:4px">
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:10px;height:10px;"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm4.3 14.3L11 13V7h1.5v5.2l4.5 2.7-.7 1.4z" fill="rgba(255,255,255,0.4)"/></svg>
-              ${vid.duration || 'N/A'}
-            </span>
-          </div>
-        </div>
-      `;
-      container.appendChild(item);
-    });
-    
-    // Play the first video by default
-    selectVideo(videos[0].video_url, container.firstChild);
+    document.getElementById('ytPlayerContainer').innerHTML = '';
+    document.getElementById('progressText').textContent = '0 / 0';
+    document.getElementById('progressBar').style.width = '0%';
+    unlockCompleteButton(); // no videos = can complete
+    document.getElementById('learningRoomModal').style.display = 'flex';
+    return;
   }
-  
+
+  updateProgressUI();
+  renderVideoList();
+
+  const initPlayer = () => {
+    // Destroy old player if any
+    if (ytPlayer) { try { ytPlayer.destroy(); } catch(e){} ytPlayer = null; }
+    document.getElementById('ytPlayerContainer').innerHTML = '<div id="ytPlayer"></div>';
+
+    // Resume from the first unwatched video (not necessarily index 0)
+    const resumeVideoId = extractYouTubeId(courseVideos[currentVideoIndex].video_url);
+    ytPlayer = new YT.Player('ytPlayer', {
+      width: '100%',
+      height: '100%',
+      videoId: resumeVideoId || '',
+      playerVars: {
+        autoplay: 0,
+        rel: 0,
+        modestbranding: 1,
+        enablejsapi: 1,
+        origin: window.location.origin
+      },
+      events: {
+        onReady: function(e) {
+          playerReady = true;
+          setActiveVideoItem(currentVideoIndex);
+          updateNowPlaying(currentVideoIndex);
+          // If all videos already done, unlock button immediately
+          if (completedVideos.size >= courseVideos.length) {
+            unlockCompleteButton();
+          }
+        },
+        onStateChange: function(e) {
+          // YT.PlayerState.ENDED = 0
+          if (e.data === YT.PlayerState.ENDED) {
+            onVideoEnded(currentVideoIndex);
+          }
+        }
+      }
+    });
+  };
+
+  if (ytApiLoaded && window.YT && window.YT.Player) {
+    initPlayer();
+  } else {
+    window._pendingYTInit = initPlayer;
+    loadYouTubeAPI();
+  }
+
   document.getElementById('learningRoomModal').style.display = 'flex';
 }
 
-function selectVideo(url, element){
-  // Set active style
-  const siblings = element.parentNode.childNodes;
-  siblings.forEach(s => {
-    if(s.nodeType === 1) s.classList.remove('active');
+function renderVideoList() {
+  const container = document.getElementById('videoListContainer');
+  container.innerHTML = '';
+  courseVideos.forEach((vid, index) => {
+    const isCompleted = completedVideos.has(index);
+    const isUnlocked = index === 0 || completedVideos.has(index - 1);
+    const isCurrent = index === currentVideoIndex;
+
+    const item = document.createElement('div');
+    item.className = 'video-list-item' + (isCurrent ? ' active' : '') + (isUnlocked ? '' : ' locked');
+    item.id = `videoItem_${index}`;
+
+    // Status badge
+    let badge, badgeColor;
+    if (isCompleted) {
+      badge = '✅'; badgeColor = '#10B981';
+    } else if (!isUnlocked) {
+      badge = '🔒'; badgeColor = 'rgba(255,255,255,0.3)';
+    } else if (isCurrent) {
+      badge = '▶'; badgeColor = '#818CF8';
+    } else {
+      badge = String(index + 1); badgeColor = 'rgba(255,255,255,0.7)';
+    }
+
+    item.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="video-index-badge" style="background:${isCompleted ? 'rgba(16,185,129,0.2)' : (isCurrent ? 'rgba(79,70,229,0.3)' : 'rgba(255,255,255,0.08)')};color:${badgeColor};font-size:${badge.length>1?'0.8rem':'0.72rem'}">${badge}</span>
+        <div style="display:flex;flex-direction:column;gap:2px;flex:1">
+          <span style="font-size:.8rem;font-weight:700;color:${isUnlocked ? '#fff' : 'rgba(255,255,255,.35)'}">${vid.title}</span>
+          <span style="font-size:.7rem;color:${isCompleted ? '#10B981' : 'rgba(255,255,255,.4)'};display:inline-flex;align-items:center;gap:4px">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:10px;height:10px;"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm4.3 14.3L11 13V7h1.5v5.2l4.5 2.7-.7 1.4z" fill="currentColor"/></svg>
+            ${isCompleted ? 'Selesai ditonton ✓' : (isUnlocked ? (vid.duration || 'N/A') : 'Tonton video sebelumnya dahulu')}
+          </span>
+        </div>
+      </div>
+    `;
+
+    if (isUnlocked) {
+      item.style.cursor = 'pointer';
+      item.onclick = () => selectVideoByIndex(index);
+    } else {
+      item.style.cursor = 'not-allowed';
+      item.style.opacity = '0.5';
+      item.onclick = () => {
+        // Show locked toast
+        showLockedToast();
+      };
+    }
+
+    container.appendChild(item);
   });
-  element.classList.add('active');
-  
-  // Format embed url if needed
-  let embedUrl = url;
-  if(url.includes('youtube.com/watch?v=')){
-    embedUrl = url.replace('watch?v=', 'embed/');
-  }
-  document.getElementById('videoIframe').src = embedUrl;
 }
 
-function closeLearningRoom(){
-  document.getElementById('videoIframe').src = '';
-  document.getElementById('learningRoomModal').style.display = 'none';
-  
-  const mascot = document.getElementById('buddyMascot');
-  if(mascot) mascot.style.removeProperty('display');
+function showLockedToast() {
+  let toast = document.getElementById('videoLockedToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'videoLockedToast';
+    toast.style.cssText = 'position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:rgba(239,68,68,0.95);color:#fff;padding:.75rem 1.5rem;border-radius:var(--radius);font-size:.85rem;font-weight:700;z-index:999999;box-shadow:0 4px 20px rgba(0,0,0,0.4);backdrop-filter:blur(10px);pointer-events:none;transition:opacity .3s ease';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = '🔒 Selesaikan video sebelumnya terlebih dahulu!';
+  toast.style.opacity = '1';
+  clearTimeout(toast._hideTimer);
+  toast._hideTimer = setTimeout(() => { toast.style.opacity = '0'; }, 2500);
 }
+
+function selectVideoByIndex(index) {
+  if (!playerReady || !ytPlayer) return;
+  // Only allow if unlocked
+  const isUnlocked = index === 0 || completedVideos.has(index - 1);
+  if (!isUnlocked) { showLockedToast(); return; }
+
+  currentVideoIndex = index;
+  const vid = courseVideos[index];
+  const videoId = extractYouTubeId(vid.video_url);
+  if (videoId) {
+    ytPlayer.loadVideoById(videoId);
+  }
+  setActiveVideoItem(index);
+  updateNowPlaying(index);
+  renderVideoList();
+}
+
+function setActiveVideoItem(index) {
+  document.querySelectorAll('.video-list-item').forEach((el, i) => {
+    el.classList.toggle('active', i === index);
+  });
+}
+
+function updateNowPlaying(index) {
+  const info = document.getElementById('nowPlayingInfo');
+  const titleEl = document.getElementById('nowPlayingTitle');
+  if (info && titleEl && courseVideos[index]) {
+    info.style.display = 'flex';
+    titleEl.textContent = `#${index + 1} – ${courseVideos[index].title}`;
+  }
+}
+
+function onVideoEnded(index) {
+  completedVideos.add(index);
+  saveProgress(activeCourseId); // ← persist immediately after each video
+  updateProgressUI();
+  renderVideoList();
+
+  // Check if all videos completed
+  if (completedVideos.size >= courseVideos.length) {
+    unlockCompleteButton();
+    return;
+  }
+
+  // Auto-advance to next video
+  const nextIndex = index + 1;
+  if (nextIndex < courseVideos.length) {
+    setTimeout(() => selectVideoByIndex(nextIndex), 800);
+  }
+}
+
+function updateProgressUI() {
+  const total = courseVideos.length;
+  const done = completedVideos.size;
+  document.getElementById('progressText').textContent = `${done} / ${total}`;
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+function unlockCompleteButton() {
+  const btn = document.getElementById('completeCourseBtn');
+  const msg = document.getElementById('progressStatusMsg');
+  if (btn) {
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    btn.style.cursor = 'pointer';
+  }
+  if (msg) {
+    msg.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="#10B981"/></svg> Semua video selesai! Klaim sertifikat Anda sekarang 🎉';
+    msg.style.color = '#34D399';
+  }
+  // Progress sudah tersimpan — tidak perlu dihapus sampai user benar-benar klaim
+}
+
+function closeLearningRoom() {
+  saveProgress(activeCourseId); // ← save before closing
+  if (ytPlayer) { try { ytPlayer.stopVideo(); } catch(e){} }
+  document.getElementById('learningRoomModal').style.display = 'none';
+  const mascot = document.getElementById('buddyMascot');
+  if (mascot) mascot.style.removeProperty('display');
+}
+
+// Preload YouTube API
+loadYouTubeAPI();
 
 // Certificate logic
 function viewCertificate(student, course, instructor, date){
