@@ -451,21 +451,17 @@ class DatabaseSeeder extends Seeder
         for ($i = 1; $i <= 8; $i++) {
             $diffDays = $i;
             $deadlineDate = now()->subDays($diffDays)->toDateString();
-            $budget = 1500000 + ($i * 500000); // Rp 2M to Rp 5.5M
-            $platformFee = $budget * 0.80;
-            $programmerEarning = $budget * 0.20;
-
             Project::create([
                 'umkm_id' => $rifqiUmkm->id,
                 'title' => "Project UMKM Mandiri " . $i . " (Sistem Kasir / Toko)",
                 'description' => "Pengembangan aplikasi web sederhana untuk membantu usaha mikro lokal mengelola transaksi harian secara efisien dan aman.",
-                'budget' => $budget,
+                'budget' => 0,
                 'deadline' => $deadlineDate,
                 'status' => 'open',
                 'category' => 'E-Commerce',
                 'tags' => ['Aplikasi Web', 'Laravel', 'MySQL'],
-                'platform_fee' => $platformFee,
-                'programmer_earning' => $programmerEarning,
+                'platform_fee' => 0,
+                'programmer_earning' => 0,
             ]);
         }
 
@@ -482,37 +478,30 @@ class DatabaseSeeder extends Seeder
             $deadlineDate = now()->addDays($days)->toDateString();
             
             if ($days <= 22) {
-                $budget = 1500000 + ($idx * 300000);
                 $difficulty = "Sederhana";
                 $cat = "Landing Page";
             } elseif ($days <= 35) {
-                $budget = 4000000 + (($idx - 5) * 400000);
                 $difficulty = "Menengah";
                 $cat = "E-Commerce";
             } elseif ($days <= 70) {
-                $budget = 8000000 + (($idx - 10) * 800000);
                 $difficulty = "Kompleks";
                 $cat = "Mobile App";
             } else {
-                $budget = 15000000 + (($idx - 15) * 1200000);
                 $difficulty = "Enterprise";
                 $cat = "Sistem Informasi";
             }
-
-            $platformFee = $budget * 0.80;
-            $programmerEarning = $budget * 0.20;
 
             Project::create([
                 'umkm_id' => $rifqiUmkm->id,
                 'title' => "Pengembangan Aplikasi " . $difficulty . " Kelompok " . $num,
                 'description' => "Kebutuhan pembuatan sistem dengan skala " . $difficulty . " untuk mendukung efisiensi operasional digitalisasi UMKM daerah.",
-                'budget' => $budget,
+                'budget' => 0,
                 'deadline' => $deadlineDate,
                 'status' => 'open',
                 'category' => $cat,
                 'tags' => ['Aplikasi Web', 'Database', 'REST API'],
-                'platform_fee' => $platformFee,
-                'programmer_earning' => $programmerEarning,
+                'platform_fee' => 0,
+                'programmer_earning' => 0,
             ]);
         }
 

@@ -163,8 +163,8 @@
           <span style="display:flex;align-items:center;gap:4px">
             👥 {{ $project->bids->count() }} penawaran
           </span>
-          <span style="display:flex;align-items:center;gap:4px">
-            💳 Fee: {{ $project->budget > 0 ? 'Rp ' . number_format($project->budget * 0.80, 0, ',', '.') : 'Estimasi' }}
+           <span style="display:flex;align-items:center;gap:4px">
+            💳 Fee: {{ $project->budget > 0 ? 'Rp ' . number_format($project->budget * 0.80, 0, ',', '.') : 'Menunggu Estimasi' }}
           </span>
         </div>
 

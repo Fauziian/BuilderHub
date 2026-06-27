@@ -426,7 +426,7 @@
           <tr>
             <td><strong>{{ Str::limit($p->title, 35) }}</strong></td>
             <td style="font-size:.82rem;color:var(--text3)">{{ $p->umkm->business_name ?? $p->umkm->name }}</td>
-            <td>Rp {{ number_format($p->budget/1000000,1) }}M</td>
+            <td>{{ $p->budget > 0 ? 'Rp ' . number_format($p->budget/1000000,1) . 'M' : 'Menunggu Estimasi' }}</td>
             <td><span class="badge badge-{{ $p->status === 'open' ? 'open' : ($p->status === 'in_progress' ? 'running' : 'done') }}">{{ $p->status_label }}</span></td>
             <td style="font-size:.82rem;color:var(--text3)">{{ $p->created_at->format('d M Y') }}</td>
           </tr>

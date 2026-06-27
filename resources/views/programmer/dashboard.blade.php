@@ -595,7 +595,7 @@
         <div style="padding:.65rem 1.15rem;border-top:1px solid #F3F4F6;display:flex;align-items:center;gap:.85rem;font-size:.74rem;color:#9CA3AF;flex-wrap:wrap">
           <span style="color:{{ $pOverdue ? '#DC2626' : '#6B7280' }};font-weight:{{ $pOverdue ? '700' : '400' }}">🕐 {{ $p->deadline->format('d M Y') }}</span>
           <span>👥 {{ $p->bids->count() }} penawaran</span>
-          <span>💳 Fee: {{ $p->budget > 0 ? 'Rp '.number_format($p->budget*.80,0,',','.') : 'Estimasi' }}</span>
+          <span>💳 Fee: {{ $p->budget > 0 ? 'Rp '.number_format($p->budget*.80,0,',','.') : 'Menunggu Estimasi' }}</span>
         </div>
 
         {{-- ACTION BUTTON --}}
