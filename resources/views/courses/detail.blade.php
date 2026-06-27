@@ -11,7 +11,7 @@
       <h1 style="font-size:2rem;font-weight:800;color:#fff;margin-bottom:.75rem;line-height:1.25">{{ $course->title }}</h1>
       <p style="color:rgba(255,255,255,.8);font-size:.95rem;line-height:1.7;margin-bottom:1.25rem">{{ $course->description }}</p>
       <div style="display:flex;align-items:center;gap:1.5rem;font-size:.85rem;color:rgba(255,255,255,.7)">
-        <span>⭐ {{ $course->rating }} ({{ number_format($course->total_students) }} siswa)</span>
+        <span>⭐ {{ number_format($course->rating, 1) }} ({{ number_format($course->enrollments->count()) }} siswa)</span>
         <span>▶ {{ $course->total_videos }} video · {{ $course->duration }}</span>
       </div>
       <div style="display:flex;align-items:center;gap:8px;margin-top:1rem">

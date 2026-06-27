@@ -32,6 +32,19 @@ class Course extends Model
         return $this->hasMany(CourseEnrollment::class);
     }
 
+    public function reviews()
+    {
+        return $this->hasMany(Review::class)->where('type', 'course');
+    }
+
+    public function getRatingAttribute($value)
+    {
+        if ($this->reviews()->count() === 0) {
+            return 0.0;
+        }
+        return round($this->reviews()->avg('rating'), 1);
+    }
+
     public function getLevelLabelAttribute()
     {
         return match($this->level) {
