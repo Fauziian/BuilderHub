@@ -68,30 +68,67 @@
       </a>
     @endif
 
-    {{-- Page numbers --}}
-    @foreach ($elements as $element)
-      @if (is_string($element))
-        {{-- dots --}}
-        <span style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;font-size:.82rem;color:#9CA3AF">…</span>
-      @endif
-      @if (is_array($element))
-        @foreach ($element as $page => $url)
-          @if ($page == $paginator->currentPage())
-            <span aria-current="page"
-              style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;background:#4F46E5;color:#fff;font-size:.85rem;font-weight:700;box-shadow:0 2px 8px rgba(79,70,229,.4);cursor:default">
-              {{ $page }}
-            </span>
-          @else
-            <a href="{{ $url }}"
-              style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid #E5E7EB;background:#fff;color:#374151;font-size:.85rem;font-weight:500;text-decoration:none;transition:all .15s"
-              onmouseover="this.style.background='#EEF2FF';this.style.borderColor='#4F46E5';this.style.color='#4F46E5'"
-              onmouseout="this.style.background='#fff';this.style.borderColor='#E5E7EB';this.style.color='#374151'">
-              {{ $page }}
-            </a>
-          @endif
-        @endforeach
+    {{-- Page numbers (Custom sliding window logic starting from current page) --}}
+    @php
+      $current = $paginator->currentPage();
+      $last = $paginator->lastPage();
+      
+      $pages = [];
+      $maxConsecutive = 3;
+      for ($i = 0; $i < $maxConsecutive; $i++) {
+          $p = $current + $i;
+          if ($p <= $last) {
+              $pages[] = $p;
+          }
+      }
+      
+      $showEllipsis = false;
+      $showLastPage = false;
+      
+      if (count($pages) > 0) {
+          $lastConsecutive = end($pages);
+          if ($lastConsecutive < $last) {
+              if ($last - $lastConsecutive > 1) {
+                  $showEllipsis = true;
+                  $showLastPage = true;
+              } else {
+                  $pages[] = $last;
+              }
+          }
+      }
+    @endphp
+
+    {{-- Render computed consecutive pages --}}
+    @foreach ($pages as $page)
+      @if ($page == $current)
+        <span aria-current="page"
+          style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;background:#4F46E5;color:#fff;font-size:.85rem;font-weight:700;box-shadow:0 2px 8px rgba(79,70,229,.4);cursor:default">
+          {{ $page }}
+        </span>
+      @else
+        <a href="{{ $paginator->url($page) }}"
+          style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid #E5E7EB;background:#fff;color:#374151;font-size:.85rem;font-weight:500;text-decoration:none;transition:all .15s"
+          onmouseover="this.style.background='#EEF2FF';this.style.borderColor='#4F46E5';this.style.color='#4F46E5'"
+          onmouseout="this.style.background='#fff';this.style.borderColor='#E5E7EB';this.style.color='#374151'">
+          {{ $page }}
+        </a>
       @endif
     @endforeach
+
+    {{-- Render Ellipsis if needed --}}
+    @if ($showEllipsis)
+      <span style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;font-size:.82rem;color:#9CA3AF">…</span>
+    @endif
+
+    {{-- Render Last Page if needed --}}
+    @if ($showLastPage)
+      <a href="{{ $paginator->url($last) }}"
+        style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid #E5E7EB;background:#fff;color:#374151;font-size:.85rem;font-weight:500;text-decoration:none;transition:all .15s"
+        onmouseover="this.style.background='#EEF2FF';this.style.borderColor='#4F46E5';this.style.color='#4F46E5'"
+        onmouseout="this.style.background='#fff';this.style.borderColor='#E5E7EB';this.style.color='#374151'">
+        {{ $last }}
+      </a>
+    @endif
 
     {{-- Selanjutnya › --}}
     @if ($paginator->hasMorePages())
