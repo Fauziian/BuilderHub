@@ -36,7 +36,7 @@ class HomeController extends Controller
         if ($request->search) {
             $query->where('title', 'like', '%' . $request->search . '%');
         }
-        $projects = $query->latest()->paginate(9);
+        $projects = $query->latest()->paginate(6)->withQueryString();
         $categories = Project::distinct()->pluck('category');
         return view('projects.index', compact('projects', 'categories'));
     }
@@ -47,11 +47,15 @@ class HomeController extends Controller
         if ($request->level) {
             $query->where('level', $request->level);
         }
+        if ($request->category) {
+            $query->where('category', $request->category);
+        }
         if ($request->search) {
             $query->where('title', 'like', '%' . $request->search . '%');
         }
-        $courses = $query->latest()->paginate(9);
-        return view('courses.index', compact('courses'));
+        $courses = $query->latest()->paginate(6)->withQueryString();
+        $categories = Course::where('is_published', true)->distinct()->pluck('category');
+        return view('courses.index', compact('courses', 'categories'));
     }
 
     public function courseDetail(Course $course)

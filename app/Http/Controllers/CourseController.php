@@ -27,9 +27,30 @@ class CourseController extends Controller
                 ->with(['course.instructor', 'course.videos'])
                 ->get();
 
-            $availableCourses = Course::where('is_published', true)
-                ->with('instructor')
-                ->get();
+            $categories = Course::where('is_published', true)->distinct()->pluck('category');
+
+            $query = Course::where('is_published', true)->with('instructor');
+
+            if ($search = request('search')) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('title', 'like', '%' . $search . '%')
+                      ->orWhere('category', 'like', '%' . $search . '%')
+                      ->orWhere('description', 'like', '%' . $search . '%')
+                      ->orWhereHas('instructor', function ($qi) use ($search) {
+                          $qi->where('name', 'like', '%' . $search . '%');
+                      });
+                });
+            }
+
+            if ($level = request('level')) {
+                $query->where('level', $level);
+            }
+
+            if ($category = request('category')) {
+                $query->where('category', $category);
+            }
+
+            $availableCourses = $query->latest()->paginate(6)->withQueryString();
 
             // Review yang sudah diberikan pelajar ini (keyed by course_id)
             $givenCourseReviews = \App\Models\Review::where('reviewer_id', $user->id)
@@ -37,7 +58,7 @@ class CourseController extends Controller
                 ->get()
                 ->keyBy('course_id');
 
-            return view('course.student_dashboard', compact('user', 'enrollments', 'availableCourses', 'givenCourseReviews'));
+            return view('course.student_dashboard', compact('user', 'enrollments', 'availableCourses', 'categories', 'givenCourseReviews'));
         }
 
         $courses = Course::with(['instructor', 'enrollments', 'videos'])->latest()->paginate(10);
@@ -165,5 +186,140 @@ class CourseController extends Controller
             ->with('prompt_rating_course_id', $course->id)
             ->with('prompt_rating_course_title', $course->title)
             ->with('prompt_rating_instructor', $course->instructor->name);
+    }
+
+    public function showUpgradeForm()
+    {
+        if (Auth::user()->role !== 'course') {
+            return redirect()->route('dashboard');
+        }
+        $user = Auth::user();
+        
+        // Cek status belajar & kelulusan pelajar
+        $hasEnrollments = CourseEnrollment::where('user_id', $user->id)->exists();
+        $completedEnrollments = CourseEnrollment::where('user_id', $user->id)
+            ->where('status', 'completed')
+            ->with('course.instructor')
+            ->get();
+            
+        $hasCompletedCourse = !$completedEnrollments->isEmpty();
+
+        // Syarat mutlak: Harus lulus minimal 1 course di BuilderHub!
+        if (!$hasCompletedCourse) {
+            return redirect()->route('course.dashboard')
+                ->with('error', 'Akses ditolak: Anda wajib menyelesaikan minimal 1 course di BuilderHub dan mengklaim sertifikat kelulusan sebelum dapat mengajukan upgrade akun.');
+        }
+
+        return view('course.upgrade_programmer', compact('user', 'completedEnrollments', 'hasEnrollments', 'hasCompletedCourse'));
+    }
+
+    public function processUpgrade(Request $request)
+    {
+        if (Auth::user()->role !== 'course') {
+            return redirect()->route('dashboard');
+        }
+        
+        $user = Auth::user();
+
+        // Syarat mutlak: Harus lulus minimal 1 course di BuilderHub!
+        $hasCompletedCourse = CourseEnrollment::where('user_id', $user->id)
+            ->where('status', 'completed')
+            ->exists();
+
+        if (!$hasCompletedCourse) {
+            return redirect()->route('course.dashboard')
+                ->with('error', 'Akses ditolak: Anda wajib menyelesaikan minimal 1 course di BuilderHub dan mengklaim sertifikat kelulusan sebelum dapat mengajukan upgrade akun.');
+        }
+
+        $request->validate([
+            'ktp_number' => 'required|numeric|digits:16',
+            'ktp_photo' => 'required|image|max:2048',
+            'cv_file' => 'required|mimes:pdf,doc,docx|max:3072',
+            'bio' => 'required|string|min:20',
+            'expertise' => 'required|string|max:255',
+            'builderhub_certificate' => 'nullable|exists:courses,id',
+            'external_certificate' => 'required_if:certificate_choice,external|nullable|mimes:pdf,jpg,jpeg,png|max:3072',
+            'external_certificate_name' => 'required_if:certificate_choice,external|nullable|string|max:255',
+            'external_certificate_issuer' => 'required_if:certificate_choice,external|nullable|string|max:255',
+            'external_certificate_date' => 'required_if:certificate_choice,external|nullable|date',
+        ], [
+            'ktp_number.required' => 'Nomor KTP wajib diisi',
+            'ktp_number.digits' => 'Nomor KTP harus tepat 16 digit',
+            'ktp_number.numeric' => 'Nomor KTP harus berupa angka',
+            'ktp_photo.required' => 'Foto KTP wajib diunggah',
+            'ktp_photo.image' => 'Foto KTP harus berupa gambar (jpeg, png, jpg)',
+            'ktp_photo.max' => 'Ukuran foto KTP maksimal 2MB',
+            'cv_file.required' => 'Dokumen CV wajib diunggah',
+            'cv_file.mimes' => 'Dokumen CV harus berformat PDF, DOC, atau DOCX',
+            'cv_file.max' => 'Ukuran dokumen CV maksimal 3MB',
+            'bio.required' => 'Bio / Deskripsi diri wajib diisi',
+            'bio.min' => 'Bio minimal 20 karakter',
+            'expertise.required' => 'Keahlian wajib diisi',
+            'external_certificate.required_if' => 'File sertifikat eksternal wajib diunggah jika memilih opsi sertifikat eksternal',
+            'external_certificate.mimes' => 'Sertifikat eksternal harus berformat PDF atau Gambar',
+            'external_certificate.max' => 'Ukuran file sertifikat eksternal maksimal 3MB',
+            'external_certificate_name.required_if' => 'Nama sertifikat eksternal wajib diisi',
+            'external_certificate_issuer.required_if' => 'Penerbit sertifikat eksternal wajib diisi',
+            'external_certificate_date.required_if' => 'Tanggal terbit sertifikat eksternal wajib diisi',
+        ]);
+
+        // 1. Update user fields and change role to 'programmer'
+        $userData = [
+            'role' => 'programmer',
+            'is_verified' => false,
+            'ktp_number' => $request->ktp_number,
+            'bio' => $request->bio,
+            'expertise' => $request->expertise,
+        ];
+
+        if ($request->hasFile('ktp_photo')) {
+            $userData['ktp_photo'] = $request->file('ktp_photo')->store('verification/ktp', 'public');
+        }
+        if ($request->hasFile('cv_file')) {
+            $userData['cv_file'] = $request->file('cv_file')->store('verification/cv', 'public');
+        }
+
+        $user->update($userData);
+
+        // 2. Create the Certificate record in the certificates table
+        if ($request->builderhub_certificate) {
+            $course = Course::with('instructor')->find($request->builderhub_certificate);
+            \App\Models\Certificate::create([
+                'programmer_id' => $user->id,
+                'name' => 'Sertifikat Kelulusan: ' . $course->title,
+                'issuer' => 'BuilderHub Academy (oleh ' . $course->instructor->name . ')',
+                'issue_date' => now(),
+                'status' => 'pending', // Will be approved when admin approves the user!
+            ]);
+        } elseif ($request->hasFile('external_certificate')) {
+            $path = $request->file('external_certificate')->store('verification/certificates', 'public');
+            \App\Models\Certificate::create([
+                'programmer_id' => $user->id,
+                'name' => $request->external_certificate_name,
+                'issuer' => $request->external_certificate_issuer,
+                'issue_date' => $request->external_certificate_date,
+                'certificate_file' => $path,
+                'status' => 'pending',
+            ]);
+        } else {
+            // Default fall-back
+            \App\Models\Certificate::create([
+                'programmer_id' => $user->id,
+                'name' => 'Sertifikat Kompetensi Awal',
+                'issuer' => 'BuilderHub Academy',
+                'issue_date' => now(),
+                'status' => 'pending',
+            ]);
+        }
+
+        // Send notification to user
+        \App\Models\Notification::create([
+            'user_id' => $user->id,
+            'title' => 'Permohonan Upgrade Programmer',
+            'message' => 'Akun Anda berhasil diajukan untuk upgrade menjadi Programmer. Menunggu verifikasi admin 1 x 24 jam.',
+            'type' => 'info',
+        ]);
+
+        return redirect()->route('dashboard')->with('success', 'Akun Anda berhasil diajukan untuk upgrade menjadi Programmer! Silakan tunggu verifikasi admin 1 x 24 jam untuk mulai mengambil project.');
     }
 }

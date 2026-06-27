@@ -18,82 +18,157 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Admin
-        $admin = User::create([
-            'name' => 'Admin BuilderHub',
-            'email' => 'admin@builderhub.id',
-            'password' => Hash::make('password'),
-            'role' => 'admin',
-            'city' => 'Jakarta',
-            'bio' => 'Administrator Platform BuilderHub',
-        ]);
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@builderhub.id'],
+            [
+                'name' => 'Admin BuilderHub',
+                'password' => Hash::make('password'),
+                'role' => 'admin',
+                'city' => 'Jakarta',
+                'bio' => 'Administrator Platform BuilderHub',
+            ]
+        );
 
         // Pelajar / Student (role: course)
-        $student = User::create([
-            'name' => 'Adit Saputra',
-            'email' => 'student@builderhub.id',
-            'password' => Hash::make('password'),
-            'role' => 'course',
-            'city' => 'Bandung',
-            'expertise' => 'Web Development',
-        ]);
+        $student = User::firstOrCreate(
+            ['email' => 'student@builderhub.id'],
+            [
+                'name' => 'Adit Saputra',
+                'password' => Hash::make('password'),
+                'role' => 'course',
+                'city' => 'Bandung',
+                'expertise' => 'Web Development',
+            ]
+        );
 
         // Programmers
-        $rizky = User::create([
-            'name' => 'Rizky Pratama',
-            'email' => 'rizky@builderhub.id',
-            'password' => Hash::make('password'),
-            'role' => 'programmer',
-            'phone' => '081234567890',
-            'city' => 'Bandung',
-            'bio' => 'Full Stack Developer dengan 5+ tahun pengalaman',
-            'is_verified' => true,
-            'is_top_programmer' => true,
-            'rating' => 4.9,
-            'total_projects' => 12,
-            'total_earnings' => 48000000,
-        ]);
+        $rizky = User::firstOrCreate(
+            ['email' => 'rizky@builderhub.id'],
+            [
+                'name' => 'Rizky Pratama',
+                'password' => Hash::make('password'),
+                'role' => 'programmer',
+                'phone' => '081234567890',
+                'city' => 'Bandung',
+                'bio' => 'Full Stack Developer dengan 5+ tahun pengalaman',
+                'is_verified' => true,
+                'is_top_programmer' => true,
+                'rating' => 4.9,
+                'total_projects' => 12,
+                'total_earnings' => 48000000,
+            ]
+        );
 
-        $dewi = User::create([
-            'name' => 'Dewi Sartika',
-            'email' => 'dewi@builderhub.id',
-            'password' => Hash::make('password'),
-            'role' => 'programmer',
-            'phone' => '082345678901',
-            'city' => 'Surabaya',
-            'bio' => 'Mobile Developer spesialis Flutter',
-            'is_verified' => true,
-            'is_top_programmer' => false,
-            'rating' => 4.6,
-            'total_projects' => 7,
-            'total_earnings' => 21000000,
-        ]);
+        $dewi = User::firstOrCreate(
+            ['email' => 'dewi@builderhub.id'],
+            [
+                'name' => 'Dewi Sartika',
+                'password' => Hash::make('password'),
+                'role' => 'programmer',
+                'phone' => '082345678901',
+                'city' => 'Surabaya',
+                'bio' => 'Mobile Developer spesialis Flutter',
+                'is_verified' => true,
+                'is_top_programmer' => false,
+                'rating' => 4.6,
+                'total_projects' => 7,
+                'total_earnings' => 21000000,
+            ]
+        );
 
         // UMKM
-        $budi = User::create([
-            'name' => 'Budi Santoso',
-            'email' => 'budi@batik.id',
-            'password' => Hash::make('password'),
-            'role' => 'umkm',
-            'phone' => '083456789012',
-            'city' => 'Yogyakarta',
-            'business_name' => 'Batik Nusantara Collection',
-            'business_type' => 'Fashion & Kerajinan',
-            'umkm_verified' => true,
-            'legal_doc' => 'NIB-001234567',
-        ]);
+        $budi = User::firstOrCreate(
+            ['email' => 'budi@batik.id'],
+            [
+                'name' => 'Budi Santoso',
+                'password' => Hash::make('password'),
+                'role' => 'umkm',
+                'phone' => '083456789012',
+                'city' => 'Yogyakarta',
+                'business_name' => 'Batik Nusantara Collection',
+                'business_type' => 'Fashion & Kerajinan',
+                'umkm_verified' => true,
+                'legal_doc' => 'NIB-001234567',
+            ]
+        );
 
-        $siti = User::create([
-            'name' => 'Siti Rahayu',
-            'email' => 'siti@warung.id',
-            'password' => Hash::make('password'),
-            'role' => 'umkm',
-            'phone' => '084567890123',
-            'city' => 'Jakarta',
-            'business_name' => 'Warung Makan Bu Siti',
-            'business_type' => 'Kuliner & Food',
-            'umkm_verified' => true,
-            'legal_doc' => 'SIUP-987654321',
-        ]);
+        $siti = User::firstOrCreate(
+            ['email' => 'siti@warung.id'],
+            [
+                'name' => 'Siti Rahayu',
+                'password' => Hash::make('password'),
+                'role' => 'umkm',
+                'phone' => '084567890123',
+                'city' => 'Jakarta',
+                'business_name' => 'Warung Makan Bu Siti',
+                'business_type' => 'Kuliner & Food',
+                'umkm_verified' => true,
+                'legal_doc' => 'SIUP-987654321',
+            ]
+        );
+
+        // New Users for Rifqi
+        $rifqiProgrammer = User::firstOrCreate(
+            ['email' => 'rifqiprogrammer@gmail.com'],
+            [
+                'name' => 'rifqiprogrammer',
+                'password' => Hash::make('password'),
+                'role' => 'programmer',
+                'phone' => '081234567891',
+                'city' => 'Bandung',
+                'bio' => 'Saya adalah seorang Programmer profesional yang siap membangun berbagai project digital seperti website, landing page, dan aplikasi mobile.',
+                'is_verified' => true,
+                'is_top_programmer' => false,
+                'rating' => 0.0,
+                'total_projects' => 0,
+                'total_earnings' => 0,
+                'ktp_number' => '3273123456789012',
+                'ktp_photo' => 'verification/ktp/dummy.jpg',
+                'cv_file' => 'verification/cv/dummy.pdf',
+                'portfolio_file' => 'verification/portfolio/dummy.pdf',
+                'expertise' => 'Web Development, Laravel, React',
+            ]
+        );
+
+        Certificate::firstOrCreate(
+            ['programmer_id' => $rifqiProgrammer->id, 'name' => 'Sertifikat Pertama Rifqi'],
+            [
+                'issuer' => 'Lembaga Sertifikasi Informatika',
+                'issue_date' => '2025-05-20',
+                'certificate_file' => 'verification/certificates/dummy.pdf',
+                'status' => 'approved',
+            ]
+        );
+
+        $rifqiUmkm = User::firstOrCreate(
+            ['email' => 'rifqiumkm@gmail.com'],
+            [
+                'name' => 'rifqiumkm',
+                'password' => Hash::make('password'),
+                'role' => 'umkm',
+                'phone' => '083456789013',
+                'city' => 'Bandung',
+                'business_name' => 'Rifqi Creative Studio',
+                'business_type' => 'Fashion & Kerajinan',
+                'umkm_verified' => true,
+                'ktp_number' => '3273123456789013',
+                'ktp_photo' => 'verification/ktp/dummy.jpg',
+                'business_photo' => 'verification/business/dummy.jpg',
+                'legal_doc' => 'NIB-881234567',
+            ]
+        );
+
+        $rifqiPelajar = User::firstOrCreate(
+            ['email' => 'rifqipelajar@gmail.com'],
+            [
+                'name' => 'rifqipelajar',
+                'password' => Hash::make('password'),
+                'role' => 'course',
+                'phone' => '084567890124',
+                'city' => 'Bandung',
+                'expertise' => 'Web Development',
+            ]
+        );
 
         // Portfolios
         Portfolio::create(['programmer_id' => $rizky->id, 'title' => 'Toko Online UMKM Batik', 'description' => 'Website toko online batik khas Yogyakarta dengan fitur lengkap', 'tags' => ['React', 'Laravel', 'MySQL'], 'status' => 'approved']);
@@ -139,6 +214,7 @@ class DatabaseSeeder extends Seeder
             'budget' => 3500000,
             'deadline' => '2025-02-15',
             'status' => 'in_progress',
+            'escrow_status' => 'held_by_admin',
             'category' => 'Kuliner & Food Tech',
             'tags' => ['Vue.js', 'Node.js', 'WhatsApp API', 'MongoDB'],
             'assigned_programmer_id' => $rizky->id,
@@ -153,12 +229,171 @@ class DatabaseSeeder extends Seeder
             'budget' => 2500000,
             'deadline' => '2025-01-30',
             'status' => 'completed',
+            'escrow_status' => 'released',
             'category' => 'Business Tools',
             'tags' => ['Business Tools', 'React', 'PHP', 'MySQL'],
             'assigned_programmer_id' => $rizky->id,
             'platform_fee' => 2000000,
             'programmer_earning' => 500000,
         ]);
+
+        // 15 Posting Project Baru (Approved / Verified by Admin, status: open)
+        $additionalProjects = [
+            [
+                'umkm_id' => $budi->id,
+                'title' => 'Website E-Commerce Batik Tulis Yogyakarta',
+                'description' => 'Membangun website e-commerce premium untuk penjualan batik tulis khas Yogyakarta. Fitur utama meliputi katalog batik interaktif, keranjang belanja, integrasi payment gateway, dan manajemen stok.',
+                'budget' => 0,
+                'deadline' => now()->addDays(20)->toDateString(),
+                'status' => 'open',
+                'category' => 'E-Commerce',
+                'tags' => ['Aplikasi Web'],
+            ],
+            [
+                'umkm_id' => $budi->id,
+                'title' => 'Pembuatan Aplikasi Android Studio Katalog Batik',
+                'description' => 'Membuat aplikasi mobile Android menggunakan Android Studio dan Kotlin untuk menampilkan katalog produk batik dengan fitur pencarian, filter kategori, dan detail motif batik.',
+                'budget' => 0,
+                'deadline' => now()->addDays(15)->toDateString(),
+                'status' => 'open',
+                'category' => 'Marketplace',
+                'tags' => ['Aplikasi Mobile'],
+            ],
+            [
+                'umkm_id' => $siti->id,
+                'title' => 'Sistem Informasi Manajemen Keuangan UMKM',
+                'description' => 'Membangun sistem informasi berbasis web untuk mencatat kas masuk, kas keluar, laporan laba rugi bulanan secara otomatis, dan grafik analisis performa bisnis.',
+                'budget' => 0,
+                'deadline' => now()->addDays(30)->toDateString(),
+                'status' => 'open',
+                'category' => 'Business Tools',
+                'tags' => ['Sistem Informasi'],
+            ],
+            [
+                'umkm_id' => $siti->id,
+                'title' => 'Aplikasi Desktop POS (Point of Sales) Warung Makan',
+                'description' => 'Pengembangan aplikasi desktop untuk kasir warung makan dengan antarmuka yang cepat, cetak struk thermal, dan manajemen inventori bahan baku makanan.',
+                'budget' => 0,
+                'deadline' => now()->addDays(45)->toDateString(),
+                'status' => 'open',
+                'category' => 'Kuliner & Food Tech',
+                'tags' => ['Aplikasi Desktop'],
+            ],
+            [
+                'umkm_id' => $rifqiUmkm->id,
+                'title' => 'Website EduTech Kelas Online Coding Pemula',
+                'description' => 'Platform pembelajaran online dengan fitur manajemen materi, video streaming, kuis interaktif, dan pelacakan kemajuan belajar siswa secara real-time.',
+                'budget' => 0,
+                'deadline' => now()->subDays(5)->toDateString(), // Expired 1
+                'status' => 'open',
+                'category' => 'Education',
+                'tags' => ['Aplikasi Web'],
+            ],
+            [
+                'umkm_id' => $budi->id,
+                'title' => 'Aplikasi Mobile Android Studio Reservasi Klinik Kesehatan',
+                'description' => 'Aplikasi mobile berbasis Android untuk melakukan pendaftaran pasien, memilih jadwal dokter, konsultasi online sederhana, dan resep obat digital.',
+                'budget' => 0,
+                'deadline' => now()->addDays(60)->toDateString(),
+                'status' => 'open',
+                'category' => 'Healthcare',
+                'tags' => ['Aplikasi Mobile'],
+            ],
+            [
+                'umkm_id' => $siti->id,
+                'title' => 'Sistem Informasi Pembayaran Sekolah (SPP Online)',
+                'description' => 'Sistem informasi berbasis web untuk mempermudah pembayaran SPP siswa sekolah dengan integrasi payment gateway dan notifikasi WhatsApp otomatis.',
+                'budget' => 0,
+                'deadline' => now()->addDays(25)->toDateString(),
+                'status' => 'open',
+                'category' => 'Finance',
+                'tags' => ['Sistem Informasi'],
+            ],
+            [
+                'umkm_id' => $rifqiUmkm->id,
+                'title' => 'Aplikasi Desktop Reservasi Tiket Pariwisata Lokal',
+                'description' => 'Aplikasi desktop untuk agen travel yang memudahkan booking tiket destinasi wisata lokal, cetak e-tiket, serta sinkronisasi data ke cloud.',
+                'budget' => 0,
+                'deadline' => now()->addDays(90)->toDateString(),
+                'status' => 'open',
+                'category' => 'Development',
+                'tags' => ['Aplikasi Desktop'],
+            ],
+            [
+                'umkm_id' => $budi->id,
+                'title' => 'Sistem Monitoring Kelembaban Tanah Smart Farming',
+                'description' => 'Platform IoT berbasis web untuk memantau kelembaban tanah dan suhu udara pada perkebunan secara real-time demi meningkatkan produktivitas panen.',
+                'budget' => 0,
+                'deadline' => now()->subDays(12)->toDateString(), // Expired 2
+                'status' => 'open',
+                'category' => 'Data Analytics',
+                'tags' => ['Sistem Informasi'],
+            ],
+            [
+                'umkm_id' => $rifqiUmkm->id,
+                'title' => 'Website Marketplace Jual Beli Properti & Tanah',
+                'description' => 'Membangun website marketplace properti yang mempertemukan pembeli dan agen properti, dilengkapi peta interaktif, filter harga, dan fitur chat langsung.',
+                'budget' => 0,
+                'deadline' => now()->addDays(120)->toDateString(), // 4 months
+                'status' => 'open',
+                'category' => 'Database',
+                'tags' => ['Aplikasi Web'],
+            ],
+            [
+                'umkm_id' => $siti->id,
+                'title' => 'Aplikasi Android Studio Tracking Kurir Logistik',
+                'description' => 'Aplikasi mobile Android untuk pelacakan lokasi kurir pengantar barang menggunakan GPS secara real-time dan tanda tangan digital penerima barang.',
+                'budget' => 0,
+                'deadline' => now()->addDays(75)->toDateString(),
+                'status' => 'open',
+                'category' => 'Mobile App',
+                'tags' => ['Aplikasi Mobile'],
+            ],
+            [
+                'umkm_id' => $rifqiUmkm->id,
+                'title' => 'Sistem Informasi Manajemen Salon Kecantikan & Spa',
+                'description' => 'Sistem informasi berbasis web untuk manajemen pemesanan treatment salon, pemilihan terapis, absensi staf, serta laporan keuangan bulanan.',
+                'budget' => 0,
+                'deadline' => now()->addDays(35)->toDateString(),
+                'status' => 'open',
+                'category' => 'Frontend',
+                'tags' => ['Sistem Informasi'],
+            ],
+            [
+                'umkm_id' => $budi->id,
+                'title' => 'Aplikasi Desktop Portofolio Desainer Kreatif',
+                'description' => 'Aplikasi desktop untuk menyusun dan memamerkan karya desainer grafis dengan galeri 3D interaktif, ekspor portofolio ke PDF, dan custom template.',
+                'budget' => 0,
+                'deadline' => now()->subDays(20)->toDateString(), // Expired 3
+                'status' => 'open',
+                'category' => 'Backend',
+                'tags' => ['Aplikasi Desktop'],
+            ],
+            [
+                'umkm_id' => $rifqiUmkm->id,
+                'title' => 'Website Event Organizer & Pemesanan Tiket Konser',
+                'description' => 'Website untuk publikasi event, registrasi peserta, pembayaran tiket online dengan QR Code, dan scan e-tiket saat masuk ke area acara.',
+                'budget' => 0,
+                'deadline' => now()->addDays(110)->toDateString(),
+                'status' => 'open',
+                'category' => 'Landing Page',
+                'tags' => ['Aplikasi Web'],
+            ],
+            [
+                'umkm_id' => $siti->id,
+                'title' => 'Aplikasi Android Studio Rental Mobil & Motor',
+                'description' => 'Aplikasi mobile rental kendaraan yang menampilkan daftar mobil/motor tersedia, verifikasi KTP pelanggan, sewa harian, dan integrasi peta maps.',
+                'budget' => 0,
+                'deadline' => now()->addDays(50)->toDateString(),
+                'status' => 'open',
+                'category' => 'Data Scraping',
+                'tags' => ['Aplikasi Mobile'],
+            ],
+        ];
+
+        foreach ($additionalProjects as $projData) {
+            Project::create($projData);
+        }
 
         // Bids
         Bid::create([

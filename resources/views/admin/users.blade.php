@@ -38,19 +38,21 @@
   </div>
 </div>
 <div class="dash-layout">
-  <form method="GET" style="display:flex;gap:.75rem;margin-bottom:1.5rem;flex-wrap:wrap" role="search">
-    <div style="position:relative;flex:1;max-width:350px">
-      <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3)">🔍</span>
-      <input name="search" class="form-input" style="padding-left:38px" placeholder="Cari nama atau email..." value="{{ request('search') }}" aria-label="Cari pengguna">
+  <form method="GET" style="display:flex;gap:.75rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center" role="search">
+    <div style="position:relative;flex:1;max-width:380px">
+      <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:0.95rem">🔍</span>
+      <input name="search" class="form-input" style="padding-left:42px;height:46px;border-radius:12px;border:2px solid var(--border)" placeholder="Cari nama, email, atau kota..." value="{{ request('search') }}" aria-label="Cari pengguna">
     </div>
-    <select name="role" class="form-select" style="width:auto" aria-label="Filter role">
+    <select name="role" class="form-select" style="width:auto;height:46px;border-radius:12px;border:2px solid var(--border);font-weight:600" aria-label="Filter role">
       <option value="">Semua Role</option>
       @foreach(['admin','programmer','umkm','course'] as $r)
       <option value="{{ $r }}" {{ request('role') === $r ? 'selected' : '' }}>{{ ucfirst($r) }}</option>
       @endforeach
     </select>
-    <button type="submit" class="btn btn-primary">Filter</button>
-    @if(request()->hasAny(['search','role']))<a href="{{ route('admin.users') }}" class="btn btn-ghost">Reset</a>@endif
+    <button type="submit" class="btn btn-primary" style="height:46px;padding:0 24px;border-radius:12px">Cari & Filter</button>
+    @if(request()->hasAny(['search','role']))
+      <a href="{{ route('admin.users') }}" class="btn btn-ghost" style="height:46px;padding:0 20px;border-radius:12px;display:inline-flex;align-items:center">Reset 🔄</a>
+    @endif
   </form>
 
   <div class="card">
@@ -65,16 +67,34 @@
           @forelse($users as $u)
           <tr>
             <td>
-              <div style="display:flex;align-items:center;gap.5rem">
+              <div style="display:flex;align-items:flex-start;gap.5rem">
                 <div style="width:32px;height:32px;border-radius:50%;background:{{ $u->role === 'admin' ? 'var(--red)' : ($u->role === 'umkm' ? 'var(--accent)' : 'var(--primary)') }};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.8rem;margin-right:.5rem;flex-shrink:0">{{ strtoupper(substr($u->name,0,1)) }}</div>
                 <div>
                   <strong style="font-size:.875rem">{{ $u->name }}</strong>
                   @if($u->business_name)<div style="font-size:.75rem;color:var(--text3)">{{ $u->business_name }}</div>@endif
                   
                   @if($u->role === 'programmer')
-                  <div style="margin-top:.25rem;font-size:.75rem">
-                    <span style="color:var(--primary)">🗂 {{ $u->portfolios->count() }} Porto</span> · 
-                    <span style="color:var(--green)">📜 {{ $u->certificates->count() }} Sert</span>
+                  <!-- Dokumen Pendaftaran Sah Programmer -->
+                  @if($u->ktp_number || $u->ktp_photo || $u->cv_file || $u->portfolio_file)
+                  <div style="margin-top:0.35rem;background:rgba(255,255,255,0.03);border:1px dashed var(--border);border-radius:var(--radius-sm);padding:0.4rem;font-size:0.75rem;max-width:320px">
+                    <div style="margin-bottom:0.25rem;"><strong>No. KTP:</strong> <span style="font-family:monospace;color:var(--text)">{{ $u->ktp_number ?? '—' }}</span></div>
+                    <div style="display:flex;gap:0.3rem;flex-wrap:wrap">
+                      @if($u->ktp_photo)
+                        <a href="{{ asset('storage/' . $u->ktp_photo) }}" target="_blank" style="color:var(--primary);text-decoration:underline;font-weight:600">🪪 KTP</a>
+                      @endif
+                      @if($u->cv_file)
+                        <span style="color:var(--text3)">·</span> <a href="{{ asset('storage/' . $u->cv_file) }}" target="_blank" style="color:var(--green);text-decoration:underline;font-weight:600">📄 CV</a>
+                      @endif
+                      @if($u->portfolio_file)
+                        <span style="color:var(--text3)">·</span> <a href="{{ asset('storage/' . $u->portfolio_file) }}" target="_blank" style="color:var(--orange);text-decoration:underline;font-weight:600">💼 Porto Awal</a>
+                      @endif
+                    </div>
+                  </div>
+                  @endif
+
+                  <div style="margin-top:.35rem;font-size:.75rem">
+                    <span style="color:var(--primary)">🗂 {{ $u->portfolios->count() }} Porto Tambahan</span> · 
+                    <span style="color:var(--green)">📜 {{ $u->certificates->count() }} Sert Tambahan</span>
                   </div>
                   @if($u->portfolios->count() || $u->certificates->count())
                   <div style="margin-top:.25rem;max-width:300px;font-size:.72rem;color:var(--text3)">
@@ -84,6 +104,23 @@
                     @if($u->certificates->count())
                     <div><strong>Sert:</strong> {{ implode(', ', $u->certificates->pluck('name')->toArray()) }}</div>
                     @endif
+                  </div>
+                  @endif
+                  @endif
+
+                  @if($u->role === 'umkm')
+                  <!-- Dokumen Pendaftaran Sah UMKM -->
+                  @if($u->ktp_number || $u->ktp_photo || $u->business_photo)
+                  <div style="margin-top:0.35rem;background:rgba(255,255,255,0.03);border:1px dashed var(--border);border-radius:var(--radius-sm);padding:0.4rem;font-size:0.75rem;max-width:320px">
+                    <div style="margin-bottom:0.25rem;"><strong>No. KTP:</strong> <span style="font-family:monospace;color:var(--text)">{{ $u->ktp_number ?? '—' }}</span></div>
+                    <div style="display:flex;gap:0.3rem;flex-wrap:wrap">
+                      @if($u->ktp_photo)
+                        <a href="{{ asset('storage/' . $u->ktp_photo) }}" target="_blank" style="color:var(--primary);text-decoration:underline;font-weight:600">🪪 KTP</a>
+                      @endif
+                      @if($u->business_photo)
+                        <span style="color:var(--text3)">·</span> <a href="{{ asset('storage/' . $u->business_photo) }}" target="_blank" style="color:var(--accent);text-decoration:underline;font-weight:600">🏪 Foto Usaha</a>
+                      @endif
+                    </div>
                   </div>
                   @endif
                   @endif

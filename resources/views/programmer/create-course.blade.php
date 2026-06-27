@@ -16,7 +16,7 @@
       </div>
     </div>
     @if($errors->any())<div class="alert alert-error">❌ {{ $errors->first() }}</div>@endif
-    <form method="POST" action="{{ route('programmer.store-course') }}" aria-label="Form buat course baru">
+    <form method="POST" action="{{ route('programmer.store-course') }}" enctype="multipart/form-data" aria-label="Form buat course baru">
       @csrf
       <div class="form-group">
         <label for="title" class="form-label">Judul Course <span class="required">*</span></label>
@@ -29,6 +29,46 @@
           Minimal 20 karakter (0/20)
         </div>
       </div>
+
+      {{-- Cover / Logo Course Field --}}
+      <div class="form-group" style="margin-top:1.5rem">
+        <label class="form-label" style="font-weight:700;font-size:1rem;margin-bottom:.5rem">🖼️ Cover / Logo Course</label>
+        <div class="form-hint" style="margin-bottom:0.75rem">Pilih bagaimana tampilan kartu course Anda akan terlihat. Anda bisa memilih preset logo teknologi atau mengunggah gambar kustom.</div>
+        
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1rem">
+          {{-- Preset Option --}}
+          <div style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;background:var(--bg2)">
+            <label style="display:flex;align-items:center;gap:8px;font-weight:700;font-size:0.85rem;margin-bottom:0.5rem;cursor:pointer">
+              <input type="radio" name="thumbnail_type" value="preset" checked id="type-preset">
+              Preset Logo Teknologi
+            </label>
+            <select name="logo_preset" class="form-select" id="logo-preset-select" style="width:100%">
+              <option value="auto">— Deteksi Otomatis dari Judul —</option>
+              <option value="html">HTML5</option>
+              <option value="css">CSS3</option>
+              <option value="js">JavaScript (JS)</option>
+              <option value="php">PHP</option>
+              <option value="mysql">MySQL</option>
+              <option value="laravel">Laravel</option>
+              <option value="react">React.js</option>
+              <option value="node">Node.js</option>
+              <option value="flutter">Flutter</option>
+              <option value="git">Git</option>
+            </select>
+          </div>
+
+          {{-- Custom Image Option --}}
+          <div style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;background:var(--bg2)">
+            <label style="display:flex;align-items:center;gap:8px;font-weight:700;font-size:0.85rem;margin-bottom:0.5rem;cursor:pointer">
+              <input type="radio" name="thumbnail_type" value="upload" id="type-upload">
+              Unggah Gambar Kustom
+            </label>
+            <input type="file" name="thumbnail_img" class="form-input" id="thumbnail-file-input" accept="image/*" style="padding:4px" disabled>
+          </div>
+        </div>
+        @error('thumbnail_img')<div class="field-error">⚠ {{ $message }}</div>@enderror
+      </div>
+
       <div class="form-group" style="margin-top:1.5rem">
         <label class="form-label" style="font-weight:700;font-size:1rem;margin-bottom:.5rem">🎬 Video Pembelajaran (YouTube) <span class="required">*</span></label>
         <div class="form-hint" style="margin-bottom:1rem">Tambahkan minimal 1 video materi pembelajaran. Anda dapat menambahkan beberapa video sekaligus.</div>
@@ -203,6 +243,28 @@ document.addEventListener('DOMContentLoaded', function() {
     };
     descTextarea.addEventListener('input', updateCount);
     updateCount();
+  }
+
+  // Cover/Logo Selection logic
+  const typePreset = document.getElementById('type-preset');
+  const typeUpload = document.getElementById('type-upload');
+  const presetSelect = document.getElementById('logo-preset-select');
+  const fileInput = document.getElementById('thumbnail-file-input');
+
+  if (typePreset && typeUpload && presetSelect && fileInput) {
+    function updateInputs() {
+      if (typePreset.checked) {
+        presetSelect.disabled = false;
+        fileInput.disabled = true;
+      } else {
+        presetSelect.disabled = true;
+        fileInput.disabled = false;
+      }
+    }
+
+    typePreset.addEventListener('change', updateInputs);
+    typeUpload.addEventListener('change', updateInputs);
+    updateInputs();
   }
 });
 </script>

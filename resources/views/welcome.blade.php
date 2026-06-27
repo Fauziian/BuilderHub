@@ -445,12 +445,73 @@
     </div>
     <div class="course-grid">
       @foreach($courses as $course)
+      @php
+        $lowerTitle = strtolower($course->title);
+        $gradient = 'linear-gradient(135deg, #4F46E5, #7C3AED)';
+        $logoHtml = '📚';
+        $hasCustomThumb = false;
+        
+        $preset = $course->thumbnail;
+        if (!$preset) {
+            if (str_contains($lowerTitle, 'html')) { $preset = 'html'; }
+            elseif (str_contains($lowerTitle, 'css')) { $preset = 'css'; }
+            elseif (str_contains($lowerTitle, 'javascript') || str_contains($lowerTitle, 'js')) { $preset = 'js'; }
+            elseif (str_contains($lowerTitle, 'php')) { $preset = 'php'; }
+            elseif (str_contains($lowerTitle, 'mysql')) { $preset = 'mysql'; }
+            elseif (str_contains($lowerTitle, 'laravel')) { $preset = 'laravel'; }
+            elseif (str_contains($lowerTitle, 'react')) { $preset = 'react'; }
+            elseif (str_contains($lowerTitle, 'node')) { $preset = 'node'; }
+            elseif (str_contains($lowerTitle, 'flutter')) { $preset = 'flutter'; }
+            elseif (str_contains($lowerTitle, 'git')) { $preset = 'git'; }
+        }
+        
+        if ($preset && in_array($preset, ['html','css','js','php','mysql','laravel','react','node','flutter','git'])) {
+            if ($preset === 'html') {
+                $gradient = '#F16529';
+                $logoHtml = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px"><div style="font-family:\'Arial Black\', sans-serif;font-size:1.35rem;font-weight:900;color:#000;letter-spacing:2px;line-height:1;margin-top:4px">HTML</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 452 520" width="58" height="66" style="display:block"><path fill="#e34f26" d="M41 460L0 0h451l-41 460-185 52" /><path fill="#ef652a" d="M226 472l149-41 35-394H226" /><path fill="#ecedee" d="M226 208h-75l-5-58h80V94H84l15 171h127zm0 147l-64-17-4-45h-56l7 89 117 32z"/><path fill="#fff" d="M226 265h69l-7 73-62 17v59l115-32 16-174H226zm0-171v56h136l5-56z"/></svg></div>';
+            } elseif ($preset === 'css') {
+                $gradient = '#2d88d3';
+                $logoHtml = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px"><div style="font-family:\'Arial Black\', sans-serif;font-size:1.35rem;font-weight:900;color:#000;letter-spacing:2px;line-height:1;margin-top:4px">CSS</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 452 520" width="58" height="66" style="display:block"><path fill="#0c72b8" d="M41 460L0 0h451l-41 460-185 52" /><path fill="#1c8adb" d="M226 472l149-41 35-394H226" /><path fill="#ebebeb" d="M226 94H96l5 56h125z M226 208H161l5 57h60z M226 355H117l5 60h104z" /><path fill="#ffffff" d="M226 94h141l-5 56H226z M226 208h131l-5 57H226z M226 355h118l-5 60H226z M295 150h67l-18 205H295z" /></svg></div>';
+            } elseif ($preset === 'js') {
+                $gradient = 'linear-gradient(135deg, #F0DB4F, #F7DF1E)';
+                $logoHtml = '<span style="font-family: Arial Black, sans-serif; font-size: 2rem; font-weight: 900; color: #323330; display:block; line-height:1">JS</span>';
+            } elseif ($preset === 'php') {
+                $gradient = 'linear-gradient(135deg, #4F5D95, #777BB4)';
+                $logoHtml = '<span style="font-family: Impact, sans-serif; font-size: 1.8rem; font-style: italic; color: #fff; text-shadow: 1px 1px 3px rgba(0,0,0,0.3); display:block; line-height:1">php</span>';
+            } elseif ($preset === 'mysql') {
+                $gradient = 'linear-gradient(135deg, #00758F, #005E74)';
+                $logoHtml = '<span style="font-family: Inter, sans-serif; font-size: 1.35rem; font-weight: 800; color: #fff; letter-spacing: -1px; display:block; line-height:1">MySQL</span>';
+            } elseif ($preset === 'laravel') {
+                $gradient = 'linear-gradient(135deg, #FF2E2E, #E31B1B)';
+                $logoHtml = '<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>';
+            } elseif ($preset === 'react') {
+                $gradient = 'linear-gradient(135deg, #20232A, #282C34)';
+                $logoHtml = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#61DAFB" stroke-width="2" style="display:block"><ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(0 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(120 12 12)"/><circle cx="12" cy="12" r="2" fill="#61DAFB"/></svg>';
+            } elseif ($preset === 'node') {
+                $gradient = 'linear-gradient(135deg, #303030, #43853D)';
+                $logoHtml = '<span style="font-family: Arial, sans-serif; font-size: 1.4rem; font-weight: 800; color: #fff; display:block; line-height:1">node</span>';
+            } elseif ($preset === 'flutter') {
+                $gradient = 'linear-gradient(135deg, #02569B, #0175C2)';
+                $logoHtml = '<svg width="34" height="34" viewBox="0 0 24 24" fill="#fff" style="display:block"><path d="M14.314 0L2.3 12 6 15.7 21.684 0h-7.37zM21.684 12.329l-3.685-3.686L6 20.329l3.7 3.671 11.984-11.671z"/></svg>';
+            } elseif ($preset === 'git') {
+                $gradient = 'linear-gradient(135deg, #F1502F, #F05133)';
+                $logoHtml = '<span style="font-family: Arial, sans-serif; font-size: 1.8rem; font-weight: 800; color: #fff; display:block; line-height:1">git</span>';
+            }
+        } elseif ($course->thumbnail) {
+            $hasCustomThumb = true;
+            $thumbUrl = str_starts_with($course->thumbnail, 'http') ? $course->thumbnail : asset('storage/' . $course->thumbnail);
+        }
+      @endphp
       <article class="course-card">
         <div style="display:flex;flex-direction:column;height:100%">
-          <div class="course-thumb" style="background:linear-gradient(135deg,#1E1260,#{{ ['6C38FF','0F4C75','7C3626','1A1A2E'][($loop->index % 4)] }})">
-            <span style="font-size:2.5rem">{{ ['⚛','🔌','🚀','📱'][$loop->index % 4] }}</span>
-            <span class="level-badge level-{{ $course->level }}">{{ $course->level_label }}</span>
-            @if($course->is_free)<span style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,.5);color:#fff;padding:3px 9px;border-radius:99px;font-size:.7rem;font-weight:700">Gratis</span>@endif
+          <div class="course-thumb" style="background:{!! $hasCustomThumb ? 'transparent' : $gradient !!};position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden">
+            @if($hasCustomThumb)
+              <img src="{{ $thumbUrl }}" alt="{{ $course->title }}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">
+            @else
+              {!! $logoHtml !!}
+            @endif
+            <span class="level-badge level-{{ $course->level }}" style="z-index:2">{{ $course->level_label }}</span>
+            @if($course->is_free)<span style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,.5);color:#fff;padding:3px 9px;border-radius:99px;font-size:.7rem;font-weight:700;z-index:2">Gratis</span>@endif
           </div>
           <div style="padding:1rem;flex:1">
             <h3 style="font-size:.95rem;font-weight:700;margin-bottom:.4rem;line-height:1.4">{{ $course->title }}</h3>
@@ -461,7 +522,7 @@
               <span style="color:var(--green);font-size:.75rem">✓</span>
             </div>
             <div style="display:flex;align-items:center;justify-content:space-between;font-size:.78rem;color:var(--text3)">
-              <span>⭐ {{ $course->rating }} · {{ number_format($course->total_students) }} siswa</span>
+              <span>⭐ {{ number_format($course->rating ?: 0.0, 1) }} · {{ number_format($course->enrollments->count()) }} siswa</span>
               <span>▶ {{ $course->total_videos }} video · {{ $course->duration }}</span>
             </div>
           </div>

@@ -1,6 +1,12 @@
 @extends('layouts.app')
 @section('title', 'Dashboard Programmer')
 @section('content')
+<style>
+  @keyframes lockBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+</style>
 <div class="dash-layout">
   <!-- PROFILE HEADER -->
   <div class="profile-header">
@@ -58,15 +64,9 @@
 
   <!-- IMK: Tab navigation makes feature discoverability clear -->
   <div class="tab-bar" role="tablist" aria-label="Menu Dashboard Programmer">
-    @php
-      $hasFilledThree = !empty($user->bio) && $portfolios->count() >= 1 && $certificates->count() >= 1;
-      $showAllTabs = $user->is_verified || $hasFilledThree;
-    @endphp
     <button class="tab-btn active" onclick="showTab('overview')" role="tab" aria-selected="true" id="tab-overview">📊 Overview</button>
-    @if($showAllTabs)
-      <button class="tab-btn" onclick="showTab('projects')" role="tab" id="tab-projects">🔍 Cari Project</button>
-      <button class="tab-btn" onclick="showTab('courses')" role="tab" id="tab-courses">📚 Course Saya</button>
-    @endif
+    <button class="tab-btn" onclick="showTab('projects')" role="tab" id="tab-projects">🔍 Cari Project</button>
+    <button class="tab-btn" onclick="showTab('courses')" role="tab" id="tab-courses">📚 Course Saya</button>
     <button class="tab-btn" onclick="showTab('verify')" role="tab" id="tab-verify">✅ Verifikasi</button>
   </div>
 
@@ -171,11 +171,22 @@
       <div class="card-header"><span class="card-title">📋 Kelengkapan Profil Verifikasi</span>
         <span style="font-size:.85rem;font-weight:600;color:var(--primary)">
           @php
-            $certCount = $certificates->count();
-            $portCount = $portfolios->count();
             $approvedCertCount = $certificates->where('status', 'approved')->count();
             $approvedPortCount = $portfolios->where('status', 'approved')->count();
-            $progress = min(100, (int)(($approvedCertCount / 3 + $approvedPortCount / 3) / 2 * 100));
+            
+            $hasBio = !empty($user->bio) && !empty($user->expertise);
+            $hasKtp = !empty($user->ktp_number) && !empty($user->ktp_photo);
+            $hasCv = !empty($user->cv_file);
+            
+            $hasCertApproved = $user->is_verified || ($approvedCertCount >= 1);
+            $certStatus = $hasCertApproved ? true : 'pending';
+            
+            $hasTop = $user->is_top_programmer && $approvedCertCount >= 3 && $approvedPortCount >= 3;
+            $hasCourse = $user->is_top_programmer;
+            
+            // Calculate progress based on all 6 items as requested
+            $doneCount = ($hasBio ? 1 : 0) + ($hasKtp ? 1 : 0) + ($hasCv ? 1 : 0) + ($hasCertApproved ? 1 : 0) + ($hasTop ? 1 : 0) + ($hasCourse ? 1 : 0);
+            $progress = (int)($doneCount / 6 * 100);
           @endphp
           {{ $progress }}%
         </span>
@@ -183,16 +194,34 @@
       <div class="progress-bar" style="margin-bottom:.75rem"><div class="progress-fill" style="width:{{ $progress }}%"></div></div>
       <div style="display:flex;flex-direction:column;gap:.4rem">
         @foreach([
-          ['Skill/Bio ditambahkan', !empty($user->bio)],
-          ['Minimal 1 sertifikat (Disetujui)', $approvedCertCount >= 1],
-          ['Minimal 1 portofolio (Disetujui)', $approvedPortCount >= 1],
-          ['Terverifikasi (2+ sertifikat + 1+ portofolio)', $user->is_verified && $approvedCertCount >= 2 && $approvedPortCount >= 1],
-          ['Top Programmer (3+ sertifikat + 3+ portofolio)', $user->is_top_programmer && $approvedCertCount >= 3 && $approvedPortCount >= 3],
-          ['Hak Membuat Course (Top Programmer)', $user->is_top_programmer],
+          ['Skill/Bio ditambahkan', $hasBio],
+          ['KTP', $hasKtp],
+          ['CV (Curriculum Vitae)', $hasCv],
+          [$hasCertApproved ? 'Minimal 1 sertifikat (Disetujui)' : 'Minimal 1 sertifikat (menunggu di review oleh admin 1 x 24 jam)', $certStatus],
+          ['Top Programmer (3+ sertifikat + 3+ portofolio)', $hasTop],
+          ['Hak Membuat Course (Top Programmer)', $hasCourse],
         ] as [$label, $done])
         <div style="display:flex;align-items:center;gap:.75rem;padding:.5rem 0;border-bottom:1px solid var(--border)">
-          <div style="width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;background:{{ $done ? 'var(--green-light)' : 'var(--bg3)' }};color:{{ $done ? 'var(--green)' : 'var(--text3)' }};flex-shrink:0">{{ $done ? '✓' : '○' }}</div>
-          <span style="font-size:.875rem;color:{{ $done ? 'var(--text)' : 'var(--text3)' }}">{{ $label }}</span>
+          @php
+            if ($done === true) {
+                $bg = 'var(--green-light)';
+                $color = 'var(--green)';
+                $icon = '✓';
+                $lblColor = 'var(--text)';
+            } elseif ($done === 'pending') {
+                $bg = '#FEF3C7';
+                $color = '#D97706';
+                $icon = '○';
+                $lblColor = '#B45309';
+            } else {
+                $bg = 'var(--bg3)';
+                $color = 'var(--text3)';
+                $icon = '○';
+                $lblColor = 'var(--text3)';
+            }
+          @endphp
+          <div style="width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;background:{{ $bg }};color:{{ $color }};flex-shrink:0;font-weight:bold;border:1px solid {{ $done === 'pending' ? 'rgba(245,158,11,0.3)' : 'transparent' }}">{{ $icon }}</div>
+          <span style="font-size:.875rem;color:{{ $lblColor }};font-weight:{{ $done === 'pending' ? '600' : 'normal' }}">{{ $label }}</span>
         </div>
         @endforeach
       </div>
@@ -202,19 +231,85 @@
       @if($activeProjects->count())
       <div class="card" style="margin-bottom:1.25rem">
         <div class="card-header"><span class="card-title">🔥 Project Aktif</span></div>
-        <div style="display:flex;flex-direction:column;gap:.5rem">
+        <div style="display:flex;flex-direction:column;gap:1rem">
           @foreach($activeProjects as $p)
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:.75rem;background:var(--green-light);border-radius:var(--radius);border:1px solid rgba(16,185,129,.2)">
-            <div>
-              <div style="font-size:.9rem;font-weight:700">{{ $p->title }}</div>
-              <div style="font-size:.8rem;color:var(--text3);margin-top:2px">{{ $p->umkm->business_name ?? $p->umkm->name }}</div>
-            </div>
-            <div style="text-align:right;display:flex;align-items:center;gap:.75rem">
+          <div style="padding:1.25rem;background:var(--green-light);border-radius:var(--radius-lg);border:1px solid rgba(16,185,129,.25);box-shadow:0 4px 15px rgba(16,185,129,0.04)">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;margin-bottom:0.85rem">
               <div>
-                <div style="font-size:1rem;font-weight:800;color:var(--green)">Rp {{ number_format($p->budget * 0.20, 0, ',', '.') }}</div>
-                <div style="font-size:.75rem;color:var(--green);font-weight:600">20% komisi</div>
+                <div style="font-size:.95rem;font-weight:800;color:var(--text)">&lt;/&gt; {{ $p->title }}</div>
+                <div style="font-size:.8rem;color:var(--text3);margin-top:2px">Klien: <strong>{{ $p->umkm->business_name ?? $p->umkm->name }}</strong></div>
               </div>
-              <button onclick="openChat({{ $p->id }}, {{ $p->umkm->id }}, '{{ addslashes($p->umkm->business_name ?? $p->umkm->name) }}', 'programmer')" class="btn btn-ghost btn-sm" style="font-size:.78rem">💬 Chat UMKM</button>
+              <div style="text-align:right">
+                <div style="font-size:1.05rem;font-weight:800;color:var(--green)">Rp {{ number_format($p->programmer_earning, 0, ',', '.') }}</div>
+                <div style="font-size:.75rem;color:var(--text3);font-weight:600">Pendapatan Bersih Anda (20%)</div>
+                <div style="font-size:.7rem;color:var(--text3);margin-top:2px">Komisi Platform (80%): Rp {{ number_format($p->platform_fee, 0, ',', '.') }}</div>
+              </div>
+            </div>
+
+            <!-- Progress tracker bar -->
+            <div style="margin-bottom:1rem">
+              <div style="display:flex;justify-content:space-between;align-items:center;font-size:.8rem;font-weight:700;margin-bottom:.35rem">
+                <span style="color:var(--text2)">Progress Pengerjaan</span>
+                <span style="color:var(--primary)">{{ $p->project_progress }}%</span>
+              </div>
+              <div class="progress-bar" style="height:8px;background:rgba(255,255,255,0.5);border-radius:99px;overflow:hidden;margin:0">
+                <div class="progress-fill" style="width:{{ $p->project_progress }}%;height:100%;background:linear-gradient(90deg, var(--primary), var(--accent));border-radius:99px;transition:width 0.4s"></div>
+              </div>
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;gap:.5rem;align-items:center">
+              <button onclick="openChat({{ $p->id }}, {{ $p->umkm->id }}, '{{ addslashes($p->umkm->business_name ?? $p->umkm->name) }}', 'programmer')" class="btn btn-ghost btn-sm" style="display:inline-flex;align-items:center;gap:4px">
+                💬 Chat Klien
+              </button>
+              <button onclick="openProgressModal({{ $p->id }}, '{{ addslashes($p->title) }}', {{ $p->project_progress }}, {{ $p->programmer_earning }})" class="btn btn-primary btn-sm" style="display:inline-flex;align-items:center;gap:4px;font-weight:700;box-shadow:0 4px 12px rgba(108,56,255,0.2)">
+                ⚙️ Kelola Progress & Kirim
+              </button>
+            </div>
+          </div>
+          @endforeach
+        </div>
+      </div>
+      @endif
+
+      {{-- PROJECT SELESAI SECTION --}}
+      @php
+        $completedProjectsList = \App\Models\Project::with('umkm')
+            ->where('assigned_programmer_id', $user->id)
+            ->where('status', 'completed')
+            ->latest()
+            ->get();
+      @endphp
+      
+      @if($completedProjectsList->count() > 0)
+      <div class="card" style="margin-bottom:1.25rem">
+        <div class="card-header"><span class="card-title">✅ Project Selesai & Sukses ({{ $completedProjectsList->count() }})</span></div>
+        <div style="display:flex;flex-direction:column;gap:0.75rem">
+          @foreach($completedProjectsList as $cp)
+          <div style="padding:1rem;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius-lg)">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;margin-bottom:0.5rem">
+              <div>
+                <div style="font-size:.9rem;font-weight:700;color:var(--text)">{{ $cp->title }}</div>
+                <div style="font-size:.78rem;color:var(--text3);margin-top:2px">Klien: {{ $cp->umkm->business_name ?? $cp->umkm->name }} · Status: <strong style="color:var(--green)">Selesai & Dana Cair 💎</strong></div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-size:0.95rem;font-weight:800;color:var(--green)">+ Rp {{ number_format($cp->programmer_earning, 0, ',', '.') }}</div>
+                <div style="font-size:.7rem;color:var(--text3)">Diterima Bersih (80%)</div>
+              </div>
+            </div>
+            
+            <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;margin-top:0.75rem;padding-top:0.75rem;border-top:1px dashed var(--border)">
+              <span style="font-size:.75rem;color:var(--text3);font-weight:600;margin-right:4px">Berkas Terkirim:</span>
+              @if($cp->zip_file)
+                <a href="{{ asset('storage/' . $cp->zip_file) }}" class="badge" style="background:var(--green-light);color:var(--green);font-size:0.7rem;text-decoration:none;font-weight:700" download>📥 Download ZIP</a>
+              @else
+                <span class="badge" style="background:var(--bg3);color:var(--text3);font-size:0.7rem">📦 Tidak ada ZIP</span>
+              @endif
+              @if($cp->github_link)
+                <a href="{{ $cp->github_link }}" target="_blank" style="font-size:0.7rem;color:var(--primary);text-decoration:underline;font-weight:700;margin-left:8px">🐙 GitHub Repo</a>
+              @endif
+              @if($cp->hosting_link)
+                <a href="{{ str_starts_with($cp->hosting_link, 'http') ? $cp->hosting_link : 'https://' . $cp->hosting_link }}" target="_blank" style="font-size:0.7rem;color:var(--accent);text-decoration:underline;font-weight:700;margin-left:8px">Live Domain: {{ $cp->hosting_link }} 🌐</a>
+              @endif
             </div>
           </div>
           @endforeach
@@ -346,143 +441,205 @@
     @endif
   </div>
 
-  @if($showAllTabs)
   <!-- PROJECTS TAB -->
   <div id="pane-projects" style="display:none" role="tabpanel">
-    @php
-      $approvedPortCount = $user->portfolios()->where('status', 'approved')->count();
-      $approvedCertCount = $user->certificates()->where('status', 'approved')->count();
-      $totalPortCount = $user->portfolios()->count();
-      $totalCertCount = $user->certificates()->count();
-    @endphp
-
     @if(!$user->is_verified)
-    <div class="imk-guide" style="margin-bottom:1.5rem;background:#FEF3C7;border-color:#F59E0B">
-      <div class="imk-guide-icon">⏳</div>
+    <div class="imk-guide" style="margin-bottom:1.5rem;background:#FEF3C7;border-color:rgba(245,158,11,0.3);border-style:solid;border-width:1.5px;padding:1.5rem;display:flex;align-items:center;gap:1.25rem;border-radius:var(--radius-lg)">
+      <div style="font-size:2.5rem;animation:lockBounce 2s infinite;flex-shrink:0">🔒</div>
       <div>
-        <div class="imk-guide-title" style="color:#B45309">Menunggu Verifikasi Akun oleh Admin</div>
-        <div class="imk-guide-text" style="color:#D97706">Akun Anda sedang dalam proses peninjauan oleh admin. Akses fitur "Cari Project" akan terbuka sepenuhnya setelah admin menyetujui verifikasi akun Anda.</div>
-      </div>
-    </div>
-    @elseif($totalPortCount === 0 && $totalCertCount === 0)
-    <div class="imk-guide" style="margin-bottom:1.5rem">
-      <div class="imk-guide-icon">🔒</div>
-      <div>
-        <div class="imk-guide-title">Fitur Belum Terbuka</div>
-        <div class="imk-guide-text">Anda belum memenuhi syarat untuk mencari project, penuhi kriteria dengan mengisi portofolio atau sertifikat agar anda mendapatkan akses fitur ini (cari project).</div>
-      </div>
-    </div>
-    @elseif($approvedPortCount === 0 && $approvedCertCount === 0)
-    <div class="imk-guide" style="margin-bottom:1.5rem;background:#FEF3C7;border-color:#F59E0B">
-      <div class="imk-guide-icon">⏳</div>
-      <div>
-        <div class="imk-guide-title" style="color:#B45309">Menunggu Verifikasi Oleh Admin</div>
-        <div class="imk-guide-text" style="color:#D97706">Portofolio atau sertifikat yang Anda unggah sedang dalam proses peninjauan oleh admin. Akses fitur "Cari Project" akan terbuka setelah verifikasi disetujui.</div>
+        <div class="imk-guide-title" style="color:#B45309;font-size:1.1rem;font-weight:800">Fitur Belum Terbuka</div>
+        <div class="imk-guide-text" style="color:#D97706;font-size:0.9rem;line-height:1.6;margin-top:4px">Akun Anda sedang dalam proses peninjauan oleh admin. Menunggu 1 x 24 jam verifikasi oleh admin agar dapat mencari dan mengambil project.</div>
       </div>
     </div>
     @else
-    <div style="background:linear-gradient(135deg,#1E1260,#6C38FF);border-radius:var(--radius-lg);padding:1.5rem;margin-bottom:1rem;color:#fff">
-      <h2 style="color:#fff;font-size:1.25rem;margin-bottom:.25rem">{{ $availableProjects->count() }} project tersedia untuk Anda</h2>
-      <p style="color:rgba(255,255,255,.7);font-size:.875rem">Klik "Ajukan Penawaran" untuk mengirim bid ke UMKM</p>
+    <div style="background:linear-gradient(135deg,#4F46E5,#7C3AED);border-radius:16px;padding:1.5rem 1.75rem;margin-bottom:1.25rem;color:#fff;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem">
+      <div>
+        <h2 style="color:#fff;font-size:1.3rem;font-weight:800;margin-bottom:.2rem">Tender & Proyek Tersedia</h2>
+        <p style="color:rgba(255,255,255,.75);font-size:.875rem">{{ $availableProjects->total() }} proyek tersedia · Ajukan penawaran terbaik Anda</p>
+      </div>
+      <span style="font-size:2rem">🏆</span>
     </div>
 
     {{-- BAR PENCARIAN & FILTER CARI PROJECT --}}
-    <div class="card" style="margin-bottom:1.5rem;padding:1.25rem;">
-      <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap">
-        <div style="flex:2;min-width:280px;position:relative">
-          <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:1.1rem;color:var(--text3)">🔍</span>
-          <input type="text" id="progSearchProject" placeholder="Cari judul project, deskripsi, atau tags..." oninput="filterProgrammerProjects()" style="width:100%;padding:10px 16px 10px 42px;border:1.5px solid var(--border);border-radius:12px;font-size:.9rem;background:var(--bg);color:var(--text);font-family:inherit" />
+    <form method="GET" action="{{ route('programmer.dashboard') }}#projects" style="margin-bottom:1.25rem;">
+      <div style="background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:.85rem 1.25rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;box-shadow:0 1px 4px rgba(0,0,0,.05)">
+
+        {{-- Search — icon on RIGHT --}}
+        <div style="position:relative;flex:2;min-width:220px">
+          <input type="text" name="search" id="progSearchProject" value="{{ request('search') }}"
+            placeholder="Cari proyek, teknologi, atau kata kunci..."
+            style="width:100%;padding:8px 38px 8px 14px;border-radius:8px;border:1px solid #E5E7EB;background:#fff;color:#111827;font-size:.85rem;font-family:inherit;outline:none;transition:border-color .15s;box-shadow:0 1px 3px rgba(0,0,0,.05)"
+            onfocus="this.style.borderColor='#4F46E5'"
+            onblur="this.style.borderColor='#E5E7EB'" />
+          <span style="position:absolute;right:11px;top:50%;transform:translateY(-50%);color:#9CA3AF;font-size:.85rem;pointer-events:none">🔍</span>
         </div>
-        <div style="flex:1;min-width:160px">
-          <select id="progFilterCategory" onchange="filterProgrammerProjects()" style="width:100%;padding:10px 16px;border:1.5px solid var(--border);border-radius:12px;font-size:.9rem;background:var(--bg);color:var(--text);font-family:inherit">
-            <option value="">🟢 Semua Kategori</option>
+
+        {{-- Category — grid icon LEFT --}}
+        <div style="position:relative;min-width:155px">
+          <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none;z-index:1">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" style="display:block">
+              <rect x="1" y="1" width="5" height="5" rx="1" fill="#6B7280"/>
+              <rect x="10" y="1" width="5" height="5" rx="1" fill="#6B7280"/>
+              <rect x="1" y="10" width="5" height="5" rx="1" fill="#6B7280"/>
+              <rect x="10" y="10" width="5" height="5" rx="1" fill="#6B7280"/>
+            </svg>
+          </span>
+          <select name="category" id="progFilterCategory" onchange="this.form.submit()"
+            style="width:100%;padding:8px 26px 8px 28px;border-radius:8px;border:1px solid #E5E7EB;background:#fff;color:#374151;font-size:.85rem;font-family:inherit;cursor:pointer;outline:none;appearance:none;box-shadow:0 1px 3px rgba(0,0,0,.05);transition:border-color .15s"
+            onfocus="this.style.borderColor='#4F46E5'"
+            onblur="this.style.borderColor='#E5E7EB'">
+            <option value="">Semua Kategori</option>
             @foreach(['E-Commerce','Marketplace','Kuliner & Food Tech','Business Tools','Mobile App','Landing Page','Lainnya'] as $cat)
-              <option value="{{ $cat }}">{{ $cat }}</option>
+              <option value="{{ $cat }}" {{ request('category') === $cat ? 'selected' : '' }}>{{ $cat }}</option>
             @endforeach
           </select>
+          <span style="position:absolute;right:9px;top:50%;transform:translateY(-50%);color:#6B7280;font-size:.65rem;pointer-events:none">▼</span>
         </div>
-        <div style="flex:1;min-width:160px">
-          <select id="progFilterAppType" onchange="filterProgrammerProjects()" style="width:100%;padding:10px 16px;border:1.5px solid var(--border);border-radius:12px;font-size:.9rem;background:var(--bg);color:var(--text);font-family:inherit">
-            <option value="">📱 Semua Jenis Apps</option>
+
+        {{-- App Type — phone icon LEFT --}}
+        <div style="position:relative;min-width:165px">
+          <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#6B7280;font-size:.8rem;pointer-events:none">📱</span>
+          <select name="app_type" id="progFilterAppType" onchange="this.form.submit()"
+            style="width:100%;padding:8px 26px 8px 28px;border-radius:8px;border:1px solid #E5E7EB;background:#fff;color:#374151;font-size:.85rem;font-family:inherit;cursor:pointer;outline:none;appearance:none;box-shadow:0 1px 3px rgba(0,0,0,.05);transition:border-color .15s"
+            onfocus="this.style.borderColor='#4F46E5'"
+            onblur="this.style.borderColor='#E5E7EB'">
+            <option value="">Semua Jenis Apps</option>
             @foreach(['Aplikasi Web (Web-based)','Aplikasi Mobile (iOS/Android)','Aplikasi Desktop / Sistem Kasir','Sistem Informasi / ERP','Lainnya'] as $type)
-              <option value="{{ $type }}">{{ $type }}</option>
+              <option value="{{ $type }}" {{ request('app_type') === $type ? 'selected' : '' }}>{{ $type }}</option>
             @endforeach
           </select>
+          <span style="position:absolute;right:9px;top:50%;transform:translateY(-50%);color:#6B7280;font-size:.65rem;pointer-events:none">▼</span>
+        </div>
+
+        {{-- Filter Button --}}
+        <button type="submit"
+          style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:8px;border:none;background:#4F46E5;color:#fff;font-size:.875rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;box-shadow:0 1px 4px rgba(79,70,229,.3);transition:background .15s;flex-shrink:0"
+          onmouseover="this.style.background='#4338CA'" onmouseout="this.style.background='#4F46E5'">
+          <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor" style="flex-shrink:0"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v2.586a1 1 0 01-.293.707l-4.414 4.414A1 1 0 0012 11v6.586a1 1 0 01-.293.707l-2 2A1 1 0 018 19v-8a1 1 0 00-.293-.707L3.293 6.293A1 1 0 013 5.586V3z" clip-rule="evenodd"/></svg>
+          Filter
+        </button>
+
+        @if(request('search') || request('category') || request('app_type'))
+          <a href="{{ route('programmer.dashboard') }}#projects"
+            style="padding:8px 12px;border-radius:8px;border:1px solid #E5E7EB;color:#6B7280;font-size:.82rem;font-weight:600;text-decoration:none;background:#fff;white-space:nowrap;flex-shrink:0"
+            onmouseover="this.style.color='#DC2626';this.style.borderColor='#DC2626'"
+            onmouseout="this.style.color='#6B7280';this.style.borderColor='#E5E7EB'">✕ Reset</a>
+        @endif
+      </div>
+    </form>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.25rem" id="programmerProjectsGrid">
+      @forelse($availableProjects as $p)
+      @php
+        $pOverdue = $p->deadline && now()->startOfDay()->gt($p->deadline->startOfDay());
+        $pCatIcons = ['E-Commerce'=>'🛒','Marketplace'=>'🏪','Kuliner & Food Tech'=>'🍜','Business Tools'=>'📊','Mobile App'=>'📱','Landing Page'=>'🌐','Lainnya'=>'💡','Full Stack'=>'⚡','Frontend'=>'🎨','Backend'=>'⚙️','Database'=>'🗄️'];
+        $pCatIcon = $pCatIcons[$p->category] ?? '💼';
+      @endphp
+      <div class="programmer-project-card" data-title="{{ strtolower($p->title) }}" data-desc="{{ strtolower($p->description) }}" data-category="{{ $p->category }}" data-apptype="{{ $p->app_type }}" data-tags="{{ strtolower(implode(',', $p->tags ?? [])) }}"
+        style="background:{{ $pOverdue ? '#FFF5F5' : '#fff' }};border-radius:16px;border:1.5px solid {{ $pOverdue ? 'rgba(239,68,68,.3)' : '#E5E7EB' }};box-shadow:0 2px 12px rgba(0,0,0,.06);overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .2s,transform .2s"
+        onmouseover="this.style.boxShadow='0 8px 30px rgba(0,0,0,.14)';this.style.transform='translateY(-2px)'"
+        onmouseout="this.style.boxShadow='0 2px 12px rgba(0,0,0,.06)';this.style.transform='translateY(0)'">
+
+        {{-- TOP: Category badge + Status + Budget --}}
+        <div style="padding:1rem 1.15rem .6rem;display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem">
+          <div style="display:flex;flex-direction:column;gap:.3rem">
+            <span style="display:inline-flex;align-items:center;gap:4px;font-size:.7rem;font-weight:700;color:#4F46E5;background:#EEF2FF;border-radius:6px;padding:3px 10px;letter-spacing:.3px;text-transform:uppercase">
+              {{ $pCatIcon }} {{ $p->category ?? 'PROJECT' }}
+            </span>
+            @if($pOverdue)
+              <span style="display:inline-flex;align-items:center;gap:4px;font-size:.7rem;font-weight:700;color:#DC2626;background:#FEF2F2;border:1px solid rgba(239,68,68,.25);border-radius:6px;padding:3px 10px">⏰ DEADLINE TERLAMPAUI</span>
+            @else
+              <span style="display:inline-flex;align-items:center;gap:4px;font-size:.7rem;font-weight:700;color:#059669;background:#ECFDF5;border:1px solid rgba(16,185,129,.25);border-radius:6px;padding:3px 10px">✅ DIBUKA</span>
+            @endif
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            @if($p->budget > 0)
+              <div style="font-size:1.1rem;font-weight:800;color:#111827;line-height:1.1">Rp {{ number_format($p->budget, 0, ',', '.') }}</div>
+              <div style="font-size:.73rem;font-weight:600;color:#059669;margin-top:2px">Dapat: Rp {{ number_format($p->budget * 0.20, 0, ',', '.') }} (20%)</div>
+            @else
+              <div style="font-size:.9rem;font-weight:700;color:#7C3AED;line-height:1.2">Menunggu<br>Estimasi</div>
+            @endif
+          </div>
+        </div>
+
+        {{-- TITLE + UMKM --}}
+        <div style="padding:0 1.15rem .6rem">
+          <h3 style="font-size:.97rem;font-weight:800;color:#111827;margin-bottom:.3rem;line-height:1.4">&lt;/&gt; {{ $p->title }}</h3>
+          @if(isset($p->umkm) && $p->umkm?->umkm_verified)
+          <div style="display:inline-flex;align-items:center;gap:4px;font-size:.7rem;font-weight:700;color:#059669;background:#ECFDF5;border:1px solid rgba(16,185,129,.2);border-radius:4px;padding:2px 8px;margin-bottom:.3rem">✅ UMKM VERIFIED</div>
+          @endif
+          @if(isset($p->umkm))
+          <div style="font-size:.76rem;color:#9CA3AF">{{ $p->umkm->business_name ?? $p->umkm->name }} · {{ $p->umkm->name }}</div>
+          @endif
+        </div>
+
+        {{-- DESCRIPTION --}}
+        <div style="padding:0 1.15rem .7rem;font-size:.84rem;color:#374151;line-height:1.65;flex:1">
+          @if(strlen($p->description) > 130)
+            <span class="desc-short">{{ Str::limit($p->description, 130) }}</span>
+            <span class="desc-full" style="display:none">{{ $p->description }}</span>
+            <button type="button" onclick="toggleDesc(this)" style="background:none;border:none;color:#4F46E5;font-size:.78rem;font-weight:700;cursor:pointer;padding:0;margin-left:4px;display:inline;font-family:inherit">Selengkapnya</button>
+          @else
+            {{ $p->description }}
+          @endif
+        </div>
+
+        {{-- TAGS --}}
+        <div style="padding:0 1.15rem .7rem;display:flex;flex-wrap:wrap;gap:.3rem">
+          @foreach(($p->tags ?? []) as $tag)
+          <span style="font-size:.73rem;font-weight:600;color:#4F46E5;background:#EEF2FF;border-radius:6px;padding:3px 9px">{{ $tag }}</span>
+          @endforeach
+        </div>
+
+        {{-- FOOTER STATS --}}
+        <div style="padding:.65rem 1.15rem;border-top:1px solid #F3F4F6;display:flex;align-items:center;gap:.85rem;font-size:.74rem;color:#9CA3AF;flex-wrap:wrap">
+          <span style="color:{{ $pOverdue ? '#DC2626' : '#6B7280' }};font-weight:{{ $pOverdue ? '700' : '400' }}">🕐 {{ $p->deadline->format('d M Y') }}</span>
+          <span>👥 {{ $p->bids->count() }} penawaran</span>
+          <span>💳 Fee: {{ $p->budget > 0 ? 'Rp '.number_format($p->budget*.80,0,',','.') : 'Estimasi' }}</span>
+        </div>
+
+        {{-- ACTION BUTTON --}}
+        <div style="padding:.65rem 1.15rem 1.1rem">
+          @if($pOverdue)
+            <button disabled style="width:100%;padding:10px;border-radius:10px;border:none;background:#FEF2F2;color:#DC2626;font-weight:700;font-size:.85rem;cursor:not-allowed;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit">⛔ Deadline Terlampaui</button>
+          @elseif($p->bids->contains('programmer_id', $user->id))
+            <button disabled style="width:100%;padding:10px;border-radius:10px;border:none;background:#FFFBEB;color:#92400E;font-weight:700;font-size:.85rem;cursor:not-allowed;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit">⏳ Menunggu Persetujuan UMKM</button>
+          @elseif(!$user->is_verified)
+            <button disabled style="width:100%;padding:10px;border-radius:10px;border:none;background:#F9FAFB;color:#9CA3AF;font-weight:700;font-size:.85rem;cursor:not-allowed;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit">🔒 Menunggu Verifikasi Akun</button>
+          @else
+            <button onclick="openBidModal({{ $p->id }}, '{{ addslashes($p->title) }}', {{ $p->budget }}, {{ max(1,(int)now()->startOfDay()->diffInDays($p->deadline->startOfDay())) }})"
+              style="width:100%;padding:10px;border-radius:10px;border:none;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;font-weight:700;font-size:.875rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;transition:opacity .2s"
+              onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'"
+              aria-label="Ajukan penawaran untuk {{ $p->title }}">
+              Ajukan Penawaran →
+            </button>
+          @endif
         </div>
       </div>
-      <div id="progProjectsSearchResultText" style="font-size:.82rem;color:var(--text3);margin-top:.75rem;display:none;font-weight:600">
-        Menampilkan <span id="progFilteredCount">0</span> dari <span id="progTotalCount">0</span> project tersedia
+      @empty
+      <div style="grid-column:1/-1;text-align:center;padding:5rem 2rem;background:#fff;border-radius:16px;border:1px solid #E5E7EB">
+        <div style="font-size:3rem;margin-bottom:1rem">🔍</div>
+        <h3 style="font-size:1.1rem;font-weight:700;color:#374151;margin-bottom:.35rem">Tidak ada project yang tersedia</h3>
+        <p style="font-size:.85rem;color:#9CA3AF">Coba cari dengan kata kunci lain atau reset filter Anda.</p>
       </div>
+      @endforelse
     </div>
 
-    <div class="project-grid" id="programmerProjectsGrid">
-      @foreach($availableProjects as $p)
-      @php $pOverdue = $p->deadline && now()->startOfDay()->gt($p->deadline->startOfDay()); @endphp
-      <div class="project-card{{ $pOverdue ? ' overdue-card' : '' }} programmer-project-card" data-title="{{ strtolower($p->title) }}" data-desc="{{ strtolower($p->description) }}" data-category="{{ $p->category }}" data-apptype="{{ $p->app_type }}" data-tags="{{ strtolower(implode(',', $p->tags ?? [])) }}">
-        <div style="display:flex;justify-content:space-between;margin-bottom:.5rem">
-          <div>
-            <span style="font-size:.95rem;font-weight:700">&lt;/&gt; {{ $p->title }}</span>
-            @if($pOverdue)
-              <span class="badge" style="margin-left:.5rem;background:var(--red-light);color:var(--red);border:1px solid rgba(239,68,68,0.3)">⏰ DEADLINE TERLAMPAUI</span>
-            @else
-              <span class="badge badge-open" style="margin-left:.5rem">Dibuka</span>
-            @endif
-          </div>
-          <div style="text-align:right">
-            @if($p->budget > 0)
-              <div style="font-size:1rem;font-weight:800">Rp {{ number_format($p->budget, 0, ',', '.') }}</div>
-              <div style="font-size:.78rem;color:var(--green)">Anda dapat: Rp {{ number_format($p->budget * 0.20, 0, ',', '.') }}</div>
-            @else
-              <div style="font-size:0.95rem;font-weight:700;color:var(--accent)">Menunggu Estimasi</div>
-              <div style="font-size:.78rem;color:var(--text3)">Tentukan estimasi harga Anda</div>
-            @endif
-          </div>
-        </div>
-        <div style="font-size:.85rem;color:var(--text2);margin-bottom:.75rem;line-height:1.5">
-          @if(strlen($p->description) > 120)
-            <span class="desc-short">{{ Str::limit($p->description, 120) }}</span>
-            <span class="desc-full" style="display:none">{{ $p->description }}</span>
-            <button type="button" onclick="toggleDesc(this)" style="background:none;border:none;color:var(--primary);font-size:0.78rem;font-weight:700;cursor:pointer;padding:0;margin-left:4px;display:inline">Selengkapnya</button>
-          @else
-            <span>{{ $p->description }}</span>
-          @endif
-        </div>
-        <div class="tag-list" style="margin-bottom:.75rem">
-          @foreach(($p->tags ?? []) as $tag)<span class="tag">{{ $tag }}</span>@endforeach
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding-top:.75rem">
-          <span style="font-size:.78rem;color:{{ $pOverdue ? 'var(--red)' : 'var(--text3)' }};font-weight:{{ $pOverdue ? '700' : '400' }}">
-            {{ $pOverdue ? '⛔' : '⏰' }} Deadline: {{ $p->deadline->format('d M Y') }}
-          </span>
-          @if($pOverdue)
-            <button class="btn btn-sm" style="background:var(--red-light);color:var(--red);border:1.5px solid rgba(239,68,68,0.35);cursor:not-allowed;font-weight:700;font-size:.8rem" disabled title="Deadline project ini sudah terlampaui">⛔ Deadline Terlampaui</button>
-          @elseif($p->bids->contains('programmer_id', $user->id))
-            <button class="btn btn-sm" style="background:var(--orange-light);color:#92400E;border-color:rgba(245,158,11,.3);cursor:default;font-weight:600" disabled>Menunggu Persetujuan UMKM ⏳</button>
-          @elseif($approvedPortCount === 0 && $approvedCertCount === 0)
-            <button class="btn btn-sm" style="background:var(--bg3);color:var(--text3);border-color:var(--border);cursor:not-allowed" title="Tambahkan minimal 1 Portofolio atau Sertifikat yang disetujui terlebih dahulu" disabled>Kunci Penawaran 🔒</button>
-          @else
-            <button onclick="openBidModal({{ $p->id }}, '{{ addslashes($p->title) }}', {{ $p->budget }}, {{ max(1, (int)now()->startOfDay()->diffInDays($p->deadline->startOfDay())) }})" class="btn btn-primary btn-sm" aria-label="Ajukan penawaran untuk {{ $p->title }}">Ajukan Penawaran →</button>
-          @endif
-        </div>
-      </div>
-      @endforeach
-    </div>
-    <div style="text-align:center;margin-top:1rem">
-      <a href="{{ route('projects') }}" class="btn btn-ghost">Lihat Semua Project →</a>
+    <!-- Beautiful Pagination Links -->
+    <div style="margin-top:2rem">
+      {{ $availableProjects->fragment('projects')->links() }}
     </div>
     @endif
   </div>
-  @endif
 
-  @if($showAllTabs)
   <!-- COURSES TAB -->
   <div id="pane-courses" style="display:none" role="tabpanel">
     @if(!$user->is_verified)
-    <div class="imk-guide" style="margin-bottom:1.5rem;background:#FEF3C7;border-color:#F59E0B">
-      <div class="imk-guide-icon">⏳</div>
+    <div class="imk-guide" style="margin-bottom:1.5rem;background:#FEF3C7;border-color:rgba(245,158,11,0.3);border-style:solid;border-width:1.5px;padding:1.5rem;display:flex;align-items:center;gap:1.25rem;border-radius:var(--radius-lg)">
+      <div style="font-size:2.5rem;animation:lockBounce 2s infinite;flex-shrink:0">🔒</div>
       <div>
-        <div class="imk-guide-title" style="color:#B45309">Menunggu Verifikasi Akun oleh Admin</div>
-        <div class="imk-guide-text" style="color:#D97706">Akun Anda sedang dalam proses peninjauan oleh admin. Akses fitur "Course Saya" akan terbuka sepenuhnya setelah admin menyetujui verifikasi akun Anda.</div>
+        <div class="imk-guide-title" style="color:#B45309;font-size:1.1rem;font-weight:800">Fitur Belum Terbuka</div>
+        <div class="imk-guide-text" style="color:#D97706;font-size:0.9rem;line-height:1.6;margin-top:4px">Akun Anda sedang dalam proses peninjauan oleh admin. Menunggu 1 x 24 jam verifikasi oleh admin agar dapat membuat dan mengelola course.</div>
       </div>
     </div>
     @elseif(!$user->is_top_programmer)
@@ -501,48 +658,321 @@
     </div>
     @endif
 
-    <h3 style="font-size:1rem;font-weight:700;margin-bottom:1rem">Course Saya ({{ $myCourses->count() }})</h3>
+    {{-- TITLE & STATS CARDS --}}
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem">
+      <div>
+        <h2 style="font-size:1.4rem;font-weight:800;color:#111827;margin:0 0 .2rem">Course Saya ({{ $myCourses->count() }})</h2>
+        <p style="font-size:.82rem;color:#6B7280;margin:0">Kelola semua course Anda dengan mudah</p>
+      </div>
+      
+      {{-- Stats Cards Row --}}
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+        {{-- Card 1: Total Course --}}
+        <div style="background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:.7rem 1rem;display:flex;align-items:center;gap:.75rem;min-width:130px;box-shadow:0 1px 3px rgba(0,0,0,.05)">
+          <div style="width:38px;height:38px;border-radius:8px;background:#EEF2FF;color:#4F46E5;display:flex;align-items:center;justify-content:center;font-size:1.1rem">
+            📖
+          </div>
+          <div>
+            <div style="font-size:1.05rem;font-weight:800;color:#111827;line-height:1.2">{{ $myCourses->count() }}</div>
+            <div style="font-size:.68rem;color:#6B7280;font-weight:500">Total Course</div>
+          </div>
+        </div>
+        
+        {{-- Card 2: Total Siswa --}}
+        <div style="background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:.7rem 1rem;display:flex;align-items:center;gap:.75rem;min-width:130px;box-shadow:0 1px 3px rgba(0,0,0,.05)">
+          <div style="width:38px;height:38px;border-radius:8px;background:#ECFDF5;color:#059669;display:flex;align-items:center;justify-content:center;font-size:1.1rem">
+            👥
+          </div>
+          <div>
+            <div style="font-size:1.05rem;font-weight:800;color:#111827;line-height:1.2">
+              {{ number_format($myCourses->sum(fn($c) => $c->enrollments->count())) }}
+            </div>
+            <div style="font-size:.68rem;color:#6B7280;font-weight:500">Total Siswa</div>
+          </div>
+        </div>
 
-    {{-- BILAH PENCARIAN COURSE SAYA --}}
+        {{-- Card 3: Total Video --}}
+        <div style="background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:.7rem 1rem;display:flex;align-items:center;gap:.75rem;min-width:130px;box-shadow:0 1px 3px rgba(0,0,0,.05)">
+          <div style="width:38px;height:38px;border-radius:8px;background:#F0FDF4;color:#15803D;display:flex;align-items:center;justify-content:center;font-size:1.1rem">
+            📹
+          </div>
+          <div>
+            <div style="font-size:1.05rem;font-weight:800;color:#111827;line-height:1.2">{{ $myCourses->sum('total_videos') }}</div>
+            <div style="font-size:.68rem;color:#6B7280;font-weight:500">Total Video</div>
+          </div>
+        </div>
+
+        {{-- Card 4: Total Pendapatan --}}
+        @php
+          $totalCourseGross = 0;
+          foreach($myCourses as $c) {
+            $totalCourseGross += $c->enrollments->count() * $c->price;
+          }
+          $programmerCourseEarning = $totalCourseGross * 0.80;
+          $platformCourseFee = $totalCourseGross * 0.20;
+        @endphp
+        <div style="background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:.7rem 1rem;display:flex;align-items:center;gap:.75rem;min-width:180px;box-shadow:0 1px 3px rgba(0,0,0,.05)">
+          <div style="width:38px;height:38px;border-radius:8px;background:#FFFBEB;color:#D97706;display:flex;align-items:center;justify-content:center;font-size:1.1rem">
+            💰
+          </div>
+          <div>
+            <div style="font-size:1.05rem;font-weight:800;color:#059669;line-height:1.2">
+              Rp {{ number_format($programmerCourseEarning, 0, ',', '.') }}
+            </div>
+            <div style="font-size:.68rem;color:#6B7280;font-weight:700;margin-top:2px">Pendapatan Bersih Anda (80%)</div>
+            <div style="font-size:.62rem;color:#9CA3AF;margin-top:2px">Komisi Platform (20%): Rp {{ number_format($platformCourseFee, 0, ',', '.') }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {{-- BILAH PENCARIAN & FILTER COURSE SAYA --}}
     @if($myCourses->count() > 0)
-    <div class="card" style="margin-bottom:1.5rem;padding:1.25rem;">
-      <div style="position:relative">
-        <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:1.1rem;color:var(--text3)">🔍</span>
-        <input type="text" id="progSearchCourse" placeholder="Cari nama course Anda..." oninput="filterProgrammerCourses()" style="width:100%;padding:10px 16px 10px 42px;border:1.5px solid var(--border);border-radius:12px;font-size:.9rem;background:var(--bg);color:var(--text);font-family:inherit" />
+    <div style="background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:.85rem 1.25rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;box-shadow:0 1px 4px rgba(0,0,0,.05);margin-bottom:1.5rem">
+      
+      {{-- Search — icon on LEFT --}}
+      <div style="position:relative;flex:2;min-width:220px">
+        <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#9CA3AF;font-size:.85rem;pointer-events:none">🔍</span>
+        <input type="text" id="progSearchCourse" oninput="filterProgrammerCourses()"
+          placeholder="Cari nama course, kategori, atau keyword..."
+          style="width:100%;padding:8px 14px 8px 36px;border-radius:8px;border:1px solid #E5E7EB;background:#fff;color:#111827;font-size:.85rem;font-family:inherit;outline:none;transition:border-color .15s;box-shadow:0 1px 3px rgba(0,0,0,.05)"
+          onfocus="this.style.borderColor='#4F46E5'"
+          onblur="this.style.borderColor='#E5E7EB'" />
       </div>
-      <div id="progCoursesSearchResultText" style="font-size:.82rem;color:var(--text3);margin-top:.75rem;display:none;font-weight:600">
-        Menampilkan <span id="progCourseFilteredCount">0</span> dari <span id="progCourseTotalCount">0</span> course
+
+      {{-- Category dropdown --}}
+      <div style="position:relative;min-width:150px">
+        <select id="progFilterCourseCategory" onchange="filterProgrammerCourses()"
+          style="width:100%;padding:8px 26px 8px 14px;border-radius:8px;border:1px solid #E5E7EB;background:#fff;color:#374151;font-size:.85rem;font-family:inherit;cursor:pointer;outline:none;appearance:none;box-shadow:0 1px 3px rgba(0,0,0,.05);transition:border-color .15s"
+          onfocus="this.style.borderColor='#4F46E5'"
+          onblur="this.style.borderColor='#E5E7EB'">
+          <option value="">Semua Kategori</option>
+          @foreach($myCourses->pluck('category')->unique() as $cat)
+            <option value="{{ $cat }}">{{ $cat }}</option>
+          @endforeach
+        </select>
+        <span style="position:absolute;right:9px;top:50%;transform:translateY(-50%);color:#6B7280;font-size:.65rem;pointer-events:none">▼</span>
       </div>
+
+      {{-- Status dropdown --}}
+      <div style="position:relative;min-width:150px">
+        <select id="progFilterCourseStatus" onchange="filterProgrammerCourses()"
+          style="width:100%;padding:8px 26px 8px 14px;border-radius:8px;border:1px solid #E5E7EB;background:#fff;color:#374151;font-size:.85rem;font-family:inherit;cursor:pointer;outline:none;appearance:none;box-shadow:0 1px 3px rgba(0,0,0,.05);transition:border-color .15s"
+          onfocus="this.style.borderColor='#4F46E5'"
+          onblur="this.style.borderColor='#E5E7EB'">
+          <option value="">Semua Status</option>
+          <option value="published">Dipublikasikan</option>
+          <option value="draft">Draft</option>
+        </select>
+        <span style="position:absolute;right:9px;top:50%;transform:translateY(-50%);color:#6B7280;font-size:.65rem;pointer-events:none">▼</span>
+      </div>
+
+      {{-- Create Course Button --}}
+      <a href="{{ route('programmer.create-course') }}"
+        style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:8px;border:none;background:#4F46E5;color:#fff;font-size:.875rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;box-shadow:0 1px 4px rgba(79,70,229,.3);transition:background .15s;text-decoration:none;flex-shrink:0"
+        onmouseover="this.style.background='#4338CA'" onmouseout="this.style.background='#4F46E5'">
+        <span style="font-size:1.1rem;font-weight:bold;line-height:1;margin-top:-2px">+</span> Buat Course Baru
+      </a>
+    </div>
+
+    {{-- Filter count status text --}}
+    <div id="progCoursesSearchResultText" style="font-size:.82rem;color:#6B7280;margin:-0.75rem 0 1.25rem 0;display:none;font-weight:600;padding-left:4px">
+      Menampilkan <span id="progCourseFilteredCount">0</span> dari <span id="progCourseTotalCount">0</span> course
     </div>
     @endif
 
-    @forelse($myCourses as $course)
-    <div class="prog-course-card" style="border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1rem;display:flex;gap:1rem;align-items:flex-start" data-title="{{ strtolower($course->title) }}">
-      <div style="width:90px;height:70px;border-radius:var(--radius);background:linear-gradient(135deg,#1E1260,#3D1FAF);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.5rem">📚</div>
-      <div style="flex:1">
-        <div style="display:flex;gap:.5rem;margin-bottom:.25rem">
-          <span class="level-badge level-{{ $course->level }}" style="position:static;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:99px">{{ $course->level_label }}</span>
-          @if($course->is_published)<span style="font-size:.7rem;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--green-light);color:var(--green)">Dipublikasikan</span>@endif
+    {{-- LIST COURSE --}}
+    <div id="programmerCoursesContainer">
+      @forelse($myCourses as $course)
+      @php
+        $lowerTitle = strtolower($course->title);
+        $gradient = 'linear-gradient(135deg, #4F46E5, #7C3AED)';
+        $logoHtml = '📚';
+        $hasCustomThumb = false;
+        
+        $preset = $course->thumbnail;
+        if (!$preset) {
+            if (str_contains($lowerTitle, 'html')) { $preset = 'html'; }
+            elseif (str_contains($lowerTitle, 'css')) { $preset = 'css'; }
+            elseif (str_contains($lowerTitle, 'javascript') || str_contains($lowerTitle, 'js')) { $preset = 'js'; }
+            elseif (str_contains($lowerTitle, 'php')) { $preset = 'php'; }
+            elseif (str_contains($lowerTitle, 'mysql')) { $preset = 'mysql'; }
+            elseif (str_contains($lowerTitle, 'laravel')) { $preset = 'laravel'; }
+            elseif (str_contains($lowerTitle, 'react')) { $preset = 'react'; }
+            elseif (str_contains($lowerTitle, 'node')) { $preset = 'node'; }
+            elseif (str_contains($lowerTitle, 'flutter')) { $preset = 'flutter'; }
+            elseif (str_contains($lowerTitle, 'git')) { $preset = 'git'; }
+        }
+        
+        if ($preset && in_array($preset, ['html','css','js','php','mysql','laravel','react','node','flutter','git'])) {
+            if ($preset === 'html') {
+                $gradient = '#F16529';
+                $logoHtml = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px"><div style="font-family:\'Arial Black\', sans-serif;font-size:0.7rem;font-weight:900;color:#000;letter-spacing:1px;line-height:1;margin-top:2px">HTML</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 452 520" width="30" height="34" style="display:block"><path fill="#e34f26" d="M41 460L0 0h451l-41 460-185 52" /><path fill="#ef652a" d="M226 472l149-41 35-394H226" /><path fill="#ecedee" d="M226 208h-75l-5-58h80V94H84l15 171h127zm0 147l-64-17-4-45h-56l7 89 117 32z"/><path fill="#fff" d="M226 265h69l-7 73-62 17v59l115-32 16-174H226zm0-171v56h136l5-56z"/></svg></div>';
+            } elseif ($preset === 'css') {
+                $gradient = '#2d88d3';
+                $logoHtml = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px"><div style="font-family:\'Arial Black\', sans-serif;font-size:0.7rem;font-weight:900;color:#000;letter-spacing:1px;line-height:1;margin-top:2px">CSS</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 452 520" width="30" height="34" style="display:block"><path fill="#0c72b8" d="M41 460L0 0h451l-41 460-185 52" /><path fill="#1c8adb" d="M226 472l149-41 35-394H226" /><path fill="#ebebeb" d="M226 94H96l5 56h125z M226 208H161l5 57h60z M226 355H117l5 60h104z" /><path fill="#ffffff" d="M226 94h141l-5 56H226z M226 208h131l-5 57H226z M226 355h118l-5 60H226z M295 150h67l-18 205H295z" /></svg></div>';
+            } elseif ($preset === 'js') {
+                $gradient = 'linear-gradient(135deg, #F0DB4F, #F7DF1E)';
+                $logoHtml = '<span style="font-family: Arial Black, sans-serif; font-size: 2rem; font-weight: 900; color: #323330; display:block; line-height:1">JS</span>';
+            } elseif ($preset === 'php') {
+                $gradient = 'linear-gradient(135deg, #4F5D95, #777BB4)';
+                $logoHtml = '<span style="font-family: Impact, sans-serif; font-size: 1.8rem; font-style: italic; color: #fff; text-shadow: 1px 1px 3px rgba(0,0,0,0.3); display:block; line-height:1">php</span>';
+            } elseif ($preset === 'mysql') {
+                $gradient = 'linear-gradient(135deg, #00758F, #005E74)';
+                $logoHtml = '<span style="font-family: Inter, sans-serif; font-size: 1.35rem; font-weight: 800; color: #fff; letter-spacing: -1px; display:block; line-height:1">MySQL</span>';
+            } elseif ($preset === 'laravel') {
+                $gradient = 'linear-gradient(135deg, #FF2E2E, #E31B1B)';
+                $logoHtml = '<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>';
+            } elseif ($preset === 'react') {
+                $gradient = 'linear-gradient(135deg, #20232A, #282C34)';
+                $logoHtml = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#61DAFB" stroke-width="2" style="display:block"><ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(0 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(120 12 12)"/><circle cx="12" cy="12" r="2" fill="#61DAFB"/></svg>';
+            } elseif ($preset === 'node') {
+                $gradient = 'linear-gradient(135deg, #303030, #43853D)';
+                $logoHtml = '<span style="font-family: Arial, sans-serif; font-size: 1.4rem; font-weight: 800; color: #fff; display:block; line-height:1">node</span>';
+            } elseif ($preset === 'flutter') {
+                $gradient = 'linear-gradient(135deg, #02569B, #0175C2)';
+                $logoHtml = '<svg width="34" height="34" viewBox="0 0 24 24" fill="#fff" style="display:block"><path d="M14.314 0L2.3 12 6 15.7 21.684 0h-7.37zM21.684 12.329l-3.685-3.686L6 20.329l3.7 3.671 11.984-11.671z"/></svg>';
+            } elseif ($preset === 'git') {
+                $gradient = 'linear-gradient(135deg, #F1502F, #F05133)';
+                $logoHtml = '<span style="font-family: Arial, sans-serif; font-size: 1.8rem; font-weight: 800; color: #fff; display:block; line-height:1">git</span>';
+            }
+        } elseif ($course->thumbnail) {
+            $hasCustomThumb = true;
+            $thumbUrl = str_starts_with($course->thumbnail, 'http') ? $course->thumbnail : asset('storage/' . $course->thumbnail);
+        }
+      @endphp
+      <div class="prog-course-card" style="position:relative;background:#fff;border:1px solid #E5E7EB;border-radius:16px;padding:1.25rem;margin-bottom:1rem;display:flex;gap:1.5rem;align-items:center;box-shadow:0 1px 3px rgba(0,0,0,.04);transition:transform .15s, box-shadow .15s"
+        onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 12px rgba(0,0,0,.05)'"
+        onmouseout="this.style.transform='none';this.style.boxShadow='0 1px 3px rgba(0,0,0,.04)'"
+        data-title="{{ strtolower($course->title) }}"
+        data-category="{{ $course->category }}"
+        data-status="{{ $course->is_published ? 'published' : 'draft' }}">
+        
+        {{-- Left: Thumbnail --}}
+        <div style="width:110px;height:82px;border-radius:12px;background:{!! $hasCustomThumb ? 'transparent' : $gradient !!};flex-shrink:0;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 10px rgba(0,0,0,0.1);position:relative;overflow:hidden">
+          @if($hasCustomThumb)
+            <img src="{{ $thumbUrl }}" alt="{{ $course->title }}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">
+          @else
+            {!! $logoHtml !!}
+          @endif
         </div>
-        <div style="font-size:.95rem;font-weight:700;margin-bottom:.25rem">{{ $course->title }}</div>
-        <div style="font-size:.82rem;color:var(--text2)">⭐ {{ $course->rating }} · {{ number_format($course->total_students) }} siswa · {{ $course->total_videos }} video</div>
-      </div>
-      <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:.5rem">
-        <div style="font-size:1rem;font-weight:800;color:var(--primary)">{{ $course->price_formatted }}</div>
-        <div style="display:flex;gap:.4rem">
-          <a href="{{ route('programmer.course.edit', $course) }}" class="btn btn-ghost btn-sm" style="font-size:.75rem;padding:4px 10px">✏️ Edit</a>
-          <form method="POST" action="{{ route('programmer.course.delete', $course) }}" onsubmit="return confirm('Hapus course ini beserta seluruh video materinya?')" style="display:inline">
-            @csrf @method('DELETE')
-            <button type="submit" class="btn btn-ghost btn-sm" style="font-size:.75rem;padding:4px 10px;color:var(--red)">🗑 Hapus</button>
-          </form>
+
+        {{-- Middle: Info --}}
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;gap:.5rem;margin-bottom:.4rem;flex-wrap:wrap">
+            {{-- Level badge --}}
+            @php
+              $lvlBg = '#ECFDF5'; $lvlColor = '#059669';
+              if($course->level === 'menengah') { $lvlBg = '#FFF7ED'; $lvlColor = '#C2410C'; }
+              elseif($course->level === 'mahir') { $lvlBg = '#FEF2F2'; $lvlColor = '#DC2626'; }
+            @endphp
+            <span style="font-size:.68rem;font-weight:700;padding:3px 9px;border-radius:99px;background:{{ $lvlBg }};color:{{ $lvlColor }};text-transform:uppercase;letter-spacing:0.5px">
+              {{ $course->level_label }}
+            </span>
+            {{-- Status badge --}}
+            @if($course->is_published)
+              <span style="font-size:.68rem;font-weight:700;padding:3px 9px;border-radius:99px;background:#ECFDF5;color:#059669;text-transform:uppercase;letter-spacing:0.5px">
+                Dipublikasikan
+              </span>
+            @else
+              <span style="font-size:.68rem;font-weight:700;padding:3px 9px;border-radius:99px;background:#F3F4F6;color:#6B7280;text-transform:uppercase;letter-spacing:0.5px">
+                Draft
+              </span>
+            @endif
+          </div>
+          
+          <h3 style="font-size:1.02rem;font-weight:800;color:#111827;margin:0 0 .4rem;line-height:1.4">
+            {{ $course->title }}
+          </h3>
+          
+          {{-- Metadata --}}
+          <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;font-size:.76rem;color:#6B7280">
+            <span style="color:#F59E0B;font-weight:600;display:inline-flex;align-items:center;gap:3px">
+              ⭐ {{ number_format($course->rating ?: 0.0, 1) }}
+            </span>
+            <span>•</span>
+            <span style="display:inline-flex;align-items:center;gap:4px">
+              👥 {{ number_format($course->enrollments->count()) }} siswa
+            </span>
+            <span>•</span>
+            <span style="display:inline-flex;align-items:center;gap:4px">
+              📹 {{ $course->total_videos }} video
+            </span>
+            <span>•</span>
+            <span style="display:inline-flex;align-items:center;gap:4px">
+              ⏱️ {{ $course->duration }}
+            </span>
+          </div>
+        </div>
+
+        {{-- Right Side: Price & Actions --}}
+        <div style="display:flex;align-items:center;gap:2rem;flex-shrink:0;text-align:right">
+          
+          {{-- Price --}}
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.25rem">
+            <div style="font-size:1.15rem;font-weight:800;color:#4F46E5">
+              {{ $course->price_formatted }}
+            </div>
+            @if(!$course->is_free && $course->price > 0)
+              <div style="font-size:.73rem;font-weight:600;color:#059669">Bagi Hasil Anda: Rp {{ number_format($course->price * 0.80, 0, ',', '.') }} (80%)</div>
+              <div style="font-size:.65rem;color:#6B7280">Komisi Platform (20%): Rp {{ number_format($course->price * 0.20, 0, ',', '.') }}</div>
+            @endif
+          </div>
+
+          {{-- Dropdown Action Menu (matches image) --}}
+          <div style="position:relative" class="prog-course-dropdown-container">
+            <button type="button" onclick="toggleCourseDropdown(event, {{ $course->id }})"
+              style="width:36px;height:36px;border-radius:8px;border:1px solid #E5E7EB;background:#fff;color:#6B7280;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:background .15s;outline:none"
+              onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='#fff'"
+              aria-label="Aksi kursus {{ $course->title }}">
+              •••
+            </button>
+            
+            {{-- Dropdown Card --}}
+            <div id="prog-course-dropdown-{{ $course->id }}" class="prog-course-dropdown-menu"
+              style="display:none;position:absolute;right:0;top:110%;width:160px;background:#fff;border:1px solid #E5E7EB;border-radius:10px;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);z-index:100;padding:.35rem;text-align:left">
+              
+              {{-- Preview --}}
+              <a href="{{ route('courses.detail', $course) }}"
+                style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:6px;color:#374151;font-size:.8rem;font-weight:600;text-decoration:none;transition:background .15s"
+                onmouseover="this.style.background='#F3F4F6'" onmouseout="this.style.background='transparent'">
+                👁️ <span style="margin-left:2px">Preview</span>
+              </a>
+              
+              {{-- Edit Course --}}
+              <a href="{{ route('programmer.course.edit', $course) }}"
+                style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:6px;color:#374151;font-size:.8rem;font-weight:600;text-decoration:none;transition:background .15s"
+                onmouseover="this.style.background='#F3F4F6'" onmouseout="this.style.background='transparent'">
+                ✏️ <span style="margin-left:2px">Edit Course</span>
+              </a>
+
+              <div style="height:1px;background:#F3F4F6;margin:4px 0"></div>
+
+              {{-- Hapus Course --}}
+              <form method="POST" action="{{ route('programmer.course.delete', $course) }}"
+                onsubmit="return confirm('Hapus course ini beserta seluruh video materinya?')"
+                style="margin:0">
+                @csrf @method('DELETE')
+                <button type="submit"
+                  style="width:100%;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:6px;color:#EF4444;font-size:.8rem;font-weight:600;background:none;border:none;cursor:pointer;text-align:left;font-family:inherit;transition:background .15s"
+                  onmouseover="this.style.background='#FEF2F2'" onmouseout="this.style.background='transparent'">
+                  🗑️ <span style="margin-left:2px">Hapus Course</span>
+                </button>
+              </form>
+            </div>
+          </div>
+
         </div>
       </div>
+      @empty
+      <div style="text-align:center;padding:4rem 2rem;background:#fff;border-radius:16px;border:1px solid #E5E7EB">
+        <div style="font-size:3rem;margin-bottom:1rem">📚</div>
+        <h3 style="font-size:1.1rem;font-weight:700;color:#374151;margin-bottom:.35rem">Belum ada course</h3>
+        <p style="font-size:.85rem;color:#9CA3AF">Buat course pertama Anda dan bagikan pengetahuan kepada para programmer muda!</p>
+      </div>
+      @endforelse
     </div>
-    @empty
-    <div style="text-align:center;padding:2rem;color:var(--text3)">Belum ada course. Buat course pertama Anda!</div>
-    @endforelse
   </div>
-  @endif
 
 
 
@@ -573,6 +1003,27 @@
         </div>
         <button type="submit" class="btn btn-primary btn-sm">Simpan Profil 💾</button>
       </form>
+      
+      <!-- Scanner Style -->
+      <style>
+      .scanner-line {
+        position: absolute;
+        left: 10px;
+        right: 10px;
+        height: 3px;
+        background: rgba(239, 68, 68, 0.7);
+        box-shadow: 0 0 8px rgba(239, 68, 68, 0.9);
+        animation: scanAnim 2.5s linear infinite;
+        z-index: 10;
+        pointer-events: none;
+      }
+
+      @keyframes scanAnim {
+        0% { top: 10px; }
+        50% { top: calc(100% - 65px); }
+        100% { top: 10px; }
+      }
+      </style>
 
       <hr style="margin:1.5rem 0;border:none;border-top:1px solid var(--border)">
 
@@ -585,6 +1036,11 @@
           <div style="font-size:.9rem;font-weight:600">{{ $p->title }}</div>
           <div style="font-size:.78rem;color:var(--text3)">{{ Str::limit($p->description, 60) }}</div>
           <div class="tag-list" style="margin-top:.25rem">@foreach(($p->tags ?? []) as $tag)<span class="tag">{{ $tag }}</span>@endforeach</div>
+          @if($p->portfolio_file)
+            <div style="font-size:.78rem;margin-top:5px;display:flex;align-items:center;gap:4px">
+              <span>📷</span> <a href="{{ asset('storage/' . $p->portfolio_file) }}" target="_blank" style="color:var(--primary);text-decoration:underline;font-weight:600">Lihat Lampiran / Scan</a>
+            </div>
+          @endif
           @if($p->status === 'pending')
           <div style="font-size:.78rem;color:var(--accent);font-weight:600;margin-top:6px">⚠️ portofolio sedang ditinjau admin, tunggu 1x24 jam</div>
           @elseif($p->status === 'rejected')
@@ -607,24 +1063,56 @@
 
       <hr style="margin:1rem 0;border:none;border-top:1px solid var(--border)">
       <h4 style="font-size:.9rem;font-weight:700;margin-bottom:.75rem">+ Tambah Portofolio Baru</h4>
-      <form method="POST" action="{{ route('programmer.portfolio.store') }}" aria-label="Form tambah portofolio">
+      <form method="POST" action="{{ route('programmer.portfolio.store') }}" enctype="multipart/form-data" aria-label="Form tambah portofolio">
         @csrf
         <div class="form-group"><input name="title" class="form-input" placeholder="Judul project" required aria-label="Judul portofolio"></div>
         <div class="form-group"><textarea name="description" class="form-textarea" placeholder="Deskripsi singkat project..." required aria-label="Deskripsi portofolio"></textarea></div>
         <div class="form-group"><input name="tags" class="form-input" placeholder="Tags (pisahkan koma): React, Laravel..." aria-label="Tags portofolio"><div class="form-hint">Contoh: React, Laravel, MySQL</div></div>
         <div class="form-group"><input name="project_url" type="url" class="form-input" placeholder="Link project (opsional)" aria-label="URL portofolio"></div>
-        <button type="submit" class="btn btn-primary btn-sm" style="margin-bottom:1.5rem">+ Tambah Portofolio</button>
+        
+        <div class="form-group" style="margin-bottom:1.5rem">
+          <label style="display:block;font-size:.78rem;font-weight:600;margin-bottom:.35rem;color:var(--text2)">Lampiran Portofolio / Hasil Scan (Opsional)</label>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <input type="file" name="portfolio_file" class="form-input" style="flex:1" accept="image/*,application/pdf">
+            <button type="button" class="btn btn-sm btn-ghost" onclick="startCameraScan('portfolio')" style="border-color:var(--primary);color:var(--primary);background:var(--primary-light);font-weight:600">📷 Scan dengan Kamera</button>
+          </div>
+          <!-- Hidden field to store base64 camera image -->
+          <input type="hidden" name="portfolio_camera" id="portfolio_camera_input">
+          <div id="portfolio_camera_preview_container" style="display:none;margin-top:10px;border:2px dashed var(--primary);border-radius:var(--radius);padding:10px;background:var(--bg2);position:relative;text-align:center">
+            <video id="portfolio_video" width="100%" style="max-height:280px;border-radius:var(--radius-sm);background:#000" autoplay playsinline></video>
+            <div id="portfolio_scanner_line" class="scanner-line"></div>
+            <div style="margin-top:10px;display:flex;gap:10px;justify-content:center">
+              <button type="button" class="btn btn-sm btn-primary" onclick="captureSnapshot('portfolio')">📸 Ambil Foto (Scan)</button>
+              <button type="button" class="btn btn-sm btn-ghost" style="color:var(--red);border-color:var(--red)" onclick="stopCameraScan('portfolio')">Tutup ❌</button>
+            </div>
+          </div>
+          <div id="portfolio_scanned_preview" style="display:none;margin-top:10px;text-align:center;position:relative">
+            <p style="font-size:.8rem;color:var(--green);font-weight:700;margin-bottom:5px">✓ Berhasil di-scan!</p>
+            <img id="portfolio_scanned_img" style="max-width:100%;max-height:200px;border-radius:var(--radius);border:1.5px solid var(--border)">
+            <button type="button" class="btn btn-xs btn-ghost" style="color:var(--red);border-color:var(--red);margin-top:5px;display:block;margin-left:auto;margin-right:auto" onclick="clearCameraScan('portfolio')">Hapus Scan 🗑</button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-sm" style="margin-bottom:1.5rem">Simpan Portofolio ✅</button>
       </form>
 
       <hr style="margin:1.5rem 0;border:none;border-top:1px solid var(--border)">
 
       <!-- 2. SERTIFIKAT -->
-      <h4 style="font-size:.9rem;font-weight:700;margin-bottom:.75rem">📜 Sertifikat ({{ $certificates->count() }})</h4>
+      <h4 style="font-size:.9rem;font-weight:700;margin-bottom:.5rem">📜 Sertifikat ({{ $certificates->count() }})</h4>
+      @if($certificates->count() > 0)
+        <p style="color:var(--green);font-size:.875rem;font-weight:700;margin-bottom:1rem">Mempunyai {{ $certificates->count() }} Sertifikat</p>
+      @endif
       @forelse($certificates as $cert)
       <div style="display:flex;justify-content:space-between;align-items:center;padding:.75rem;background:var(--bg2);border-radius:var(--radius);margin-bottom:.5rem">
         <div>
           <div style="font-size:.875rem;font-weight:600">{{ $cert->name }}</div>
           <div style="font-size:.78rem;color:var(--text3)">{{ $cert->issuer }} · {{ $cert->issue_date?->format('M Y') }}</div>
+          @if($cert->certificate_file)
+            <div style="font-size:.78rem;margin-top:5px;display:flex;align-items:center;gap:4px">
+              <span>📷</span> <a href="{{ asset('storage/' . $cert->certificate_file) }}" target="_blank" style="color:var(--primary);text-decoration:underline;font-weight:600">Lihat Lampiran / Scan</a>
+            </div>
+          @endif
           @if($cert->status === 'pending')
           <div style="font-size:.78rem;color:var(--accent);font-weight:600;margin-top:6px">⚠️ sertifikat sedang ditinjau admin, tunggu 1x24 jam</div>
           @elseif($cert->status === 'rejected')
@@ -647,7 +1135,7 @@
 
       <hr style="margin:1rem 0;border:none;border-top:1px solid var(--border)">
       <h4 style="font-size:.9rem;font-weight:700;margin-bottom:.75rem">+ Tambah Sertifikat</h4>
-      <form method="POST" action="{{ route('programmer.certificate.store') }}" aria-label="Form tambah sertifikat">
+      <form method="POST" action="{{ route('programmer.certificate.store') }}" enctype="multipart/form-data" aria-label="Form tambah sertifikat">
         @csrf
         <div class="form-row">
           <div class="form-group"><input name="name" class="form-input" placeholder="Nama sertifikat" required aria-label="Nama sertifikat"></div>
@@ -657,7 +1145,31 @@
           <div class="form-group"><input name="issue_date" type="date" class="form-input" aria-label="Tanggal sertifikat"></div>
           <div class="form-group"><input name="credential_url" type="url" class="form-input" placeholder="URL verifikasi (opsional)" aria-label="URL sertifikat"></div>
         </div>
-        <button type="submit" class="btn btn-primary btn-sm">+ Tambah Sertifikat</button>
+        
+        <div class="form-group" style="margin-bottom:1.5rem">
+          <label style="display:block;font-size:.78rem;font-weight:600;margin-bottom:.35rem;color:var(--text2)">Lampiran Sertifikat / Hasil Scan (Opsional)</label>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <input type="file" name="certificate_file" class="form-input" style="flex:1" accept="image/*,application/pdf">
+            <button type="button" class="btn btn-sm btn-ghost" onclick="startCameraScan('certificate')" style="border-color:var(--primary);color:var(--primary);background:var(--primary-light);font-weight:600">📷 Scan dengan Kamera</button>
+          </div>
+          <!-- Hidden field to store base64 camera image -->
+          <input type="hidden" name="certificate_camera" id="certificate_camera_input">
+          <div id="certificate_camera_preview_container" style="display:none;margin-top:10px;border:2px dashed var(--primary);border-radius:var(--radius);padding:10px;background:var(--bg2);position:relative;text-align:center">
+            <video id="certificate_video" width="100%" style="max-height:280px;border-radius:var(--radius-sm);background:#000" autoplay playsinline></video>
+            <div id="certificate_scanner_line" class="scanner-line"></div>
+            <div style="margin-top:10px;display:flex;gap:10px;justify-content:center">
+              <button type="button" class="btn btn-sm btn-primary" onclick="captureSnapshot('certificate')">📸 Ambil Foto (Scan)</button>
+              <button type="button" class="btn btn-sm btn-ghost" style="color:var(--red);border-color:var(--red)" onclick="stopCameraScan('certificate')">Tutup ❌</button>
+            </div>
+          </div>
+          <div id="certificate_scanned_preview" style="display:none;margin-top:10px;text-align:center;position:relative">
+            <p style="font-size:.8rem;color:var(--green);font-weight:700;margin-bottom:5px">✓ Berhasil di-scan!</p>
+            <img id="certificate_scanned_img" style="max-width:100%;max-height:200px;border-radius:var(--radius);border:1.5px solid var(--border)">
+            <button type="button" class="btn btn-xs btn-ghost" style="color:var(--red);border-color:var(--red);margin-top:5px;display:block;margin-left:auto;margin-right:auto" onclick="clearCameraScan('certificate')">Hapus Scan 🗑</button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-sm" style="margin-bottom:1.5rem">Simpan Sertifikat ✅</button>
       </form>
     </div>
   </div>
@@ -747,7 +1259,8 @@ function showTab(name){
 // IMK: Restore tab from URL hash & support real-time search from notifications
 const allowedTabs = [
   'overview',
-  @if($showAllTabs) 'projects','courses', @endif
+  'projects',
+  'courses',
   'verify'
 ];
 
@@ -757,16 +1270,14 @@ function handleProgrammerUrlState() {
   // Baca parameter pencarian dari query string jika ada
   const urlParams = new URLSearchParams(window.location.search);
   const searchQuery = urlParams.get('search');
+  const categoryQuery = urlParams.get('category');
+  const appTypeQuery = urlParams.get('app_type');
+  const pageQuery = urlParams.get('page');
   
-  if (searchQuery) {
+  if (searchQuery || categoryQuery || appTypeQuery || pageQuery) {
     showTab('projects');
-    const searchInput = document.getElementById('progSearchProject');
-    if (searchInput) {
-      searchInput.value = searchQuery;
-      // Trigger filter real-time
-      filterProgrammerProjects();
-      
-      // Highlight project card yang sesuai
+    if (searchQuery) {
+      // Highlight project card yang sesuai jika ada search spesifik dari notifikasi
       setTimeout(() => {
         const queryLower = searchQuery.toLowerCase().trim();
         const cards = document.querySelectorAll('.programmer-project-card');
@@ -974,6 +1485,9 @@ function filterProgrammerProjects() {
 // Real-time filtering course untuk Programmer
 function filterProgrammerCourses() {
   const query = document.getElementById('progSearchCourse').value.toLowerCase().trim();
+  const category = document.getElementById('progFilterCourseCategory') ? document.getElementById('progFilterCourseCategory').value : '';
+  const status = document.getElementById('progFilterCourseStatus') ? document.getElementById('progFilterCourseStatus').value : '';
+  
   const cards = document.querySelectorAll('.prog-course-card');
   const resultText = document.getElementById('progCoursesSearchResultText');
   const filteredCountEl = document.getElementById('progCourseFilteredCount');
@@ -983,9 +1497,14 @@ function filterProgrammerCourses() {
   
   cards.forEach(card => {
     const title = card.getAttribute('data-title') || '';
-    const matchesQuery = title.includes(query);
+    const cardCategory = card.getAttribute('data-category') || '';
+    const cardStatus = card.getAttribute('data-status') || '';
     
-    if (matchesQuery) {
+    const matchesQuery = title.includes(query);
+    const matchesCategory = category === '' || cardCategory === category;
+    const matchesStatus = status === '' || cardStatus === status;
+    
+    if (matchesQuery && matchesCategory && matchesStatus) {
       card.style.display = 'flex';
       visibleCount++;
     } else {
@@ -997,11 +1516,187 @@ function filterProgrammerCourses() {
   if (filteredCountEl) filteredCountEl.textContent = visibleCount;
   
   if (resultText) {
-    if (query !== '') {
+    if (query !== '' || category !== '' || status !== '') {
       resultText.style.display = 'block';
     } else {
       resultText.style.display = 'none';
     }
+  }
+}
+
+// Course Dropdown Menu Controls
+function toggleCourseDropdown(event, id) {
+  event.stopPropagation();
+  // Close all other dropdowns
+  document.querySelectorAll('.prog-course-dropdown-menu').forEach(el => {
+    if (el.id !== 'prog-course-dropdown-' + id) {
+      el.style.display = 'none';
+      const card = el.closest('.prog-course-card');
+      if (card) {
+        card.style.zIndex = '';
+      }
+    }
+  });
+  
+  const menu = document.getElementById('prog-course-dropdown-' + id);
+  if (menu) {
+    const card = menu.closest('.prog-course-card');
+    if (menu.style.display === 'none' || menu.style.display === '') {
+      menu.style.display = 'block';
+      if (card) {
+        card.style.zIndex = '50';
+      }
+    } else {
+      menu.style.display = 'none';
+      if (card) {
+        card.style.zIndex = '';
+      }
+    }
+  }
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(event) {
+  if (!event.target.closest('.prog-course-dropdown-container')) {
+    document.querySelectorAll('.prog-course-dropdown-menu').forEach(el => {
+      el.style.display = 'none';
+      const card = el.closest('.prog-course-card');
+      if (card) {
+        card.style.zIndex = '';
+      }
+    });
+  }
+});
+
+// Camera scanner functions for Portfolios & Certificates
+let activeStreams = {};
+
+function startCameraScan(type) {
+  const container = document.getElementById(type + '_camera_preview_container');
+  const video = document.getElementById(type + '_video');
+  
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    alert('Browser Anda tidak mendukung akses kamera.');
+    return;
+  }
+  
+  clearCameraScan(type);
+  container.style.display = 'block';
+  
+  navigator.mediaDevices.getUserMedia({ 
+    video: { facingMode: 'environment' }
+  })
+  .then(stream => {
+    activeStreams[type] = stream;
+    video.srcObject = stream;
+    video.play();
+  })
+  .catch(err => {
+    console.error('Error accessing camera:', err);
+    alert('Gagal mengakses kamera. Mohon berikan izin akses kamera.');
+    container.style.display = 'none';
+  });
+}
+
+function stopCameraScan(type) {
+  const container = document.getElementById(type + '_camera_preview_container');
+  const video = document.getElementById(type + '_video');
+  
+  if (activeStreams[type]) {
+    activeStreams[type].getTracks().forEach(track => track.stop());
+    delete activeStreams[type];
+  }
+  
+  if (video) {
+    video.srcObject = null;
+  }
+  
+  container.style.display = 'none';
+}
+
+function captureSnapshot(type) {
+  const video = document.getElementById(type + '_video');
+  const input = document.getElementById(type + '_camera_input');
+  const scannedPreview = document.getElementById(type + '_scanned_preview');
+  const scannedImg = document.getElementById(type + '_scanned_img');
+  
+  if (!video || !video.srcObject) return;
+  
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth || 640;
+  canvas.height = video.videoHeight || 480;
+  
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  
+  const base64Data = canvas.toDataURL('image/jpeg', 0.85);
+  
+  input.value = base64Data;
+  scannedImg.src = base64Data;
+  scannedPreview.style.display = 'block';
+  
+  stopCameraScan(type);
+}
+
+function clearCameraScan(type) {
+  const input = document.getElementById(type + '_camera_input');
+  const scannedPreview = document.getElementById(type + '_scanned_preview');
+  const scannedImg = document.getElementById(type + '_scanned_img');
+  
+  if (input) input.value = '';
+  if (scannedPreview) scannedPreview.style.display = 'none';
+  if (scannedImg) scannedImg.src = '';
+}
+
+// ===== PROGRESS & SUBMISSION SYSTEM =====
+let progressProjectEarning = 0;
+
+function openProgressModal(projectId, title, currentProgress, earning) {
+  progressProjectEarning = earning;
+  const form = document.getElementById('progressUpdateForm');
+  form.action = window.APP_URL + '/programmer/project/' + projectId + '/update-progress';
+  
+  document.getElementById('progressProjectTitle').textContent = title;
+  
+  const slider = document.getElementById('progressSlider');
+  slider.value = currentProgress;
+  
+  updateProgressSliderValue(currentProgress);
+  
+  document.getElementById('progressUpdateModal').style.display = 'flex';
+  
+  const mascot = document.getElementById('buddyMascot');
+  if(mascot) mascot.style.setProperty('display', 'none', 'important');
+}
+
+function closeProgressModal() {
+  document.getElementById('progressUpdateModal').style.display = 'none';
+  const mascot = document.getElementById('buddyMascot');
+  if(mascot) mascot.style.removeProperty('display');
+  if(window.checkMascotVisibility) window.checkMascotVisibility();
+}
+
+function updateProgressSliderValue(val) {
+  document.getElementById('progressValueBubble').textContent = val + '%';
+  const deliverables = document.getElementById('deliverablesSection');
+  const zipInput = document.getElementById('zipFileInput');
+  const githubInput = document.getElementById('githubLinkInput');
+  const submitBtn = document.getElementById('submitProgressBtn');
+  
+  if (parseInt(val) === 100) {
+    deliverables.style.display = 'block';
+    if (zipInput) zipInput.required = true;
+    if (githubInput) githubInput.required = true;
+    submitBtn.textContent = '🚀 Kirim Hasil & Cairkan Dana (Rp ' + progressProjectEarning.toLocaleString('id-ID') + ')';
+    submitBtn.className = 'btn btn-success';
+    submitBtn.style.boxShadow = '0 4px 15px rgba(16,185,129,0.4)';
+  } else {
+    deliverables.style.display = 'none';
+    if (zipInput) zipInput.required = false;
+    if (githubInput) githubInput.required = false;
+    submitBtn.textContent = 'Simpan & Perbarui Progress 💾';
+    submitBtn.className = 'btn btn-primary';
+    submitBtn.style.boxShadow = 'none';
   }
 }
 </script>
@@ -1058,4 +1753,96 @@ function filterProgrammerCourses() {
     </form>
   </div>
 </div>
+
+<!-- ===== PROGRESS & SUBMISSION MODAL ===== -->
+<div id="progressUpdateModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:99999;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)">
+  <div style="background:#1e1e38;border:1.5px solid rgba(255,255,255,.1);border-radius:20px;width:100%;max-width:520px;display:flex;flex-direction:column;box-shadow:0 25px 60px rgba(0,0,0,.6);overflow:hidden;color:#e2e8f0;font-family:inherit">
+    <!-- Header -->
+    <div style="padding:1.25rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg, #111126, #1e1e38)">
+      <div>
+        <div style="font-weight:800;color:#fff;font-size:1.1rem;display:flex;align-items:center;gap:8px">
+          ⚙️ Kelola Progress & Pengiriman
+        </div>
+        <div style="font-size:.78rem;color:rgba(255,255,255,.5);margin-top:2px">Perbarui persentase pekerjaan Anda atau kirim berkas selesai</div>
+      </div>
+      <button onclick="closeProgressModal()" style="background:rgba(255,255,255,.08);border:none;border-radius:50%;width:32px;height:32px;color:#fff;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center">&times;</button>
+    </div>
+
+    <form id="progressUpdateForm" method="POST" enctype="multipart/form-data">
+      @csrf
+      <div style="padding:1.5rem;max-height:70vh;overflow-y:auto">
+        <!-- Project Context Card -->
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:0.85rem 1rem;margin-bottom:1.25rem">
+          <div style="font-size:0.75rem;color:var(--text3);text-transform:uppercase;font-weight:700">Project Aktif</div>
+          <div id="progressProjectTitle" style="font-size:0.95rem;font-weight:800;color:#fff;margin-top:2px">Judul Project</div>
+        </div>
+
+        <!-- Slider Progress Selector -->
+        <div class="form-group" style="margin-bottom:1.5rem;text-align:center">
+          <label style="display:block;font-size:0.88rem;font-weight:700;margin-bottom:0.75rem;color:#fff;text-align:left">Geser untuk Update Progress</label>
+          
+          <div style="display:flex;align-items:center;gap:1.5rem;background:rgba(0,0,0,0.2);padding:1rem 1.25rem;border-radius:14px;border:1px solid rgba(255,255,255,0.05)">
+            <input type="range" name="project_progress" id="progressSlider" min="0" max="100" step="25" style="flex:1;height:6px;accent-color:var(--primary);cursor:pointer" oninput="updateProgressSliderValue(this.value)">
+            <span id="progressValueBubble" style="font-size:1.4rem;font-weight:900;color:var(--primary);min-width:70px;text-align:right">0%</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--text3);padding:4px 10px 0 10px">
+            <span>0% (Mulai)</span>
+            <span>25%</span>
+            <span>50% (Tengah)</span>
+            <span>75%</span>
+            <span>100% (Selesai)</span>
+          </div>
+        </div>
+
+        <!-- Deliverables Section (Only shown when 100%) -->
+        <div id="deliverablesSection" style="display:none;background:rgba(16,185,129,0.04);border:1.5px dashed rgba(16,185,129,0.3);border-radius:14px;padding:1.25rem;margin-top:1rem;animation:fadeSlideIn 0.25s ease-out">
+          <div style="display:flex;align-items:center;gap:6px;color:#10b981;font-weight:800;font-size:0.9rem;margin-bottom:0.75rem">
+            <span>🚀</span> Berkas Pengiriman & Link Deliverables
+          </div>
+          <p style="font-size:0.78rem;color:var(--text2);margin-bottom:1rem;line-height:1.5">
+            Anda memilih progress <strong>100%</strong>. Agar project dapat diselesaikan dan dana dicairkan, harap unggah berkas arsip project dan tautan repositori/hosting di bawah ini.
+          </p>
+
+          <!-- ZIP Upload -->
+          <div class="form-group" style="margin-bottom:0.85rem">
+            <label style="display:block;font-size:0.78rem;font-weight:600;margin-bottom:0.35rem;color:#fff">Upload Berkas Hasil Project (ZIP/RAR) <span style="color:#EF4444">*</span></label>
+            <input type="file" name="zip_file" id="zipFileInput" class="form-input" accept=".zip,.rar,.tar.gz" style="width:100%;background:rgba(255,255,255,0.05);color:#fff;border-color:rgba(255,255,255,0.1)">
+            <div class="form-hint" style="color:var(--text3);font-size:0.7rem">Format berkas .zip atau .rar, maksimal 15MB</div>
+          </div>
+
+          <!-- GitHub Link -->
+          <div class="form-group" style="margin-bottom:0.85rem">
+            <label style="display:block;font-size:0.78rem;font-weight:600;margin-bottom:0.35rem;color:#fff">Link Repository GitHub <span style="color:#EF4444">*</span></label>
+            <input type="url" name="github_link" id="githubLinkInput" class="form-input" placeholder="https://github.com/username/repository" style="width:100%;background:rgba(255,255,255,0.05);color:#fff;border-color:rgba(255,255,255,0.1)">
+          </div>
+
+          <!-- Hosting Link -->
+          <div class="form-group" style="margin-bottom:0">
+            <label style="display:block;font-size:0.78rem;font-weight:600;margin-bottom:0.35rem;color:#fff">Link Hosting Live (Opsional)</label>
+            <input type="text" name="hosting_link" class="form-input" placeholder="contoh: rifqifauzian.web.id" style="width:100%;background:rgba(255,255,255,0.05);color:#fff;border-color:rgba(255,255,255,0.1)">
+            <div class="form-hint" style="color:var(--text3);font-size:0.7rem">Masukkan custom domain live jika website sudah dideploy.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer Buttons -->
+      <div style="padding:1.25rem 1.5rem;border-top:1px solid rgba(255,255,255,.08);display:flex;gap:0.75rem;background:rgba(255,255,255,0.01)">
+        <button type="submit" id="submitProgressBtn" class="btn btn-primary" style="flex:1;font-weight:800;font-size:0.9rem">
+          Simpan & Perbarui Progress 💾
+        </button>
+        <button type="button" onclick="closeProgressModal()" class="btn btn-ghost" style="color:var(--text2);border-color:rgba(255,255,255,0.1)">
+          Batal
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
 @endsection

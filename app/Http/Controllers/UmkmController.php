@@ -53,6 +53,10 @@ class UmkmController extends Controller
     public function storeProject(Request $request)
     {
         $this->checkAccess();
+        if (!Auth::user()->umkm_verified) {
+            return back()->with('error', '❌ Gagal: Akun UMKM Anda belum diverifikasi. Menunggu 1 x 24 jam verifikasi oleh admin agar dapat memosting project.');
+        }
+
         $request->validate([
             'title'       => 'required|string|max:255',
             'description' => 'required|string|min:50',
@@ -199,24 +203,29 @@ class UmkmController extends Controller
         Bid::where('project_id', $project->id)->where('id', '!=', $bid->id)->update(['status' => 'rejected']);
         $bid->update(['status' => 'accepted']);
 
-        // Set budget project = harga yang diajukan programmer (bid amount)
+        // Set budget project & split fee (80% platform / 20% programmer)
+        // Set status tetap 'open' namun dengan assigned_programmer dan escrow_status = 'unpaid'
         $project->update([
-            'status'                  => 'in_progress',
+            'status'                  => 'open',
             'assigned_programmer_id'  => $bid->programmer_id,
             'budget'                  => $bid->amount,
             'platform_fee'            => $bid->amount * 0.80,
             'programmer_earning'      => $bid->amount * 0.20,
+            'escrow_status'           => 'unpaid',
+            'project_progress'        => 0,
         ]);
 
         // Notifikasi ke programmer pemenang
-        NotificationService::bidAccepted(
-            $bid->programmer_id,
-            Auth::user()->business_name ?? Auth::user()->name,
-            $project->title,
-            'Rp ' . number_format($bid->amount, 0, ',', '.')
-        );
+        \App\Models\Notification::create([
+            'user_id' => $bid->programmer_id,
+            'title'   => 'Penawaran Diterima! Menunggu Pembayaran 💰',
+            'message' => 'Penawaran Anda sebesar Rp ' . number_format($bid->amount, 0, ',', '.') . ' untuk project "' . $project->title . '" telah disetujui. Pekerjaan dapat dimulai setelah UMKM menyelesaikan pembayaran Rekber.',
+            'type'    => 'bid',
+            'link'    => '/programmer/dashboard',
+            'is_read' => false,
+        ]);
 
-        return back()->with('success', "✅ Penawaran Rp " . number_format($bid->amount, 0, ',', '.') . " dari {$bid->programmer->name} diterima! Project sekarang berstatus Berjalan.");
+        return back()->with('success', "✅ Penawaran Rp " . number_format($bid->amount, 0, ',', '.') . " dari {$bid->programmer->name} diterima! Silakan lakukan pembayaran Rekber (Rekening Bersama) agar programmer dapat mulai bekerja.");
     }
 
     public function rejectBid(Bid $bid)
@@ -241,6 +250,50 @@ class UmkmController extends Controller
         }
     }
 
+    public function payProject(Request $request, Project $project)
+    {
+        $this->checkAccess();
+        if ($project->umkm_id !== Auth::id()) {
+            abort(403);
+        }
+        if ($project->escrow_status !== 'unpaid') {
+            return back()->with('error', 'Project ini sudah dibayar ke Rekber.');
+        }
+
+        $request->validate([
+            'payment_method' => 'required|string',
+        ]);
+
+        $project->update([
+            'status' => 'in_progress',
+            'escrow_status' => 'held_by_admin',
+            'payment_method' => $request->payment_method,
+            'payment_date' => now(),
+        ]);
+
+        // Kirim notifikasi ke Programmer
+        \App\Models\Notification::create([
+            'user_id' => $project->assigned_programmer_id,
+            'title' => 'Pembayaran Rekber Diterima! 💳',
+            'message' => 'UMKM ' . (Auth::user()->business_name ?? Auth::user()->name) . ' telah membayar Rp ' . number_format($project->budget, 0, ',', '.') . ' via ' . $request->payment_method . '. Dana aman di Rekber (Admin). Silakan mulai pengerjaan!',
+            'type' => 'project',
+            'link' => '/programmer/dashboard',
+            'is_read' => false,
+        ]);
+
+        // Kirim notifikasi ke UMKM
+        \App\Models\Notification::create([
+            'user_id' => Auth::id(),
+            'title' => 'Pembayaran Rekber Berhasil! 🎉',
+            'message' => 'Pembayaran Rp ' . number_format($project->budget, 0, ',', '.') . ' via ' . $request->payment_method . ' berhasil diamankan di Rekber Admin. Programmer telah diinstruksikan untuk mulai bekerja.',
+            'type' => 'project',
+            'link' => '/umkm/dashboard',
+            'is_read' => false,
+        ]);
+
+        return back()->with('success', '✅ Pembayaran Rekber berhasil! Project sekarang dalam status Berjalan (Dalam Pengerjaan) dan Programmer telah dinotifikasi.');
+    }
+
     public function completeProject(Project $project)
     {
         $this->checkAccess();
@@ -248,22 +301,35 @@ class UmkmController extends Controller
             abort(403);
         }
 
-        $project->update(['status' => 'completed']);
+        if ($project->status === 'completed') {
+            return back()->with('info', 'Project ini sudah selesai.');
+        }
+
+        $project->update([
+            'status' => 'completed',
+            'escrow_status' => 'released',
+            'project_progress' => 100
+        ]);
 
         if ($project->assigned_programmer_id) {
             $programmer = $project->programmer;
-            $programmer->increment('total_earnings', $project->budget * 0.20);
+            $earning = $project->programmer_earning > 0 ? $project->programmer_earning : ($project->budget * 0.20);
+            
+            $programmer->increment('total_earnings', $earning);
             $programmer->increment('total_projects');
 
-            // Notifikasi ke programmer bahwa project selesai dan pembayaran diproses
-            NotificationService::projectCompleted(
-                $programmer->id,
-                $project->title,
-                'Rp ' . number_format($project->budget * 0.20, 0, ',', '.')
-            );
+            // Notifikasi ke programmer bahwa project selesai dan pembayaran dirilis
+            \App\Models\Notification::create([
+                'user_id' => $programmer->id,
+                'title' => 'Dana Rekber Dirilis! 💰',
+                'message' => 'Project "' . $project->title . '" telah diselesaikan oleh UMKM. Dana sebesar Rp ' . number_format($earning, 0, ',', '.') . ' (20%) telah dicairkan ke saldo Anda.',
+                'type' => 'project',
+                'link' => '/programmer/dashboard',
+                'is_read' => false,
+            ]);
         }
 
-        return back()->with('success', '✅ Project selesai! Pembayaran akan segera diproses.');
+        return back()->with('success', '✅ Project diselesaikan! Dana Rekber telah dicairkan ke saldo Programmer.');
     }
 
     /**

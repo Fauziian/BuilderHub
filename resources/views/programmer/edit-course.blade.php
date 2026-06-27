@@ -9,7 +9,7 @@
     <h1 style="font-size:1.2rem;font-weight:800;margin-bottom:.5rem">✏️ Edit Course</h1>
     <p style="font-size:.875rem;color:var(--text2);margin-bottom:1.5rem">Perbarui informasi course Anda. Video materi dapat dikelola dari tab Course Saya.</p>
     @if($errors->any())<div class="alert alert-error">❌ {{ $errors->first() }}</div>@endif
-    <form method="POST" action="{{ route('programmer.course.update', $course) }}" aria-label="Form edit course">
+    <form method="POST" action="{{ route('programmer.course.update', $course) }}" enctype="multipart/form-data" aria-label="Form edit course">
       @csrf
       @method('PUT')
       <div class="form-group">
@@ -23,6 +23,57 @@
           Minimal 20 karakter (0/20)
         </div>
       </div>
+
+      {{-- Cover / Logo Course Field --}}
+      @php
+        $isPreset = true;
+        if ($course->thumbnail && !in_array($course->thumbnail, ['html','css','js','php','mysql','laravel','react','node','flutter','git'])) {
+            $isPreset = false;
+        }
+      @endphp
+      <div class="form-group" style="margin-top:1.5rem">
+        <label class="form-label" style="font-weight:700;font-size:1rem;margin-bottom:.5rem">🖼️ Cover / Logo Course</label>
+        <div class="form-hint" style="margin-bottom:0.75rem">Pilih bagaimana tampilan kartu course Anda akan terlihat. Anda bisa memilih preset logo teknologi atau mengunggah gambar kustom.</div>
+        
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1rem">
+          {{-- Preset Option --}}
+          <div style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;background:var(--bg2)">
+            <label style="display:flex;align-items:center;gap:8px;font-weight:700;font-size:0.85rem;margin-bottom:0.5rem;cursor:pointer">
+              <input type="radio" name="thumbnail_type" value="preset" {{ $isPreset ? 'checked' : '' }} id="type-preset">
+              Preset Logo Teknologi
+            </label>
+            <select name="logo_preset" class="form-select" id="logo-preset-select" style="width:100%" {{ !$isPreset ? 'disabled' : '' }}>
+              <option value="auto" {{ !$course->thumbnail ? 'selected' : '' }}>— Deteksi Otomatis dari Judul —</option>
+              <option value="html" {{ $course->thumbnail === 'html' ? 'selected' : '' }}>HTML5</option>
+              <option value="css" {{ $course->thumbnail === 'css' ? 'selected' : '' }}>CSS3</option>
+              <option value="js" {{ $course->thumbnail === 'js' ? 'selected' : '' }}>JavaScript (JS)</option>
+              <option value="php" {{ $course->thumbnail === 'php' ? 'selected' : '' }}>PHP</option>
+              <option value="mysql" {{ $course->thumbnail === 'mysql' ? 'selected' : '' }}>MySQL</option>
+              <option value="laravel" {{ $course->thumbnail === 'laravel' ? 'selected' : '' }}>Laravel</option>
+              <option value="react" {{ $course->thumbnail === 'react' ? 'selected' : '' }}>React.js</option>
+              <option value="node" {{ $course->thumbnail === 'node' ? 'selected' : '' }}>Node.js</option>
+              <option value="flutter" {{ $course->thumbnail === 'flutter' ? 'selected' : '' }}>Flutter</option>
+              <option value="git" {{ $course->thumbnail === 'git' ? 'selected' : '' }}>Git</option>
+            </select>
+          </div>
+
+          {{-- Custom Image Option --}}
+          <div style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;background:var(--bg2)">
+            <label style="display:flex;align-items:center;gap:8px;font-weight:700;font-size:0.85rem;margin-bottom:0.5rem;cursor:pointer">
+              <input type="radio" name="thumbnail_type" value="upload" {{ !$isPreset ? 'checked' : '' }} id="type-upload">
+              Unggah Gambar Kustom
+            </label>
+            <input type="file" name="thumbnail_img" class="form-input" id="thumbnail-file-input" accept="image/*" style="padding:4px" {{ $isPreset ? 'disabled' : '' }}>
+            @if(!$isPreset && $course->thumbnail)
+              <div style="margin-top:0.5rem;font-size:0.75rem;color:var(--text3)">
+                File saat ini: <a href="{{ asset('storage/' . $course->thumbnail) }}" target="_blank" style="color:var(--primary);text-decoration:underline">Lihat Gambar</a>
+              </div>
+            @endif
+          </div>
+        </div>
+        @error('thumbnail_img')<div class="field-error">⚠ {{ $message }}</div>@enderror
+      </div>
+
       <div class="form-group" style="margin-top:1.5rem">
         <label class="form-label" style="font-weight:700;font-size:1rem;margin-bottom:.5rem">🎬 Video Pembelajaran (YouTube) <span class="required">*</span></label>
         <div class="form-hint" style="margin-bottom:1rem">Kelola video materi pembelajaran. Anda dapat mengubah, menghapus, atau menambah video di bawah ini.</div>
@@ -207,6 +258,28 @@ document.addEventListener('DOMContentLoaded', function() {
     };
     descTextarea.addEventListener('input', updateCount);
     updateCount();
+  }
+
+  // Cover/Logo Selection logic
+  const typePreset = document.getElementById('type-preset');
+  const typeUpload = document.getElementById('type-upload');
+  const presetSelect = document.getElementById('logo-preset-select');
+  const fileInput = document.getElementById('thumbnail-file-input');
+
+  if (typePreset && typeUpload && presetSelect && fileInput) {
+    function updateInputs() {
+      if (typePreset.checked) {
+        presetSelect.disabled = false;
+        fileInput.disabled = true;
+      } else {
+        presetSelect.disabled = true;
+        fileInput.disabled = false;
+      }
+    }
+
+    typePreset.addEventListener('change', updateInputs);
+    typeUpload.addEventListener('change', updateInputs);
+    updateInputs();
   }
 });
 </script>

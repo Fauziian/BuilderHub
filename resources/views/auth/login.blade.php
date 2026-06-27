@@ -109,7 +109,7 @@
       <!-- IMK: Quick login for demo/testing (clearly labeled) -->
       <p style="font-size:.8rem;color:var(--text3);text-align:center;margin-bottom:.75rem">Demo — Masuk langsung sebagai:</p>
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem">
-        @foreach([['Admin', 'admin@builderhub.id', 'var(--red)'], ['Programmer', 'rizky@builderhub.id', 'var(--primary)'], ['UMKM', 'budi@batik.id', 'var(--accent)'], ['Pelajar/Student', 'student@builderhub.id', 'var(--green)']] as [$label, $email, $color])
+        @foreach([['Admin', 'admin@builderhub.id', 'var(--red)'], ['Programmer', 'rifqiprogrammer@gmail.com', 'var(--primary)'], ['UMKM', 'rifqiumkm@gmail.com', 'var(--accent)'], ['Pelajar/Student', 'rifqipelajar@gmail.com', 'var(--green)']] as [$label, $email, $color])
         <form method="POST" action="{{ route('login.post') }}">
           @csrf
           <input type="hidden" name="email" value="{{ $email }}">

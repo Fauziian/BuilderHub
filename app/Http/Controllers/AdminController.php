@@ -29,7 +29,7 @@ class AdminController extends Controller
             'total_users' => User::count(),
             'total_projects' => Project::count(),
             'total_courses' => Course::count(),
-            'total_revenue' => Project::where('status', 'completed')->sum('budget') * 0.80,
+            'total_revenue' => (Project::where('status', 'completed')->sum('budget') * 0.80) + Project::where('status', 'in_progress')->sum('budget') + (CourseEnrollment::sum('amount_paid') * 0.20),
             'programmers' => User::where('role', 'programmer')->count(),
             'umkms' => User::where('role', 'umkm')->count(),
             'open_projects' => Project::where('status', 'open')->count(),
@@ -51,9 +51,17 @@ class AdminController extends Controller
     {
         $this->checkAccess();
         $query = User::query();
-        if ($request->role) $query->where('role', $request->role);
-        if ($request->search) $query->where('name', 'like', '%' . $request->search . '%')->orWhere('email', 'like', '%' . $request->search . '%');
-        $users = $query->with(['portfolios', 'certificates'])->latest()->paginate(15);
+        if ($request->role) {
+            $query->where('role', $request->role);
+        }
+        if ($request->search) {
+            $query->where(function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                  ->orWhere('email', 'like', '%' . $request->search . '%')
+                  ->orWhere('city', 'like', '%' . $request->search . '%');
+            });
+        }
+        $users = $query->with(['portfolios', 'certificates'])->latest()->paginate(8)->withQueryString();
         return view('admin.users', compact('users'));
     }
 
@@ -61,6 +69,14 @@ class AdminController extends Controller
     {
         $this->checkAccess();
         $user->update(['is_verified' => true]);
+        
+        // Auto-approve their pending certificates and portfolios
+        $user->certificates()->where('status', 'pending')->update(['status' => 'approved']);
+        $user->portfolios()->where('status', 'pending')->update(['status' => 'approved']);
+        
+        // Recalculate badge status
+        $this->recalculateBadges($user);
+        
         NotificationService::programmerVerified($user->id, $user->name);
         return back()->with('success', "Programmer {$user->name} berhasil diverifikasi.");
     }
@@ -83,17 +99,51 @@ class AdminController extends Controller
         return back()->with('success', "User {$user->name} berhasil dihapus.");
     }
 
-    public function projects()
+    public function projects(Request $request)
     {
         $this->checkAccess();
-        $projects = Project::with(['umkm', 'programmer', 'bids'])->latest()->paginate(15);
+        $query = Project::query();
+        
+        if ($request->status) {
+            $query->where('status', $request->status);
+        }
+        if ($request->search) {
+            $query->where(function($q) use ($request) {
+                $q->where('title', 'like', '%' . $request->search . '%')
+                  ->orWhere('description', 'like', '%' . $request->search . '%')
+                  ->orWhereHas('umkm', function($uq) use ($request) {
+                      $uq->where('name', 'like', '%' . $request->search . '%')
+                         ->orWhere('business_name', 'like', '%' . $request->search . '%');
+                  });
+            });
+        }
+        
+        $projects = $query->with(['umkm', 'programmer', 'bids'])->latest()->paginate(8)->withQueryString();
         return view('admin.projects', compact('projects'));
     }
 
-    public function courses()
+    public function courses(Request $request)
     {
         $this->checkAccess();
-        $courses = Course::with(['instructor', 'enrollments'])->latest()->paginate(15);
+        $query = Course::query();
+        
+        if ($request->level) {
+            $query->where('level', $request->level);
+        }
+        if ($request->status) {
+            $query->where('is_published', $request->status === 'public');
+        }
+        if ($request->search) {
+            $query->where(function($q) use ($request) {
+                $q->where('title', 'like', '%' . $request->search . '%')
+                  ->orWhere('category', 'like', '%' . $request->search . '%')
+                  ->orWhereHas('instructor', function($iq) use ($request) {
+                      $iq->where('name', 'like', '%' . $request->search . '%');
+                  });
+            });
+        }
+        
+        $courses = $query->with(['instructor', 'enrollments'])->latest()->paginate(8)->withQueryString();
         return view('admin.courses', compact('courses'));
     }
 
@@ -164,7 +214,7 @@ class AdminController extends Controller
         $approvedCertCount = $user->certificates()->where('status', 'approved')->count();
         $approvedPortCount = $user->portfolios()->where('status', 'approved')->count();
         $user->update([
-            'is_verified'      => $user->is_verified ? true : ($approvedCertCount >= 2 && $approvedPortCount >= 1),
+            'is_verified'      => $user->is_verified,
             'is_top_programmer' => $user->is_top_programmer ? true : ($approvedCertCount >= 3 && $approvedPortCount >= 3),
         ]);
     }

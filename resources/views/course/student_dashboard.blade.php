@@ -145,6 +145,48 @@
     </div>
   </div>
 
+  <!-- PATHWAY BANNER -->
+  @php
+    $hasCompletedCourse = $enrollments->where('status', 'completed')->isNotEmpty();
+  @endphp
+  <div class="card glass-card" style="background:linear-gradient(135deg, rgba(23, 16, 60, 0.6) 0%, rgba(10, 10, 20, 0.8) 100%);border:1px solid {{ $hasCompletedCourse ? 'rgba(139, 92, 246, 0.25)' : 'rgba(255,255,255,0.1)' }};border-radius:var(--radius-xl);padding:1.5rem;margin-bottom:1.5rem;display:flex;gap:1.5rem;align-items:center;flex-wrap:wrap;position:relative;overflow:hidden">
+    <div style="position:absolute;right:0;top:0;width:150px;height:150px;background:radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);pointer-events:none"></div>
+    <div style="font-size:3rem;flex-shrink:0;text-align:center" class="float-3d">🚀</div>
+    <div style="flex:1;min-width:280px">
+      <h3 style="font-size:1.15rem;font-weight:800;color:#FFF;margin-bottom:0.35rem;display:flex;align-items:center;gap:6px">
+        Transformasi Karir: Dari Pelajar ke Programmer Profesional! 🎓➔💼
+      </h3>
+      <p style="font-size:0.85rem;color:rgba(255,255,255,0.7);line-height:1.5">
+        Pelajari keahlian digital melalui course dari programmer berpengalaman, selesaikan kelas untuk mendapatkan <strong>Sertifikat Kelulusan Resmi</strong>, lalu upgrade akun Anda menjadi Programmer untuk mulai mengambil project dari UMKM dan menghasilkan uang!
+      </p>
+      @if(!$hasCompletedCourse)
+        <div style="margin-top:0.5rem;font-size:0.78rem;color:#FBBF24;display:flex;align-items:center;gap:6px;font-weight:600;background:rgba(245, 158, 11, 0.1);padding:6px 12px;border-radius:6px;border:1px solid rgba(245, 158, 11, 0.2)">
+          ⚠️ Syarat Upgrade Akun: Anda harus membeli & menyelesaikan minimal 1 course di BuilderHub untuk mendapatkan sertifikat kelulusan.
+        </div>
+      @endif
+      <div style="display:flex;gap:1.5rem;margin-top:0.75rem;font-size:0.78rem;color:rgba(255,255,255,0.5);flex-wrap:wrap">
+        <span style="color:{{ $enrollments->isNotEmpty() ? '#10B981' : 'inherit' }}">📖 1. Belajar & Tonton Video</span>
+        <span>➔</span>
+        <span style="color:{{ $hasCompletedCourse ? '#10B981' : 'inherit' }}">📜 2. Dapatkan Sertifikat</span>
+        <span>➔</span>
+        <span>🚀 3. Upgrade Akun Jadi Programmer</span>
+        <span>➔</span>
+        <span>💼 4. Hasilkan Pendapatan</span>
+      </div>
+    </div>
+    <div style="flex-shrink:0">
+      @if($hasCompletedCourse)
+        <a href="{{ route('course.upgrade-programmer') }}" class="btn btn-ghost" style="border-color:#8B5CF6;color:#C084FC;font-weight:700;background:rgba(139, 92, 246, 0.08);transition:all 0.2s" onmouseover="this.style.background='#8B5CF6';this.style.color='#fff'" onmouseout="this.style.background='rgba(139, 92, 246, 0.08)';this.style.color='#C084FC'">
+          Mulai Upgrade Akun ➔
+        </a>
+      @else
+        <button class="btn btn-ghost" disabled style="border-color:rgba(255,255,255,0.12);color:rgba(255,255,255,0.3);font-weight:700;background:rgba(255,255,255,0.02);cursor:not-allowed;display:inline-flex;align-items:center;gap:6px" title="Selesaikan minimal 1 course untuk membuka fitur upgrade">
+          🔒 Mulai Upgrade Akun
+        </button>
+      @endif
+    </div>
+  </div>
+
   <!-- TABS -->
   <div class="tab-bar" role="tablist" aria-label="Menu Dashboard Pelajar">
     <button class="tab-btn active" onclick="showTab('my-courses')" role="tab" aria-selected="true" id="tab-my-courses">📚 Course Saya</button>
@@ -242,47 +284,116 @@
   <!-- EXPLORE COURSES TAB -->
   <div id="pane-explore" style="display:none" role="tabpanel">
     <!-- Search & Filter Bar for Explore Courses -->
-    <div class="glass-card" style="margin-bottom:1.5rem;padding:1.25rem;display:flex;gap:1rem;flex-wrap:wrap;align-items:center;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02)">
-      <div style="flex:1;min-width:260px;position:relative">
-        <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:0.9rem;color:var(--text3)">🔍</span>
-        <input type="text" id="exploreSearch" placeholder="Cari berdasarkan judul, pengajar, kategori..." style="width:100%;padding:0.6rem 0.6rem 0.6rem 2.2rem;border-radius:var(--radius-sm);background:var(--bg2);border:1px solid var(--border);color:var(--text);font-size:0.85rem">
+    <form method="GET" action="{{ route('course.dashboard') }}#explore" style="width:100%;margin-bottom:1.5rem;">
+      <div class="glass-card" style="padding:1.25rem;display:flex;gap:1rem;flex-wrap:wrap;align-items:center;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02)">
+        <div style="flex:1;min-width:260px;position:relative">
+          <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:0.9rem;color:var(--text3)">🔍</span>
+          <input type="text" name="search" id="exploreSearch" value="{{ request('search') }}" placeholder="Cari berdasarkan judul, pengajar, kategori..." style="width:100%;padding:0.6rem 0.6rem 0.6rem 2.2rem;border-radius:var(--radius-sm);background:var(--bg2);border:1px solid var(--border);color:var(--text);font-size:0.85rem">
+        </div>
+        <div style="min-width:150px">
+          <select name="level" id="exploreLevelFilter" onchange="this.form.submit()" style="width:100%;padding:0.6rem;border-radius:var(--radius-sm);background:var(--bg2);border:1px solid var(--border);color:var(--text);font-size:0.85rem">
+            <option value="">Semua Tingkat</option>
+            <option value="pemula" {{ request('level') === 'pemula' ? 'selected' : '' }}>Pemula</option>
+            <option value="menengah" {{ request('level') === 'menengah' ? 'selected' : '' }}>Menengah</option>
+            <option value="mahir" {{ request('level') === 'mahir' ? 'selected' : '' }}>Mahir</option>
+          </select>
+        </div>
+        <div style="min-width:150px">
+          <select name="category" id="exploreCategoryFilter" onchange="this.form.submit()" style="width:100%;padding:0.6rem;border-radius:var(--radius-sm);background:var(--bg2);border:1px solid var(--border);color:var(--text);font-size:0.85rem">
+            <option value="">Semua Kategori</option>
+            @foreach($categories as $cat)
+              @if($cat)
+                <option value="{{ $cat }}" {{ request('category') === $cat ? 'selected' : '' }}>{{ $cat }}</option>
+              @endif
+            @endforeach
+          </select>
+        </div>
+        <div style="display:flex;gap:.5rem">
+          <button type="submit" class="btn btn-primary btn-sm" style="font-weight:700">Cari & Filter</button>
+          @if(request('search') || request('level') || request('category'))
+            <a href="{{ route('course.dashboard') }}#explore" class="btn btn-ghost btn-sm" style="border-color:rgba(255,255,255,0.15);color:#fff;display:inline-flex;align-items:center">Reset</a>
+          @endif
+        </div>
       </div>
-      <div style="min-width:150px">
-        <select id="exploreLevelFilter" style="width:100%;padding:0.6rem;border-radius:var(--radius-sm);background:var(--bg2);border:1px solid var(--border);color:var(--text);font-size:0.85rem">
-          <option value="">Semua Tingkat</option>
-          <option value="beginner">Pemula</option>
-          <option value="intermediate">Menengah</option>
-          <option value="advanced">Mahir</option>
-        </select>
-      </div>
-      <div style="min-width:150px">
-        <select id="exploreCategoryFilter" style="width:100%;padding:0.6rem;border-radius:var(--radius-sm);background:var(--bg2);border:1px solid var(--border);color:var(--text);font-size:0.85rem">
-          <option value="">Semua Kategori</option>
-          @foreach($availableCourses->pluck('category')->unique() as $cat)
-            @if($cat)
-              <option value="{{ strtolower($cat) }}">{{ $cat }}</option>
-            @endif
-          @endforeach
-        </select>
-      </div>
-    </div>
+    </form>
 
     <!-- Empty Search Result Alert -->
-    <div id="exploreEmptySearch" class="card glass-card" style="grid-column:1/-1;display:none;text-align:center;padding:3rem;color:var(--text3)">
+    @if($availableCourses->isEmpty())
+    <div class="card glass-card" style="text-align:center;padding:3rem;color:var(--text3)">
       <div style="font-size:2rem;margin-bottom:0.5rem">🔍</div>
       <div>Tidak ada course yang sesuai dengan pencarian Anda.</div>
     </div>
+    @endif
 
     <div id="exploreCoursesList" class="course-grid">
-      @forelse($availableCourses as $course)
+      @foreach($availableCourses as $course)
       @php
         $isEnrolled = $enrollments->contains('course_id', $course->id);
+        $lowerTitle = strtolower($course->title);
+        $gradient = 'linear-gradient(135deg, #4F46E5, #7C3AED)';
+        $logoHtml = '📚';
+        $hasCustomThumb = false;
+        
+        $preset = $course->thumbnail;
+        if (!$preset) {
+            if (str_contains($lowerTitle, 'html')) { $preset = 'html'; }
+            elseif (str_contains($lowerTitle, 'css')) { $preset = 'css'; }
+            elseif (str_contains($lowerTitle, 'javascript') || str_contains($lowerTitle, 'js')) { $preset = 'js'; }
+            elseif (str_contains($lowerTitle, 'php')) { $preset = 'php'; }
+            elseif (str_contains($lowerTitle, 'mysql')) { $preset = 'mysql'; }
+            elseif (str_contains($lowerTitle, 'laravel')) { $preset = 'laravel'; }
+            elseif (str_contains($lowerTitle, 'react')) { $preset = 'react'; }
+            elseif (str_contains($lowerTitle, 'node')) { $preset = 'node'; }
+            elseif (str_contains($lowerTitle, 'flutter')) { $preset = 'flutter'; }
+            elseif (str_contains($lowerTitle, 'git')) { $preset = 'git'; }
+        }
+        
+        if ($preset && in_array($preset, ['html','css','js','php','mysql','laravel','react','node','flutter','git'])) {
+            if ($preset === 'html') {
+                $gradient = '#F16529';
+                $logoHtml = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px"><div style="font-family:\'Arial Black\', sans-serif;font-size:1.35rem;font-weight:900;color:#000;letter-spacing:2px;line-height:1;margin-top:4px">HTML</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 452 520" width="58" height="66" style="display:block"><path fill="#e34f26" d="M41 460L0 0h451l-41 460-185 52" /><path fill="#ef652a" d="M226 472l149-41 35-394H226" /><path fill="#ecedee" d="M226 208h-75l-5-58h80V94H84l15 171h127zm0 147l-64-17-4-45h-56l7 89 117 32z"/><path fill="#fff" d="M226 265h69l-7 73-62 17v59l115-32 16-174H226zm0-171v56h136l5-56z"/></svg></div>';
+            } elseif ($preset === 'css') {
+                $gradient = '#2d88d3';
+                $logoHtml = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px"><div style="font-family:\'Arial Black\', sans-serif;font-size:1.35rem;font-weight:900;color:#000;letter-spacing:2px;line-height:1;margin-top:4px">CSS</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 452 520" width="58" height="66" style="display:block"><path fill="#0c72b8" d="M41 460L0 0h451l-41 460-185 52" /><path fill="#1c8adb" d="M226 472l149-41 35-394H226" /><path fill="#ebebeb" d="M226 94H96l5 56h125z M226 208H161l5 57h60z M226 355H117l5 60h104z" /><path fill="#ffffff" d="M226 94h141l-5 56H226z M226 208h131l-5 57H226z M226 355h118l-5 60H226z M295 150h67l-18 205H295z" /></svg></div>';
+            } elseif ($preset === 'js') {
+                $gradient = 'linear-gradient(135deg, #F0DB4F, #F7DF1E)';
+                $logoHtml = '<span style="font-family: Arial Black, sans-serif; font-size: 2rem; font-weight: 900; color: #323330; display:block; line-height:1">JS</span>';
+            } elseif ($preset === 'php') {
+                $gradient = 'linear-gradient(135deg, #4F5D95, #777BB4)';
+                $logoHtml = '<span style="font-family: Impact, sans-serif; font-size: 1.8rem; font-style: italic; color: #fff; text-shadow: 1px 1px 3px rgba(0,0,0,0.3); display:block; line-height:1">php</span>';
+            } elseif ($preset === 'mysql') {
+                $gradient = 'linear-gradient(135deg, #00758F, #005E74)';
+                $logoHtml = '<span style="font-family: Inter, sans-serif; font-size: 1.35rem; font-weight: 800; color: #fff; letter-spacing: -1px; display:block; line-height:1">MySQL</span>';
+            } elseif ($preset === 'laravel') {
+                $gradient = 'linear-gradient(135deg, #FF2E2E, #E31B1B)';
+                $logoHtml = '<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>';
+            } elseif ($preset === 'react') {
+                $gradient = 'linear-gradient(135deg, #20232A, #282C34)';
+                $logoHtml = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#61DAFB" stroke-width="2" style="display:block"><ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(0 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(120 12 12)"/><circle cx="12" cy="12" r="2" fill="#61DAFB"/></svg>';
+            } elseif ($preset === 'node') {
+                $gradient = 'linear-gradient(135deg, #303030, #43853D)';
+                $logoHtml = '<span style="font-family: Arial, sans-serif; font-size: 1.4rem; font-weight: 800; color: #fff; display:block; line-height:1">node</span>';
+            } elseif ($preset === 'flutter') {
+                $gradient = 'linear-gradient(135deg, #02569B, #0175C2)';
+                $logoHtml = '<svg width="34" height="34" viewBox="0 0 24 24" fill="#fff" style="display:block"><path d="M14.314 0L2.3 12 6 15.7 21.684 0h-7.37zM21.684 12.329l-3.685-3.686L6 20.329l3.7 3.671 11.984-11.671z"/></svg>';
+            } elseif ($preset === 'git') {
+                $gradient = 'linear-gradient(135deg, #F1502F, #F05133)';
+                $logoHtml = '<span style="font-family: Arial, sans-serif; font-size: 1.8rem; font-weight: 800; color: #fff; display:block; line-height:1">git</span>';
+            }
+        } elseif ($course->thumbnail) {
+            $hasCustomThumb = true;
+            $thumbUrl = str_starts_with($course->thumbnail, 'http') ? $course->thumbnail : asset('storage/' . $course->thumbnail);
+        }
       @endphp
-      <article class="course-card explore-course-item" data-title="{{ strtolower($course->title) }}" data-instructor="{{ strtolower($course->instructor->name) }}" data-category="{{ strtolower($course->category) }}" data-level="{{ $course->level }}" style="display:flex;flex-direction:column;justify-content:space-between">
+      <article class="course-card" style="display:flex;flex-direction:column;justify-content:space-between">
         <div>
-          <div class="course-thumb" style="background:linear-gradient(135deg,#1E1260,#6C38FF)">
-            <span style="font-size:2.5rem">💻</span>
-            <span class="level-badge level-{{ $course->level }}">{{ $course->level_label }}</span>
+          <div class="course-thumb" style="background:{!! $hasCustomThumb ? 'transparent' : $gradient !!};position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden">
+            @if($hasCustomThumb)
+              <img src="{{ $thumbUrl }}" alt="{{ $course->title }}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">
+            @else
+              {!! $logoHtml !!}
+            @endif
+            <span class="level-badge level-{{ $course->level }}" style="z-index:2">{{ $course->level_label }}</span>
           </div>
           <div style="padding:1rem">
             <div style="font-size:.78rem;color:var(--text3);margin-bottom:.25rem">Kategori: <strong>{{ $course->category }}</strong></div>
@@ -293,7 +404,7 @@
               <span style="font-size:.78rem;color:var(--text2)">{{ $course->instructor->name }}</span>
             </div>
             <div style="display:flex;align-items:center;justify-content:space-between;font-size:.75rem;color:var(--text3)">
-              <span>⭐ {{ $course->rating }} · {{ number_format($course->total_students) }} siswa</span>
+              <span>⭐ {{ number_format($course->rating ?: 0.0, 1) }} · {{ number_format($course->enrollments->count()) }} siswa</span>
               <span>📹 {{ $course->total_videos }} video</span>
             </div>
           </div>
@@ -309,16 +420,44 @@
           @endif
         </div>
       </article>
-      @empty
-      <div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text3)">
-        Belum ada course lain yang tersedia.
-      </div>
-      @endforelse
+      @endforeach
+    </div>
+
+    <!-- Beautiful Pagination Links -->
+    <div style="margin-top:2rem">
+      {{ $availableCourses->fragment('explore')->links() }}
     </div>
   </div>
 
   <!-- CERTIFICATES TAB -->
   <div id="pane-certificates" style="display:none" role="tabpanel">
+    <!-- Career Upgrade Banner -->
+    <div class="card" style="background:linear-gradient(135deg, {{ $hasCompletedCourse ? 'rgba(99, 102, 241, 0.12), rgba(139, 92, 246, 0.12)' : 'rgba(255,255,255,0.02), rgba(255,255,255,0.02)' }});border:1px solid {{ $hasCompletedCourse ? 'rgba(139, 92, 246, 0.25)' : 'rgba(255,255,255,0.1)' }};border-radius:var(--radius-lg);padding:1.5rem;margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center;gap:1.5rem;flex-wrap:wrap">
+      <div style="flex:1;min-width:280px">
+        <h4 style="font-size:1.05rem;font-weight:800;color:{{ $hasCompletedCourse ? '#A5B4FC' : 'rgba(255,255,255,0.4)' }};margin-bottom:0.35rem;display:flex;align-items:center;gap:6px">
+          <span>🚀</span> Siap Memulai Karir Profesional & Menghasilkan Uang?
+        </h4>
+        <p style="font-size:0.82rem;color:rgba(255,255,255,0.6);line-height:1.4">
+          @if($hasCompletedCourse)
+            Gunakan sertifikat kelulusan BuilderHub yang Anda miliki untuk melakukan <strong>Transformasi Akun menjadi Programmer</strong>! Setelah disetujui admin, Anda dapat langsung melakukan penawaran (*bidding*) pada project real dari UMKM.
+          @else
+            Gunakan sertifikat kelulusan BuilderHub Anda untuk melakukan transformasi karir menjadi Programmer. <strong>Anda belum memiliki sertifikat kelulusan. Selesaikan minimal satu kelas untuk membuka fitur ini!</strong>
+          @endif
+        </p>
+      </div>
+      <div style="flex-shrink:0">
+        @if($hasCompletedCourse)
+          <a href="{{ route('course.upgrade-programmer') }}" class="btn btn-primary" style="background:linear-gradient(90deg, #6366F1, #8B5CF6);border:none;font-weight:700;box-shadow:0 4px 15px rgba(99, 102, 241, 0.3)">
+            Upgrade Akun Sekarang 🎓➔💼
+          </a>
+        @else
+          <button class="btn btn-primary" disabled style="background:linear-gradient(90deg, rgba(99,102,241,0.2), rgba(139,92,246,0.2));opacity:0.5;border:none;font-weight:700;cursor:not-allowed;display:inline-flex;align-items:center;gap:6px" title="Selesaikan minimal 1 course untuk membuka fitur upgrade">
+            🔒 Upgrade Akun Sekarang
+          </button>
+        @endif
+      </div>
+    </div>
+
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1rem">
       @forelse($enrollments->where('status', 'completed') as $enroll)
       @php $c = $enroll->course; @endphp
@@ -1339,46 +1478,6 @@ document.addEventListener('DOMContentLoaded', function() {
   
   if (myCoursesSearch) myCoursesSearch.addEventListener('input', filterMyCourses);
   if (myCoursesLevelFilter) myCoursesLevelFilter.addEventListener('change', filterMyCourses);
-
-  // 2. Explore Courses Pane filtering
-  const exploreSearch = document.getElementById('exploreSearch');
-  const exploreLevelFilter = document.getElementById('exploreLevelFilter');
-  const exploreCategoryFilter = document.getElementById('exploreCategoryFilter');
-  const exploreCourseItems = document.querySelectorAll('.explore-course-item');
-  const exploreEmptySearch = document.getElementById('exploreEmptySearch');
-  
-  function filterExploreCourses() {
-    const query = exploreSearch ? exploreSearch.value.toLowerCase().trim() : '';
-    const level = exploreLevelFilter ? exploreLevelFilter.value : '';
-    const category = exploreCategoryFilter ? exploreCategoryFilter.value : '';
-    let visibleCount = 0;
-    
-    exploreCourseItems.forEach(item => {
-      const title = item.getAttribute('data-title') || '';
-      const instructor = item.getAttribute('data-instructor') || '';
-      const cat = item.getAttribute('data-category') || '';
-      const itemLevel = item.getAttribute('data-level') || '';
-      
-      const matchesQuery = !query || title.includes(query) || instructor.includes(query) || cat.includes(query);
-      const matchesLevel = !level || itemLevel === level;
-      const matchesCategory = !category || cat === category;
-      
-      if (matchesQuery && matchesLevel && matchesCategory) {
-        item.style.setProperty('display', 'flex', 'important');
-        visibleCount++;
-      } else {
-        item.style.setProperty('display', 'none', 'important');
-      }
-    });
-    
-    if (exploreEmptySearch) {
-      exploreEmptySearch.style.display = (visibleCount === 0 && exploreCourseItems.length > 0) ? 'block' : 'none';
-    }
-  }
-  
-  if (exploreSearch) exploreSearch.addEventListener('input', filterExploreCourses);
-  if (exploreLevelFilter) exploreLevelFilter.addEventListener('change', filterExploreCourses);
-  if (exploreCategoryFilter) exploreCategoryFilter.addEventListener('change', filterExploreCourses);
 });
 </script>
 @endpush

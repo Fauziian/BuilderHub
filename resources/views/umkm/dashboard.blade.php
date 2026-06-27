@@ -153,10 +153,10 @@
         <div class="card-header"><span class="card-title">🛡 Status Verifikasi</span></div>
         @if($user->umkm_verified)
         <div style="background:var(--green-light);border:1px solid rgba(16,185,129,.3);border-radius:var(--radius);padding:.85rem 1rem;font-size:.85rem;color:#065F46;margin-bottom:.75rem">✅ UMKM Terverifikasi — Aktif</div>
-        <p style="font-size:.85rem;color:var(--text2);line-height:1.6">Dokumen legalitas Anda sudah diverifikasi tim BuilderHub. Project Anda lebih dipercaya programmer.</p>
+        <p style="font-size:.85rem;color:var(--text2);line-height:1.6">Data KTP dan Foto Tempat Usaha Anda sudah sukses diverifikasi oleh tim admin BuilderHub. Project Anda sekarang lebih dipercaya oleh Programmer.</p>
         @else
-        <div style="background:var(--orange-light);border:1px solid rgba(245,158,11,.3);border-radius:var(--radius);padding:.85rem 1rem;font-size:.85rem;color:#92400E;margin-bottom:.75rem">⏳ Belum Terverifikasi</div>
-        <p style="font-size:.85rem;color:var(--text2);line-height:1.6">Upload dokumen SIUP/NIB ke tim admin untuk mendapatkan badge <strong>UMKM Verified</strong> dan meningkatkan kepercayaan programmer.</p>
+        <div style="background:var(--orange-light);border:1px solid rgba(245,158,11,.3);border-radius:var(--radius);padding:.85rem 1rem;font-size:.85rem;color:#92400E;margin-bottom:.75rem">⏳ Menunggu Verifikasi Admin</div>
+        <p style="font-size:.85rem;color:var(--text2);line-height:1.6">Tim admin sedang meninjau data pendaftaran Anda (No. KTP, Foto KTP, dan Foto Usaha). Mohon tunggu hingga akun Anda disetujui sepenuhnya dalam 1x24 jam.</p>
         @endif
       </div>
     </div>
@@ -259,7 +259,7 @@
       </div>
       @endif
 
-      @if($project->status === 'open' && $project->bids->count())
+      @if($project->status === 'open' && !$project->assigned_programmer_id && $project->bids->count())
       <div style="background:var(--bg2);border-radius:var(--radius);padding:1rem;margin-bottom:.75rem">
         <div style="font-size:.85rem;font-weight:700;margin-bottom:.75rem">👥 Penawaran Masuk ({{ $project->bids->count() }})
           <span style="font-size:.75rem;font-weight:400;color:var(--text3)"> — Klik 💬 untuk chat & negosiasi harga sebelum menerima</span>
@@ -325,35 +325,131 @@
       </div>
       @endif
 
+      {{-- STATE 1: AWAITING PAYMENT (Rekber Unpaid) --}}
+      @if($project->status === 'open' && $project->assigned_programmer_id && $project->escrow_status === 'unpaid')
+      <div style="background:rgba(79,70,229,0.05);border:1.5px dashed var(--primary);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1rem;box-shadow:0 8px 24px rgba(79,70,229,0.06)">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem">
+          <div>
+            <div style="font-size:.95rem;font-weight:800;color:var(--text);display:flex;align-items:center;gap:6px">
+              <span>🎉</span> Penawaran Disetujui! Menunggu Pembayaran Rekber
+            </div>
+            <p style="font-size:.82rem;color:var(--text2);margin-top:4px;line-height:1.5">
+              Anda menyetujui penawaran <strong>{{ $project->programmer->name }}</strong>.<br>
+              Silakan depositokan dana Rekber sebesar <strong style="color:var(--primary)">Rp {{ number_format($project->budget, 0, ',', '.') }}</strong> agar programmer dapat mulai bekerja.
+            </p>
+          </div>
+          <div>
+            <button type="button" onclick="openEscrowPaymentModal({{ $project->id }}, '{{ addslashes($project->title) }}', '{{ addslashes($project->programmer->name) }}', {{ $project->budget }})" class="btn btn-primary btn-sm" style="display:inline-flex;align-items:center;gap:6px;box-shadow:0 4px 14px rgba(79,70,229,0.35);font-weight:700">
+              💳 Bayar Rekber (VA / QRIS)
+            </button>
+          </div>
+        </div>
+      </div>
+      @endif
+
+      {{-- STATE 2: IN PROGRESS (Dalam Pengerjaan) --}}
       @if($project->status === 'in_progress' && $project->programmer)
-      <div style="background:var(--orange-light);border:1px solid rgba(245,158,11,.2);border-radius:var(--radius);padding:.75rem;margin-bottom:.75rem;display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <span style="font-size:.85rem;font-weight:700">🧑‍💻 Dikerjakan: {{ $project->programmer->name }}</span>
-          @if($project->budget > 0)
-          <div style="font-size:.78rem;color:var(--text3);margin-top:2px">Budget Disepakati: <strong style="color:var(--primary)">Rp {{ number_format($project->budget, 0, ',', '.') }}</strong></div>
+      <div style="background:rgba(245,158,11,0.05);border:1.5px solid rgba(245,158,11,.25);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1rem">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:0.75rem">
+          <div>
+            <span style="font-size:.92rem;font-weight:800;color:var(--text);display:flex;align-items:center;gap:6px">
+              <span>⚙️</span> Project Sedang Dikerjakan
+            </span>
+            <div style="font-size:.8rem;color:var(--text3);margin-top:2px">
+              Programmer: <strong style="color:var(--text)">{{ $project->programmer->name }}</strong> · 
+              Budget Rekber: <strong style="color:var(--green)">Rp {{ number_format($project->budget, 0, ',', '.') }} (Held by Admin 🛡️)</strong>
+            </div>
+          </div>
+          <div style="display:flex;gap:.5rem;align-items:center">
+            @php
+              $unreadInProgressChatCount = \App\Models\Message::where('project_id', $project->id)
+                  ->where('sender_id', $project->programmer->id)
+                  ->where('receiver_id', auth()->id())
+                  ->where('is_read', false)
+                  ->count();
+            @endphp
+            <button onclick="openChat({{ $project->id }}, {{ $project->programmer->id }}, '{{ addslashes($project->programmer->name) }}', 'umkm')" class="btn btn-ghost btn-sm" style="display:inline-flex;align-items:center;gap:4px">
+              💬 Chat Programmer
+              @if($unreadInProgressChatCount > 0)
+                <span style="background:#EF4444;color:#fff;font-size:0.68rem;font-weight:800;padding:1px 5px;border-radius:10px;line-height:1">
+                  {{ $unreadInProgressChatCount }}
+                </span>
+              @endif
+            </button>
+            @if($project->project_progress == 100)
+            <form method="POST" action="{{ route('umkm.project.complete', $project) }}" onsubmit="return confirm('Apakah Anda yakin menyelesaikan project ini? Saldo bagi hasil (20% untuk programmer, 80% platform fee) akan segera dicairkan secara resmi.')" style="display:inline">
+              @csrf
+              <button type="submit" class="btn btn-success btn-sm" aria-label="Selesaikan project">✅ Selesaikan</button>
+            </form>
+            @endif
+          </div>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div style="margin-top:0.75rem">
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:.8rem;font-weight:700;margin-bottom:.35rem">
+            <span style="color:var(--text2)">Progress Pengerjaan</span>
+            <span style="color:var(--orange)">{{ $project->project_progress }}%</span>
+          </div>
+          <div class="progress-bar" style="height:8px;background:var(--border);border-radius:99px;overflow:hidden;margin:0">
+            <div class="progress-fill" style="width:{{ $project->project_progress }}%;height:100%;background:linear-gradient(90deg, #F59E0B, #D97706);border-radius:99px;transition:width 0.5s ease-in-out"></div>
+          </div>
+          <p style="font-size:.78rem;color:var(--text3);margin-top:.4rem">
+            ℹ️ Programmer dapat memperbarui progress secara berkala. Setelah progress mencapai 100% dan file dikirim, dana akan dicairkan otomatis.
+          </p>
+        </div>
+      </div>
+      @endif
+
+      {{-- STATE 3: COMPLETED DELIVERABLES (Berkas Pengiriman Project) --}}
+      @if($project->status === 'completed')
+      <div style="background:rgba(16,185,129,0.05);border:1.5px solid rgba(16,185,129,0.25);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1rem;box-shadow:0 4px 15px rgba(16,185,129,0.04)">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem;color:var(--green)">
+          <span style="font-size:1.25rem">📦</span>
+          <strong style="font-size:.9rem;font-weight:800">Hasil Pekerjaan & Berkas Project</strong>
+        </div>
+        <p style="font-size:.82rem;color:var(--text2);margin-bottom:1rem;line-height:1.5">
+          Selamat! Project ini telah selesai 100% dan berkas hasil pengerjaan telah diserahkan oleh programmer. Dana Rekber telah dicairkan secara otomatis. Silakan akses hasil pekerjaan di bawah ini:
+        </p>
+        
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));gap:0.75rem">
+          @if($project->zip_file)
+          <a href="{{ asset('storage/' . $project->zip_file) }}" class="btn btn-sm btn-success" style="display:inline-flex;align-items:center;justify-content:center;gap:6px;font-weight:700;font-size:.8rem;padding:10px" download>
+            📥 Download ZIP Berkas
+          </a>
+          @else
+          <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px;text-align:center;font-size:.78rem;color:var(--text3);font-weight:600">
+            📦 Berkas ZIP tidak tersedia
+          </div>
+          @endif
+          
+          @if($project->github_link)
+          <a href="{{ $project->github_link }}" target="_blank" class="btn btn-sm btn-ghost" style="border-color:#24292e;color:#24292e;background:#f6f8fa;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-weight:700;font-size:.8rem;padding:10px">
+            <svg viewBox="0 0 16 16" fill="currentColor" style="width:16px;height:16px"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+            Repository GitHub
+          </a>
+          @else
+          <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px;text-align:center;font-size:.78rem;color:var(--text3);font-weight:600">
+            🐙 GitHub tidak terlampir
+          </div>
+          @endif
+
+          @if($project->hosting_link)
+          <a href="{{ str_starts_with($project->hosting_link, 'http') ? $project->hosting_link : 'https://' . $project->hosting_link }}" target="_blank" class="btn btn-sm btn-ghost" style="border-color:var(--primary);color:var(--primary);background:var(--primary-light);display:inline-flex;align-items:center;justify-content:center;gap:6px;font-weight:700;font-size:.8rem;padding:10px">
+            🌐 Kunjungi Website
+          </a>
+          @else
+          <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px;text-align:center;font-size:.78rem;color:var(--text3);font-weight:600">
+            🌐 Hosting tidak terlampir
+          </div>
           @endif
         </div>
-        <div style="display:flex;gap:.5rem;align-items:center">
-          @php
-            $unreadInProgressChatCount = \App\Models\Message::where('project_id', $project->id)
-                ->where('sender_id', $project->programmer->id)
-                ->where('receiver_id', auth()->id())
-                ->where('is_read', false)
-                ->count();
-          @endphp
-          <button onclick="openChat({{ $project->id }}, {{ $project->programmer->id }}, '{{ addslashes($project->programmer->name) }}', 'umkm')" class="btn btn-ghost btn-sm" style="display:inline-flex;align-items:center;gap:4px">
-            💬 Chat Programmer
-            @if($unreadInProgressChatCount > 0)
-              <span style="background:#EF4444;color:#fff;font-size:0.68rem;font-weight:800;padding:1px 5px;border-radius:10px;line-height:1">
-                {{ $unreadInProgressChatCount }}
-              </span>
-            @endif
-          </button>
-          <form method="POST" action="{{ route('umkm.project.complete', $project) }}" onsubmit="return confirm('Tandai project sebagai selesai? Dana akan dikirim ke programmer.')">
-            @csrf
-            <button type="submit" class="btn btn-success btn-sm" aria-label="Selesaikan project">✅ Selesai & Bayar</button>
-          </form>
+        
+        @if($project->hosting_link)
+        <div style="font-size:.75rem;color:var(--text3);margin-top:10px;text-align:center">
+          URL Hosting Live: <strong style="color:var(--primary)">{{ $project->hosting_link }}</strong>
         </div>
+        @endif
       </div>
       @endif
 
@@ -436,6 +532,7 @@
 
   <!-- POSTING PROJECT -->
   <div id="upane-posting" style="display:none" role="tabpanel">
+    @if($user->umkm_verified)
     <!-- IMK: Clear form with field hints to guide user -->
     <div class="card" style="max-width:750px;margin:0 auto">
       <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:.5rem">📋 Posting Project Baru</h2>
@@ -518,6 +615,25 @@
         <button type="submit" class="btn btn-orange btn-full" aria-label="Submit posting project">🚀 Posting Project Sekarang</button>
       </form>
     </div>
+    @else
+    <div class="card" style="max-width:600px;margin:2rem auto;text-align:center;padding:3rem 2rem;border:1.5px dashed var(--orange);background:linear-gradient(135deg, var(--bg2), var(--bg));box-shadow:0 15px 35px rgba(0,0,0,0.15)">
+      <div style="font-size:3.8rem;margin-bottom:1.25rem;animation:lockBounce 2s ease-in-out infinite;display:inline-block">🔒</div>
+      <h3 style="font-size:1.35rem;font-weight:800;color:var(--text);margin-bottom:0.75rem;letter-spacing:-0.02em">Fitur Posting Project Terkunci</h3>
+      <p style="font-size:.92rem;color:var(--text2);line-height:1.6;margin-bottom:1.5rem">
+        Akun UMKM Anda belum diverifikasi oleh admin.<br>
+        <strong style="color:var(--orange);font-weight:700">Menunggu 1 x 24 jam verifikasi oleh admin agar dapat memosting project.</strong>
+      </p>
+      <div style="background:var(--orange-light);border:1px solid rgba(245,158,11,0.25);border-radius:var(--radius);padding:1.1rem;font-size:.85rem;color:#92400E;text-align:left;line-height:1.6">
+        <strong>🛡 Mengapa verifikasi ini diperlukan?</strong><br>
+        Demi menjaga keamanan transaksi, validitas data, dan kepercayaan para programmer di platform BuilderHub, tim admin kami sedang meninjau dokumen pendaftaran Anda:
+        <ul style="margin:6px 0 0 18px;padding:0">
+          <li>Nomor KTP & Foto KTP</li>
+          <li>Foto Bukti Tempat Usaha Fisik</li>
+        </ul>
+      </div>
+      <button onclick="showUTab('overview')" class="btn btn-ghost btn-sm" style="margin-top:1.75rem;border-color:var(--border);color:var(--text2);font-weight:600">Kembali ke Overview</button>
+    </div>
+    @endif
   </div>
 
   <!-- PROGRAMMERS TAB -->
@@ -589,6 +705,10 @@
 @keyframes badgePulse {
   0%, 100% { transform: scale(1); box-shadow: 0 2px 6px rgba(239,68,68,0.5); }
   50% { transform: scale(1.15); box-shadow: 0 4px 12px rgba(239,68,68,0.7); }
+}
+@keyframes lockBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
 }
 /* Sembunyikan panah drop-down bawaan browser yang kaku pada input datalist */
 input[list]::-webkit-calendar-picker-indicator {
@@ -808,6 +928,87 @@ function filterUmkmProjects() {
     resultText.style.display = 'none';
   }
 }
+
+// ===== ESCROW PAYMENT SYSTEM =====
+let currentPayProjectId = null;
+
+function openEscrowPaymentModal(projectId, title, programmerName, budget) {
+  currentPayProjectId = projectId;
+  const form = document.getElementById('escrowPaymentForm');
+  form.action = window.APP_URL + '/umkm/project/' + projectId + '/pay';
+  
+  document.getElementById('payProjectTitle').textContent = title;
+  document.getElementById('payProjectProgrammer').textContent = programmerName;
+  document.getElementById('payProjectBudget').textContent = 'Rp ' + budget.toLocaleString('id-ID');
+  
+  // Generate simulated VA numbers dynamically
+  const userId = '{{ auth()->id() }}';
+  // BNI VA prefix 98801, BRI 92002, BJB 95003, Mandiri 90004
+  window.vaNumbers = {
+    qris: '',
+    bni: '98801' + userId.toString().padStart(3, '0') + projectId.toString().padStart(4, '0'),
+    bri: '92002' + userId.toString().padStart(3, '0') + projectId.toString().padStart(4, '0'),
+    bjb: '95003' + userId.toString().padStart(3, '0') + projectId.toString().padStart(4, '0'),
+    mandiri: '90004' + userId.toString().padStart(3, '0') + projectId.toString().padStart(4, '0')
+  };
+  
+  // Select QRIS by default
+  const qrisRadio = document.querySelector('input[name="payment_method"][value="QRIS"]');
+  if (qrisRadio) qrisRadio.checked = true;
+  selectPayMethod('qris');
+  
+  document.getElementById('escrowPaymentModal').style.display = 'flex';
+  
+  // Hide mascot if visible
+  const mascot = document.getElementById('buddyMascot');
+  if(mascot) mascot.style.setProperty('display', 'none', 'important');
+}
+
+function closeEscrowPaymentModal() {
+  document.getElementById('escrowPaymentModal').style.display = 'none';
+  const mascot = document.getElementById('buddyMascot');
+  if(mascot) mascot.style.removeProperty('display');
+  if(window.checkMascotVisibility) window.checkMascotVisibility();
+}
+
+function selectPayMethod(method) {
+  // Reset borders & backgrounds on all card containers
+  ['qris', 'bni', 'bri', 'bjb'].forEach(m => {
+    const card = document.getElementById('pay_card_' + m);
+    if (card) {
+      card.style.borderColor = 'rgba(255,255,255,0.08)';
+      card.style.background = 'rgba(255,255,255,0.02)';
+    }
+  });
+  
+  // Highlight the selected one
+  const activeCard = document.getElementById('pay_card_' + method);
+  if (activeCard) {
+    activeCard.style.borderColor = 'var(--primary)';
+    activeCard.style.background = 'rgba(79,70,229,0.12)';
+  }
+  
+  // Show/hide detail panels
+  if (method === 'qris') {
+    document.getElementById('pay_detail_qris').style.display = 'block';
+    document.getElementById('pay_detail_va').style.display = 'none';
+  } else {
+    document.getElementById('pay_detail_qris').style.display = 'none';
+    document.getElementById('pay_detail_va').style.display = 'block';
+    
+    const vaNumber = window.vaNumbers[method] || '';
+    document.getElementById('vaNumberText').textContent = vaNumber;
+  }
+}
+
+function copyVaNumber() {
+  const num = document.getElementById('vaNumberText').textContent;
+  navigator.clipboard.writeText(num).then(() => {
+    alert('📋 Nomor Virtual Account berhasil disalin: ' + num);
+  }).catch(() => {
+    alert('Gagal menyalin. Silakan salin manual: ' + num);
+  });
+}
 </script>
 @endpush
 
@@ -850,4 +1051,147 @@ function filterUmkmProjects() {
     </form>
   </div>
 </div>
+
+<!-- ===== PAYMENT GATEWAY MODAL (REKBER ESCROW) ===== -->
+<div id="escrowPaymentModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(6px)">
+  <div style="background:#0f172a;border:1.5px solid rgba(255,255,255,.1);border-radius:20px;width:100%;max-width:540px;display:flex;flex-direction:column;box-shadow:0 25px 60px rgba(0,0,0,.8);overflow:hidden;color:#e2e8f0;font-family:inherit">
+    <!-- Header -->
+    <div style="padding:1.25rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg, #1e1b4b, #0f172a)">
+      <div>
+        <div style="font-weight:800;color:#fff;font-size:1.15rem;display:flex;align-items:center;gap:8px">
+          🛡️ Payment Gateway Rekber
+        </div>
+        <div style="font-size:.78rem;color:rgba(255,255,255,.6);margin-top:2px">Pembayaran Aman & Terlindungi oleh BuilderHub</div>
+      </div>
+      <button onclick="closeEscrowPaymentModal()" style="background:rgba(255,255,255,.08);border:none;border-radius:50%;width:32px;height:32px;color:#fff;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center">&times;</button>
+    </div>
+
+    <form id="escrowPaymentForm" method="POST">
+      @csrf
+      <div style="padding:1.5rem;max-height:70vh;overflow-y:auto">
+        <!-- Project Summary Card -->
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:1rem;margin-bottom:1.25rem">
+          <div style="font-size:0.75rem;color:var(--text3);text-transform:uppercase;font-weight:700">Project yang Dibayar</div>
+          <div id="payProjectTitle" style="font-size:0.95rem;font-weight:800;color:#fff;margin-top:2px">Judul Project</div>
+          <div style="font-size:0.8rem;color:var(--text2);margin-top:4px">Programmer: <strong id="payProjectProgrammer" style="color:var(--accent)">Nama Programmer</strong></div>
+          
+          <div style="border-top:1.5px dashed rgba(255,255,255,0.1);margin:0.75rem 0;padding-top:0.75rem;display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:0.85rem;color:#fff;font-weight:700">Total Pembayaran</span>
+            <span id="payProjectBudget" style="font-size:1.15rem;font-weight:800;color:var(--green)">Rp 0</span>
+          </div>
+        </div>
+
+        <!-- Payment Methods Grid -->
+        <div style="margin-bottom:1.25rem">
+          <label style="display:block;font-size:0.85rem;font-weight:700;margin-bottom:0.6rem;color:#fff">Pilih Metode Pembayaran</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+            
+            <!-- QRIS Option -->
+            <label style="cursor:pointer;position:relative">
+              <input type="radio" name="payment_method" value="QRIS" checked style="position:absolute;opacity:0" onchange="selectPayMethod('qris')">
+              <div id="pay_card_qris" style="border:2px solid var(--primary);background:rgba(79,70,229,0.15);border-radius:12px;padding:0.85rem;text-align:center;transition:all 0.2s">
+                <div style="font-size:1.5rem">🤳</div>
+                <div style="font-weight:800;font-size:0.85rem;color:#fff;margin-top:4px">QRIS / E-Wallet</div>
+                <div style="font-size:0.7rem;color:var(--text3);margin-top:2px">Gopay, OVO, Dana, LinkAja</div>
+              </div>
+            </label>
+
+            <!-- BNI VA Option -->
+            <label style="cursor:pointer;position:relative">
+              <input type="radio" name="payment_method" value="BNI Virtual Account" style="position:absolute;opacity:0" onchange="selectPayMethod('bni')">
+              <div id="pay_card_bni" style="border:2px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);border-radius:12px;padding:0.85rem;text-align:center;transition:all 0.2s">
+                <div style="font-size:1.5rem">🏦</div>
+                <div style="font-weight:800;font-size:0.85rem;color:#fff;margin-top:4px">BNI VA</div>
+                <div style="font-size:0.7rem;color:var(--text3);margin-top:2px">Transfer VA BNI</div>
+              </div>
+            </label>
+
+            <!-- BRI VA Option -->
+            <label style="cursor:pointer;position:relative">
+              <input type="radio" name="payment_method" value="BRI Virtual Account" style="position:absolute;opacity:0" onchange="selectPayMethod('bri')">
+              <div id="pay_card_bri" style="border:2px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);border-radius:12px;padding:0.85rem;text-align:center;transition:all 0.2s">
+                <div style="font-size:1.5rem">🏦</div>
+                <div style="font-weight:800;font-size:0.85rem;color:#fff;margin-top:4px">BRI BRIVA</div>
+                <div style="font-size:0.7rem;color:var(--text3);margin-top:2px">Transfer BRIVA</div>
+              </div>
+            </label>
+
+            <!-- BJB VA Option -->
+            <label style="cursor:pointer;position:relative">
+              <input type="radio" name="payment_method" value="BJB Virtual Account" style="position:absolute;opacity:0" onchange="selectPayMethod('bjb')">
+              <div id="pay_card_bjb" style="border:2px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);border-radius:12px;padding:0.85rem;text-align:center;transition:all 0.2s">
+                <div style="font-size:1.5rem">🏦</div>
+                <div style="font-weight:800;font-size:0.85rem;color:#fff;margin-top:4px">BJB VA</div>
+                <div style="font-size:0.7rem;color:var(--text3);margin-top:2px">Transfer VA BJB</div>
+              </div>
+            </label>
+
+          </div>
+        </div>
+
+        <!-- Dynamic Payment Instructions Screen -->
+        <div style="background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.1);border-radius:14px;padding:1.25rem">
+          
+          <!-- QRIS Detail Panel -->
+          <div id="pay_detail_qris" style="display:block;text-align:center">
+            <div style="font-weight:800;font-size:0.9rem;color:#fff;margin-bottom:0.5rem">Scan Kode QRIS di Bawah Ini</div>
+            
+            <!-- Simulated QR Code Card with animation -->
+            <div style="position:relative;width:180px;height:180px;margin:1rem auto;background:#fff;border-radius:12px;padding:10px;box-shadow:0 0 20px rgba(16,185,129,0.25);border:3px solid #10b981">
+              <!-- Moving laser line -->
+              <div style="position:absolute;left:10px;right:10px;height:3px;background:#10b981;box-shadow:0 0 8px #10b981;animation:qrisLaser 2s linear infinite;z-index:5"></div>
+              <!-- QR Image -->
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=BuilderHubEscrowPayment" style="width:100%;height:100%;display:block" alt="QRIS Code">
+            </div>
+            
+            <p style="font-size:0.78rem;color:var(--text3);line-height:1.5">
+              Buka aplikasi e-wallet Anda (Gopay, OVO, ShopeePay, Dana) atau aplikasi mobile banking, lalu scan kode QR di atas untuk membayar.
+            </p>
+          </div>
+
+          <!-- VA Detail Panel -->
+          <div id="pay_detail_va" style="display:none">
+            <div style="font-weight:700;font-size:0.88rem;color:#fff;margin-bottom:0.6rem">Nomor Virtual Account Anda</div>
+            
+            <div style="display:flex;align-items:center;background:rgba(0,0,0,0.3);border:1.5px solid rgba(255,255,255,0.1);border-radius:10px;padding:0.75rem 1rem;margin-bottom:1rem;justify-content:space-between">
+              <span id="vaNumberText" style="font-size:1.25rem;font-weight:900;color:var(--accent);letter-spacing:1.5px">98801123456789</span>
+              <button type="button" onclick="copyVaNumber()" style="background:var(--primary);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:0.75rem;font-weight:700;cursor:pointer;transition:all 0.15s">
+                📋 Salin
+              </button>
+            </div>
+            
+            <div style="font-size:0.8rem;color:#fff;font-weight:700;margin-bottom:4px">Petunjuk Transfer:</div>
+            <ul style="font-size:0.75rem;color:var(--text2);margin:0;padding-left:16px;line-height:1.6">
+              <li>Pilih menu Transfer atau Pembayaran Virtual Account pada ATM / Mobile Banking Anda.</li>
+              <li>Masukkan Nomor Virtual Account di atas.</li>
+              <li>Pastikan nama merchant yang muncul adalah <strong style="color:#fff">BuilderHub Escrow</strong>.</li>
+              <li>Masukkan jumlah dana sesuai nominal project.</li>
+              <li>Transaksi akan otomatis terverifikasi setelah transfer berhasil.</li>
+            </ul>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Footer Buttons -->
+      <div style="padding:1.25rem 1.5rem;border-top:1px solid rgba(255,255,255,.08);display:flex;gap:0.75rem;background:rgba(255,255,255,0.01)">
+        <button type="submit" class="btn btn-success" style="flex:1;font-weight:800;font-size:0.9rem;box-shadow:0 4px 15px rgba(16,185,129,0.3)">
+          ✅ Konfirmasi Pembayaran Berhasil
+        </button>
+        <button type="button" onclick="closeEscrowPaymentModal()" class="btn btn-ghost" style="color:var(--text2);border-color:var(--border)">
+          Batal
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+@keyframes qrisLaser {
+  0% { top: 10px; }
+  50% { top: 170px; }
+  100% { top: 10px; }
+}
+</style>
 @endsection

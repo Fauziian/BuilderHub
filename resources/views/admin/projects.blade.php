@@ -38,6 +38,25 @@
   </div>
 </div>
 <div class="dash-layout">
+  <form method="GET" style="display:flex;gap:.75rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center" role="search">
+    <div style="position:relative;flex:1;max-width:380px">
+      <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:0.95rem">🔍</span>
+      <input name="search" class="form-input" style="padding-left:42px;height:46px;border-radius:12px;border:2px solid var(--border)" placeholder="Cari judul project, deskripsi, atau UMKM..." value="{{ request('search') }}" aria-label="Cari project">
+    </div>
+    <select name="status" class="form-select" style="width:auto;height:46px;border-radius:12px;border:2px solid var(--border);font-weight:600" aria-label="Filter status">
+      <option value="">Semua Status</option>
+      <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending (Menunggu ACC)</option>
+      <option value="open" {{ request('status') === 'open' ? 'selected' : '' }}>Dibuka (Open)</option>
+      <option value="in_progress" {{ request('status') === 'in_progress' ? 'selected' : '' }}>Dikerjakan (In Progress)</option>
+      <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>Selesai (Completed)</option>
+      <option value="cancelled" {{ request('status') === 'cancelled' ? 'selected' : '' }}>Dibatalkan</option>
+    </select>
+    <button type="submit" class="btn btn-primary" style="height:46px;padding:0 24px;border-radius:12px">Cari & Filter</button>
+    @if(request()->hasAny(['search','status']))
+      <a href="{{ route('admin.projects') }}" class="btn btn-ghost" style="height:46px;padding:0 20px;border-radius:12px;display:inline-flex;align-items:center">Reset 🔄</a>
+    @endif
+  </form>
+
   <div class="card">
     <div class="table-wrap">
       <table class="data-table">

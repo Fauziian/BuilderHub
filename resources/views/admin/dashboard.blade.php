@@ -189,17 +189,43 @@
         <span class="card-title">✅ Verifikasi Programmer Pending ({{ $stats['pending_verifications'] }})</span>
       </div>
       @forelse($pendingProgrammers as $prog)
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:.6rem 0;border-bottom:1px solid var(--border)">
-        <div style="display:flex;align-items:center;gap.5rem">
-          <div style="width:32px;height:32px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.8rem;margin-right:.5rem">{{ strtoupper(substr($prog->name,0,1)) }}</div>
-          <div>
-            <div style="font-size:.875rem;font-weight:700">{{ $prog->name }}</div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:1rem 0;border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:flex-start;gap:.5rem;flex:1">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.85rem;margin-right:.5rem;flex-shrink:0">{{ strtoupper(substr($prog->name,0,1)) }}</div>
+          <div style="flex:1">
+            <div style="font-size:.9rem;font-weight:800;color:var(--text)">{{ $prog->name }}</div>
+            <div style="font-size:.78rem;color:var(--text3);margin-bottom:0.5rem">{{ $prog->city ?? 'Kota belum diisi' }} · {{ $prog->phone ?? 'No HP belum diisi' }}</div>
+            
+            <!-- Dokumen Pendaftaran Sah -->
+            <div style="background:rgba(255,255,255,0.03);border:1px dashed var(--border);border-radius:var(--radius-sm);padding:0.6rem;margin-bottom:0.6rem;font-size:0.8rem">
+              <div style="margin-bottom:0.4rem">
+                <span style="color:var(--text3)">No. KTP:</span> 
+                <strong style="color:var(--text);font-family:monospace">{{ $prog->ktp_number ?? '—' }}</strong>
+              </div>
+              <div style="display:flex;gap:0.4rem;flex-wrap:wrap">
+                @if($prog->ktp_photo)
+                  <a href="{{ asset('storage/' . $prog->ktp_photo) }}" target="_blank" class="btn btn-xs" style="background:rgba(79, 70, 229, 0.1);color:#818CF8;border:1px solid rgba(79, 70, 229, 0.3);font-size:0.72rem;padding:4px 8px;border-radius:4px;font-weight:600">🪪 Lihat KTP</a>
+                @endif
+                @if($prog->cv_file)
+                  <a href="{{ asset('storage/' . $prog->cv_file) }}" target="_blank" class="btn btn-xs" style="background:rgba(16, 185, 129, 0.1);color:#34D399;border:1px solid rgba(16, 185, 129, 0.3);font-size:0.72rem;padding:4px 8px;border-radius:4px;font-weight:600">📄 Lihat CV</a>
+                @endif
+                @if($prog->portfolio_file)
+                  <a href="{{ asset('storage/' . $prog->portfolio_file) }}" target="_blank" class="btn btn-xs" style="background:rgba(245, 158, 11, 0.1);color:#FBBF24;border:1px solid rgba(245, 158, 11, 0.3);font-size:0.72rem;padding:4px 8px;border-radius:4px;font-weight:600">💼 Portofolio Awal</a>
+                @endif
+              </div>
+            </div>
+
             <!-- Portofolio list -->
             <div style="margin-top: 0.35rem;">
               <span style="font-size:.78rem;font-weight:600;color:var(--primary)">🗂 Portofolio ({{ $prog->portfolios->count() }}):</span>
               <ul style="margin: 2px 0 0 10px; padding: 0; font-size: .75rem; color: var(--text2); list-style-type: disc;">
                 @forelse($prog->portfolios as $p)
-                  <li><strong>{{ $p->title }}</strong>: {{ Str::limit($p->description, 50) }}</li>
+                  <li>
+                    <strong>{{ $p->title }}</strong>: {{ Str::limit($p->description, 50) }}
+                    @if($p->portfolio_file)
+                      · <a href="{{ asset('storage/' . $p->portfolio_file) }}" target="_blank" style="color:var(--primary);text-decoration:underline;font-weight:600">Lihat Lampiran 📷</a>
+                    @endif
+                  </li>
                 @empty
                   <li style="color: var(--text3); list-style-type: none; margin-left: -10px;">Belum ada portofolio</li>
                 @endforelse
@@ -210,7 +236,12 @@
               <span style="font-size:.78rem;font-weight:600;color:var(--green)">📜 Sertifikat ({{ $prog->certificates->count() }}):</span>
               <ul style="margin: 2px 0 0 10px; padding: 0; font-size: .75rem; color: var(--text2); list-style-type: disc;">
                 @forelse($prog->certificates as $c)
-                  <li><strong>{{ $c->name }}</strong> (oleh {{ $c->issuer }})</li>
+                  <li>
+                    <strong>{{ $c->name }}</strong> (oleh {{ $c->issuer }})
+                    @if($c->certificate_file)
+                      · <a href="{{ asset('storage/' . $c->certificate_file) }}" target="_blank" style="color:var(--primary);text-decoration:underline;font-weight:600">Lihat Lampiran 📷</a>
+                    @endif
+                  </li>
                 @empty
                   <li style="color: var(--text3); list-style-type: none; margin-left: -10px;">Belum ada sertifikat</li>
                 @endforelse
@@ -218,13 +249,15 @@
             </div>
           </div>
         </div>
-        <form method="POST" action="{{ route('admin.verify-programmer', $prog) }}">
-          @csrf
-          <button type="submit" class="btn btn-success btn-sm" aria-label="Verifikasi programmer {{ $prog->name }}">Verifikasi</button>
-        </form>
+        <div style="flex-shrink:0;margin-left:0.5rem">
+          <form method="POST" action="{{ route('admin.verify-programmer', $prog) }}">
+            @csrf
+            <button type="submit" class="btn btn-success btn-sm" style="background:var(--green);border-color:var(--green);font-weight:600" aria-label="Verifikasi programmer {{ $prog->name }}">Verifikasi ✅</button>
+          </form>
+        </div>
       </div>
       @empty
-      <p style="color:var(--text3);font-size:.875rem">Tidak ada pending verifikasi. 🎉</p>
+      <p style="color:var(--text3);font-size:.875rem;padding:1rem 0">Tidak ada pending verifikasi. 🎉</p>
       @endforelse
     </div>
 
@@ -234,21 +267,39 @@
         <span class="card-title">🏢 Verifikasi UMKM Pending ({{ $stats['umkm_pending'] }})</span>
       </div>
       @forelse($pendingUmkms as $umkm)
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:.6rem 0;border-bottom:1px solid var(--border)">
-        <div style="display:flex;align-items:center;gap.5rem">
-          <div style="width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.8rem;margin-right:.5rem">{{ strtoupper(substr($umkm->name,0,1)) }}</div>
-          <div>
-            <div style="font-size:.875rem;font-weight:600">{{ $umkm->business_name ?? $umkm->name }}</div>
-            <div style="font-size:.75rem;color:var(--text3)">{{ $umkm->city }}</div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:1rem 0;border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:flex-start;gap:.5rem;flex:1">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.85rem;margin-right:.5rem;flex-shrink:0">{{ strtoupper(substr($umkm->name,0,1)) }}</div>
+          <div style="flex:1">
+            <div style="font-size:.9rem;font-weight:800;color:var(--text)">{{ $umkm->business_name ?? $umkm->name }}</div>
+            <div style="font-size:.78rem;color:var(--text3);margin-bottom:0.5rem">Pemilik: {{ $umkm->name }} · {{ $umkm->city ?? 'Kota belum diisi' }} · {{ $umkm->phone ?? 'No HP belum diisi' }}</div>
+            
+            <!-- Dokumen Pendaftaran Sah -->
+            <div style="background:rgba(255,255,255,0.03);border:1px dashed var(--border);border-radius:var(--radius-sm);padding:0.6rem;font-size:0.8rem">
+              <div style="margin-bottom:0.4rem">
+                <span style="color:var(--text3)">No. KTP:</span> 
+                <strong style="color:var(--text);font-family:monospace">{{ $umkm->ktp_number ?? '—' }}</strong>
+              </div>
+              <div style="display:flex;gap:0.4rem;flex-wrap:wrap">
+                @if($umkm->ktp_photo)
+                  <a href="{{ asset('storage/' . $umkm->ktp_photo) }}" target="_blank" class="btn btn-xs" style="background:rgba(79, 70, 229, 0.1);color:#818CF8;border:1px solid rgba(79, 70, 229, 0.3);font-size:0.72rem;padding:4px 8px;border-radius:4px;font-weight:600">🪪 Lihat KTP</a>
+                @endif
+                @if($umkm->business_photo)
+                  <a href="{{ asset('storage/' . $umkm->business_photo) }}" target="_blank" class="btn btn-xs" style="background:rgba(16, 185, 129, 0.1);color:#34D399;border:1px solid rgba(16, 185, 129, 0.3);font-size:0.72rem;padding:4px 8px;border-radius:4px;font-weight:600">🏪 Lihat Foto Usaha</a>
+                @endif
+              </div>
+            </div>
           </div>
         </div>
-        <form method="POST" action="{{ route('admin.verify-umkm', $umkm) }}">
-          @csrf
-          <button type="submit" class="btn btn-success btn-sm" aria-label="Verifikasi UMKM {{ $umkm->name }}">Verifikasi</button>
-        </form>
+        <div style="flex-shrink:0;margin-left:0.5rem">
+          <form method="POST" action="{{ route('admin.verify-umkm', $umkm) }}">
+            @csrf
+            <button type="submit" class="btn btn-success btn-sm" style="background:var(--green);border-color:var(--green);font-weight:600" aria-label="Verifikasi UMKM {{ $umkm->name }}">Verifikasi ✅</button>
+          </form>
+        </div>
       </div>
       @empty
-      <p style="color:var(--text3);font-size:.875rem">Tidak ada pending verifikasi. 🎉</p>
+      <p style="color:var(--text3);font-size:.875rem;padding:1rem 0">Tidak ada pending verifikasi. 🎉</p>
       @endforelse
     </div>
   </div>
@@ -283,6 +334,9 @@
           @if($p->project_url)
             <div style="font-size:.75rem;color:var(--primary);margin-top:4px"><a href="{{ $p->project_url }}" target="_blank">🔗 Lihat Project</a></div>
           @endif
+          @if($p->portfolio_file)
+            <div style="font-size:.75rem;color:var(--primary);margin-top:4px"><a href="{{ asset('storage/' . $p->portfolio_file) }}" target="_blank">📷 Lihat Lampiran / Hasil Scan</a></div>
+          @endif
         </div>
         <div style="flex-shrink:0;display:flex;gap:.5rem;align-items:center">
           <form method="POST" action="{{ route('admin.portfolio.approve', $p) }}">
@@ -309,6 +363,9 @@
           <p style="font-size:.82rem;color:var(--text2);margin-bottom:.25rem;line-height:1.5">Penerbit: <strong>{{ $c->issuer }}</strong> @if($c->issue_date) · Tanggal: {{ $c->issue_date->format('M Y') }} @endif</p>
           @if($c->credential_url)
             <div style="font-size:.75rem;color:var(--primary);margin-top:4px"><a href="{{ $c->credential_url }}" target="_blank">🔗 Lihat Kredensial</a></div>
+          @endif
+          @if($c->certificate_file)
+            <div style="font-size:.75rem;color:var(--primary);margin-top:4px"><a href="{{ asset('storage/' . $c->certificate_file) }}" target="_blank">📷 Lihat Lampiran / Hasil Scan</a></div>
           @endif
         </div>
         <div style="flex-shrink:0;display:flex;gap:.5rem;align-items:center">

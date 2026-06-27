@@ -9,13 +9,16 @@ class Project extends Model
     protected $fillable = [
         'umkm_id', 'title', 'description', 'budget', 'deadline',
         'status', 'category', 'tags', 'assigned_programmer_id',
-        'platform_fee', 'programmer_earning'
+        'platform_fee', 'programmer_earning',
+        'escrow_status', 'payment_method', 'project_progress',
+        'github_link', 'zip_file', 'hosting_link', 'payment_date'
     ];
 
     protected $casts = [
         'tags' => 'array',
         'deadline' => 'date',
         'budget' => 'decimal:2',
+        'payment_date' => 'datetime',
     ];
 
     public function umkm()

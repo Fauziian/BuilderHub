@@ -71,6 +71,7 @@ Route::prefix('programmer')->name('programmer.')->middleware('auth')->group(func
     // Chat with UMKM
     Route::post('/project/{project}/message', [UmkmController::class, 'sendMessage'])->name('project.message');
     Route::get('/project/{project}/messages', [UmkmController::class, 'getMessages'])->name('project.messages');
+    Route::post('/project/{project}/update-progress', [ProgrammerController::class, 'updateProgress'])->name('project.update-progress');
 });
 
 // UMKM routes
@@ -86,6 +87,7 @@ Route::prefix('umkm')->name('umkm.')->middleware('auth')->group(function () {
     Route::post('/bid/{bid}/accept', [UmkmController::class, 'acceptBid'])->name('bid.accept');
     Route::post('/bid/{bid}/reject', [UmkmController::class, 'rejectBid'])->name('bid.reject');
     Route::post('/project/{project}/complete', [UmkmController::class, 'completeProject'])->name('project.complete');
+    Route::post('/project/{project}/pay', [UmkmController::class, 'payProject'])->name('project.pay');
 
     // Rating Programmer (oleh UMKM, setelah project selesai)
     Route::post('/project/{project}/rate', [RatingController::class, 'rateProject'])->name('project.rate');
@@ -108,6 +110,10 @@ Route::prefix('course-manager')->name('course.')->middleware('auth')->group(func
     Route::delete('/video/{video}', [CourseController::class, 'deleteVideo'])->name('video.delete');
     Route::post('/course/{course}/enroll', [CourseController::class, 'enroll'])->name('enroll');
     Route::post('/course/{course}/complete', [CourseController::class, 'complete'])->name('complete');
+
+    // Upgrade Akun Pelajar ke Programmer
+    Route::get('/upgrade-programmer', [CourseController::class, 'showUpgradeForm'])->name('upgrade-programmer');
+    Route::post('/upgrade-programmer', [CourseController::class, 'processUpgrade'])->name('upgrade-programmer.submit');
 
     // Rating Programmer (oleh Pelajar, setelah course selesai)
     Route::post('/course/{course}/rate', [RatingController::class, 'rateCourse'])->name('course.rate');

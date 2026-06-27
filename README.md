@@ -99,9 +99,9 @@ Gunakan kredensial berikut untuk menguji masing-masing role (semua password adal
 | Role | Email | Password | Kegunaan |
 | :--- | :--- | :--- | :--- |
 | **Admin** | `admin@builderhub.id` | `password` | Menyetujui/menolak project baru dari UMKM |
-| **UMKM** | `budi@batik.id` | `password` | Memposting project baru & negosiasi harga |
-| **Programmer** | `rizky@builderhub.id` | `password` | Mengajukan bids, memodifikasi tawaran, & chat |
-| **Pelajar** | `student@builderhub.id` | `password` | Mengikuti kursus & belajar |
+| **UMKM** | `rifqiumkm@gmail.com` | `password` | Memposting project baru & negosiasi harga |
+| **Programmer** | `rifqiprogrammer@gmail.com` | `password` | Mengajukan bids, memodifikasi tawaran, & chat |
+| **Pelajar** | `rifqipelajar@gmail.com` | `password` | Mengikuti kursus & belajar |
 
 ---
 
