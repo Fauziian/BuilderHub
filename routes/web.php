@@ -148,7 +148,7 @@ Route::get('/migrate-db', function () {
         \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
         return '<pre>Migrasi dan Seeding Berhasil!<br>' . \Illuminate\Support\Facades\Artisan::output() . '</pre>';
     } catch (\Exception $e) {
-        return 'Terjadi kesalahan saat migrasi: ' . $e->getMessage();
+                return 'Terjadi kesalahan saat migrasi: <pre>' . (string)$e . '</pre>';
     }
 })->withoutMiddleware('web');
 
