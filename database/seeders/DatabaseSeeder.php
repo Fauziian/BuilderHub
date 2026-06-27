@@ -1214,10 +1214,70 @@ class DatabaseSeeder extends Seeder
             }
         }
 
-        // Course Videos for course1
-        CourseVideo::create(['course_id' => $course1->id, 'title' => 'Pengenalan HTML & CSS Dasar', 'video_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ', 'duration' => '45 menit', 'order' => 1]);
-        CourseVideo::create(['course_id' => $course1->id, 'title' => 'JavaScript Fundamentals', 'video_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ', 'duration' => '60 menit', 'order' => 2]);
-        CourseVideo::create(['course_id' => $course1->id, 'title' => 'Pengenalan React.js', 'video_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ', 'duration' => '55 menit', 'order' => 3]);
+        // Post-process all courses to guarantee that they all have correct videos, durations, presets, and totals
+        $allCourses = Course::all();
+        foreach ($allCourses as $c) {
+            // Delete any existing videos to ensure no duplicate or stale entries
+            CourseVideo::where('course_id', $c->id)->delete();
+
+            $lowerTitle = strtolower($c->title);
+            $presetKey = 'html';
+            if (str_contains($lowerTitle, 'laravel')) { $presetKey = 'laravel'; }
+            elseif (str_contains($lowerTitle, 'html')) { $presetKey = 'html'; }
+            elseif (str_contains($lowerTitle, 'css')) { $presetKey = 'css'; }
+            elseif (str_contains($lowerTitle, 'javascript') || str_contains($lowerTitle, 'js')) { $presetKey = 'js'; }
+            elseif (str_contains($lowerTitle, 'php')) { $presetKey = 'php'; }
+            elseif (str_contains($lowerTitle, 'mysql')) { $presetKey = 'mysql'; }
+            elseif (str_contains($lowerTitle, 'react')) { $presetKey = 'react'; }
+            elseif (str_contains($lowerTitle, 'node')) { $presetKey = 'node'; }
+            elseif (str_contains($lowerTitle, 'flutter')) { $presetKey = 'flutter'; }
+            elseif (str_contains($lowerTitle, 'git')) { $presetKey = 'git'; }
+
+            $videos = $presetVideos[$presetKey] ?? [
+                ['title' => 'HTML5', 'url' => 'https://www.youtube.com/watch?v=Q2VqCG13ejA&list=PLFIM0718LjIX-K5eeHRImnZhPUMhsw9A7', 'dur' => '18 menit']
+            ];
+
+            foreach ($videos as $vIdx => $vData) {
+                CourseVideo::create([
+                    'course_id' => $c->id,
+                    'title' => $vData['title'],
+                    'video_url' => $vData['url'],
+                    'duration' => $vData['dur'],
+                    'order' => $vIdx + 1,
+                ]);
+            }
+
+            // Calculate total duration
+            $totalMinutes = 0;
+            foreach ($videos as $vData) {
+                $durStr = strtolower($vData['dur']);
+                if (str_contains($durStr, 'jam')) {
+                    preg_match('/(\d+)\s*jam/', $durStr, $jamMatches);
+                    preg_match('/(\d+)\s*menit/', $durStr, $menitMatches);
+                    $jam = isset($jamMatches[1]) ? intval($jamMatches[1]) : 0;
+                    $menit = isset($menitMatches[1]) ? intval($menitMatches[1]) : 0;
+                    $totalMinutes += ($jam * 60) + $menit;
+                } else {
+                    preg_match('/(\d+)\s*menit/', $durStr, $menitMatches);
+                    $menit = isset($menitMatches[1]) ? intval($menitMatches[1]) : 0;
+                    $totalMinutes += $menit;
+                }
+            }
+
+            if ($totalMinutes >= 60) {
+                $h = intval($totalMinutes / 60);
+                $m = $totalMinutes % 60;
+                $durationFormatted = $h . ' jam' . ($m > 0 ? ' ' . $m . ' menit' : '');
+            } else {
+                $durationFormatted = $totalMinutes . ' menit';
+            }
+
+            $c->update([
+                'total_videos' => count($videos),
+                'duration' => $durationFormatted,
+                'thumbnail' => $presetKey,
+            ]);
+        }
 
         // Enrollments
         CourseEnrollment::create(['course_id' => $course1->id, 'user_id' => $student->id, 'amount_paid' => 0, 'status' => 'active']);
