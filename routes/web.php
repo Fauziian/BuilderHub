@@ -137,3 +137,17 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::post('/certificate/{certificate}/approve', [AdminController::class, 'approveCertificate'])->name('certificate.approve');
     Route::post('/certificate/{certificate}/reject', [AdminController::class, 'rejectCertificate'])->name('certificate.reject');
 });
+
+// Helper route untuk melakukan migrasi dan seeding database di Vercel secara mudah
+Route::get('/migrate-db', function () {
+    if (request('secret') !== 'builderhub123') {
+        return response('Akses ditolak. Token tidak valid.', 403);
+    }
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
+        return '<pre>Migrasi dan Seeding Berhasil!<br>' . \Illuminate\Support\Facades\Artisan::output() . '</pre>';
+    } catch (\Exception $e) {
+        return 'Terjadi kesalahan saat migrasi: ' . $e->getMessage();
+    }
+});
