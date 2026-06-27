@@ -840,65 +840,306 @@ class DatabaseSeeder extends Seeder
             [
                 'title' => 'Struktur Konten Web Kompleks',
                 'description' => 'Bagaimana membuat struktur data semantis untuk artikel blog, galeri foto, dan embed video pihak ketiga.',
-                'price' => 260000,
-                'level' => 'menengah',
+'level' => 'menengah',
                 'category' => 'Frontend',
                 'thumbnail' => 'html',
                 'total_students' => 60,
-                'rating' => 4.6,
-                'duration' => '35 menit',
-                'videos' => [
-                    ['title' => 'HTML bagian 2', 'url' => 'https://www.youtube.com/embed/qwKm_7GmgBU', 'dur' => '14 menit'],
-                    ['title' => 'CSS bagian 1', 'url' => 'https://www.youtube.com/embed/V-DD30lGAL0', 'dur' => '21 menit']
-                ]
-            ],
-            [
-                'title' => 'Membangun Landing Page Portofolio Pribadi',
-                'description' => 'Praktik langsung membuat portofolio karir programmer Anda sendiri menggunakan HTML5 dan CSS modern.',
-                'price' => 280000,
-                'level' => 'mahir',
-                'category' => 'Frontend',
-                'thumbnail' => 'html',
-                'total_students' => 88,
-                'rating' => 4.9,
-                'duration' => '46 menit',
-                'videos' => [
-                    ['title' => 'Belajar HTML untuk pemula', 'url' => 'https://www.youtube.com/embed/0oA1Z6UKM5M', 'dur' => '11 menit'],
-                    ['title' => 'HTML bagian 2', 'url' => 'https://www.youtube.com/embed/qwKm_7GmgBU', 'dur' => '14 menit'],
-                    ['title' => 'CSS bagian 1', 'url' => 'https://www.youtube.com/embed/V-DD30lGAL0', 'dur' => '21 menit']
-                ]
-            ],
-            [
-                'title' => 'Arsitektur CSS Skala Besar (BEM & Sass)',
-                'description' => 'Cara menjaga agar file CSS Anda tetap rapi, modular, dan tidak tumpang tindih untuk proyek berskala besar.',
-                'price' => 290000,
-                'level' => 'mahir',
-                'category' => 'Frontend',
-                'thumbnail' => 'css',
-                'total_students' => 52,
-                'rating' => 4.8,
-                'duration' => '21 menit',
-                'videos' => [
-                    ['title' => 'CSS bagian 1', 'url' => 'https://www.youtube.com/embed/V-DD30lGAL0', 'dur' => '21 menit']
-                ]
-            ],
-            [
-                'title' => 'Fullstack Web App React + Laravel 11',
-                'description' => 'Bangun aplikasi inventory real-time menggunakan React.js di frontend dan Laravel 11 API di backend.',
-                'price' => 300000,
-                'level' => 'mahir',
-                'category' => 'Fullstack',
-                'thumbnail' => 'laravel',
-                'total_students' => 99,
-                'rating' => 4.9,
-                'duration' => '46 menit',
-                'videos' => [
-                    ['title' => 'Belajar HTML untuk pemula', 'url' => 'https://www.youtube.com/embed/0oA1Z6UKM5M', 'dur' => '11 menit'],
-                    ['title' => 'HTML bagian 2', 'url' => 'https://www.youtube.com/embed/qwKm_7GmgBU', 'dur' => '14 menit'],
-                    ['title' => 'CSS bagian 1', 'url' => 'https://www.youtube.com/embed/V-DD30lGAL0', 'dur' => '21 menit']
-                ]
+                'rating' => 4.6
             ]
         ];
+
+        // 50 Courses for rifqiProgrammer
+        $courseTemplates = [
+            [
+                'title' => 'HTML & CSS Dasar untuk Desain Web',
+                'description' => 'Mulai belajar membuat website pertama Anda dari dasar HTML5 hingga dasar styling CSS3.',
+                'level' => 'pemula', 'category' => 'Frontend', 'thumbnail' => 'html'
+            ],
+            [
+                'title' => 'Kuasai Semantik HTML5',
+                'description' => 'Pelajari cara menulis markup HTML yang semantis dan terstruktur untuk mempermudah SEO dan aksesibilitas.',
+                'level' => 'pemula', 'category' => 'Frontend', 'thumbnail' => 'html'
+            ],
+            [
+                'title' => 'CSS Grid & Flexbox untuk Layout Modern',
+                'description' => 'Kuasai teknik layout modern menggunakan Flexbox dan Grid untuk website yang sangat responsive.',
+                'level' => 'pemula', 'category' => 'Frontend', 'thumbnail' => 'css'
+            ],
+            [
+                'title' => 'Animasi CSS Tingkat Lanjut',
+                'description' => 'Tambahkan transisi, transformasi, dan keyframe animasi interaktif untuk mempercantik UI/UX web Anda.',
+                'level' => 'menengah', 'category' => 'Frontend', 'thumbnail' => 'css'
+            ],
+            [
+                'title' => 'Dasar Pemrograman JavaScript',
+                'description' => 'Pelajari variabel, tipe data, kondisi, looping, fungsi, dan logika dasar pemrograman Javascript.',
+                'level' => 'pemula', 'category' => 'Frontend', 'thumbnail' => 'js'
+            ],
+            [
+                'title' => 'DOM Manipulation dengan Vanilla JS',
+                'description' => 'Manipulasi elemen HTML, class CSS, event listener, dan buat web Anda interaktif tanpa library.',
+                'level' => 'pemula', 'category' => 'Frontend', 'thumbnail' => 'js'
+            ],
+            [
+                'title' => 'JavaScript ES6+ Konsep Modern',
+                'description' => 'Pelajari fitur ES6+ terbaru seperti arrow functions, destructuring, template literals, dan modules.',
+                'level' => 'menengah', 'category' => 'Frontend', 'thumbnail' => 'js'
+            ],
+            [
+                'title' => 'Asynchronous JavaScript (Promises & Async/Await)',
+                'description' => 'Pahami cara kerja asinkronus, callback hell, Promises, serta Async/Await untuk memanggil API.',
+                'level' => 'menengah', 'category' => 'Frontend', 'thumbnail' => 'js'
+            ],
+            [
+                'title' => 'Membangun Aplikasi CRUD dengan PHP & MySQL',
+                'description' => 'Belajar memproses data form, koneksi database, dan membuat aplikasi CRUD sederhana dengan PHP native.',
+                'level' => 'pemula', 'category' => 'Backend', 'thumbnail' => 'php'
+            ],
+            [
+                'title' => 'Object-Oriented Programming (OOP) di PHP',
+                'description' => 'Pahami konsep OOP dalam PHP mulai dari Class, Object, Inheritance, Polymorphism, hingga Encapsulation.',
+                'level' => 'menengah', 'category' => 'Backend', 'thumbnail' => 'php'
+            ],
+            [
+                'title' => 'Pemula Laravel 11: Instalasi & Routing',
+                'description' => 'Langkah pertama menguasai Laravel 11. Pelajari routing dasar, controller, dan struktur folder Laravel.',
+                'level' => 'pemula', 'category' => 'Backend', 'thumbnail' => 'laravel'
+            ],
+            [
+                'title' => 'Laravel Eloquent ORM Mendalam',
+                'description' => 'Pelajari interaksi database modern menggunakan Eloquent, relasi database (One to Many, Many to Many).',
+                'level' => 'menengah', 'category' => 'Backend', 'thumbnail' => 'laravel'
+            ],
+            [
+                'title' => 'Sistem Autentikasi & Otorisasi Laravel',
+                'description' => 'Implementasikan login, register, reset password, verifikasi email, dan role-based access control.',
+                'level' => 'menengah', 'category' => 'Backend', 'thumbnail' => 'laravel'
+            ],
+            [
+                'title' => 'Membuat RESTful API dengan Laravel',
+                'description' => 'Membangun endpoint API yang aman menggunakan API Resources, autentikasi Sanctum, dan request validation.',
+                'level' => 'menengah', 'category' => 'Backend', 'thumbnail' => 'laravel'
+            ],
+            [
+                'title' => 'Laravel Livewire untuk Aplikasi Reaktif',
+                'description' => 'Buat interface yang interaktif dan dinamis menggunakan Laravel Livewire tanpa menulis baris kode Javascript.',
+                'level' => 'mahir', 'category' => 'Backend', 'thumbnail' => 'laravel'
+            ],
+            [
+                'title' => 'Pengenalan React.js & JSX',
+                'description' => 'Pelajari dasar-dasar library React, sintaksis JSX, rendering element, dan struktur project React.',
+                'level' => 'pemula', 'category' => 'Frontend', 'thumbnail' => 'react'
+            ],
+            [
+                'title' => 'React State & Props Management',
+                'description' => 'Kuasai bagaimana data mengalir antar component melalui Props dan bagaimana menyimpan state internal.',
+                'level' => 'pemula', 'category' => 'Frontend', 'thumbnail' => 'react'
+            ],
+            [
+                'title' => 'React Hooks Terlengkap (useState, useEffect, useContext)',
+                'description' => 'Maksimalkan penggunaan functional components di React dengan Hooks bawaan untuk state, efek, dan context.',
+                'level' => 'menengah', 'category' => 'Frontend', 'thumbnail' => 'react'
+            ],
+            [
+                'title' => 'Integrasi REST API di React dengan Axios',
+                'description' => 'Hubungkan aplikasi React Anda dengan database backend via REST API menggunakan Axios dan fetch.',
+                'level' => 'menengah', 'category' => 'Frontend', 'thumbnail' => 'react'
+            ],
+            [
+                'title' => 'React Router untuk Single Page Application',
+                'description' => 'Pelajari routing sisi client, dynamic routes, nested routes, dan navigasi di aplikasi React.',
+                'level' => 'menengah', 'category' => 'Frontend', 'thumbnail' => 'react'
+            ],
+            [
+                'title' => 'State Management React dengan Redux Toolkit',
+                'description' => 'Kelola state global aplikasi React berskala besar dengan Redux Toolkit secara terstruktur dan efisien.',
+                'level' => 'mahir', 'category' => 'Frontend', 'thumbnail' => 'react'
+            ],
+            [
+                'title' => 'Next.js 14: Server Components & App Router',
+                'description' => 'Membangun aplikasi web dengan performa tinggi menggunakan framework Next.js 14 dan Server Components.',
+                'level' => 'mahir', 'category' => 'Frontend', 'thumbnail' => 'react'
+            ],
+            [
+                'title' => 'Node.js Dasar & NPM Package Manager',
+                'description' => 'Mengenal runtime Node.js, file system module, HTTP module, dan cara mengelola dependencies dengan NPM.',
+                'level' => 'pemula', 'category' => 'Backend', 'thumbnail' => 'node'
+            ],
+            [
+                'title' => 'Membangun Server Web dengan Express.js',
+                'description' => 'Framework minimalis tercepat untuk Node.js. Pelajari routing, static files, dan REST API dasar.',
+                'level' => 'pemula', 'category' => 'Backend', 'thumbnail' => 'node'
+            ],
+            [
+                'title' => 'Express Middleware & Error Handling',
+                'description' => 'Pahami daur hidup request-response di Express, middleware kustom, dan penanganan error yang baik.',
+                'level' => 'menengah', 'category' => 'Backend', 'thumbnail' => 'node'
+            ],
+            [
+                'title' => 'Autentikasi JWT di Node.js',
+                'description' => 'Amankan endpoint REST API Anda menggunakan JSON Web Token (JWT), enkripsi bcrypt, dan middleware proteksi.',
+                'level' => 'menengah', 'category' => 'Backend', 'thumbnail' => 'node'
+            ],
+            [
+                'title' => 'Database NoSQL dengan MongoDB & Mongoose',
+                'description' => 'Integrasikan server Node.js dengan database non-relasional MongoDB menggunakan Mongoose ODM.',
+                'level' => 'menengah', 'category' => 'Database', 'thumbnail' => 'node'
+            ],
+            [
+                'title' => 'Optimasi Database MySQL untuk Programmer',
+                'description' => 'Belajar indexing, query optimization, view, store procedure, dan cara merancang skema DB yang efisien.',
+                'level' => 'menengah', 'category' => 'Database', 'thumbnail' => 'mysql'
+            ],
+            [
+                'title' => 'Dasar Git: Init, Commit, Push & Pull',
+                'description' => 'Langkah awal mengelola riwayat perubahan kode Anda menggunakan Git dan GitHub.',
+                'level' => 'pemula', 'category' => 'DevOps', 'thumbnail' => 'git'
+            ],
+            [
+                'title' => 'Branching & Merging Strategi Git',
+                'description' => 'Bekerja secara paralel dengan branch, merge konflik resolver, dan best practice Git Flow.',
+                'level' => 'menengah', 'category' => 'DevOps', 'thumbnail' => 'git'
+            ],
+            [
+                'title' => 'Kolaborasi Team dengan Pull Request & Fork',
+                'description' => 'Cara berkontribusi ke open source atau bekerja dalam tim menggunakan GitHub Pull Request.',
+                'level' => 'menengah', 'category' => 'DevOps', 'thumbnail' => 'git'
+            ],
+            [
+                'title' => 'CI/CD Pipeline Sederhana dengan GitHub Actions',
+                'description' => 'Otomatisasikan testing dan deploy kode Anda setiap kali melakukan push menggunakan GitHub Actions.',
+                'level' => 'mahir', 'category' => 'DevOps', 'thumbnail' => 'git'
+            ],
+            [
+                'title' => 'Flutter untuk Pemula: Widget & Layout',
+                'description' => 'Mulai belajar Flutter. Pelajari basic widgets seperti Container, Row, Column, Image, dan Text.',
+                'level' => 'pemula', 'category' => 'Mobile', 'thumbnail' => 'flutter'
+            ],
+            [
+                'title' => 'Navigasi & Oper Data di Flutter',
+                'description' => 'Pelajari perpindahan halaman, parsing data antar screen, dan custom transition di Flutter.',
+                'level' => 'pemula', 'category' => 'Mobile', 'thumbnail' => 'flutter'
+            ],
+            [
+                'title' => 'State Management Flutter: Provider & BLoC',
+                'description' => 'Kelola state aplikasi Flutter Anda agar bersih dan terstruktur menggunakan Provider dan BLoC.',
+                'level' => 'menengah', 'category' => 'Mobile', 'thumbnail' => 'flutter'
+            ],
+            [
+                'title' => 'Flutter dengan REST API Backend',
+                'description' => 'Hubungkan UI Flutter Anda dengan server database eksternal menggunakan package HTTP atau Dio.',
+                'level' => 'menengah', 'category' => 'Mobile', 'thumbnail' => 'flutter'
+            ],
+            [
+                'title' => 'UI/UX Design untuk Programmer Web',
+                'description' => 'Belajar prinsip dasar desain seperti tata letak, warna, tipografi, dan kontras untuk programmer.',
+                'level' => 'pemula', 'category' => 'Frontend', 'thumbnail' => 'css'
+            ],
+            [
+                'title' => 'Responsive Web Design dengan Media Queries',
+                'description' => 'Cara mendesain website agar ramah diakses dari layar handphone, tablet, hingga desktop.',
+                'level' => 'pemula', 'category' => 'Frontend', 'thumbnail' => 'css'
+            ],
+            [
+                'title' => 'Tailwind CSS: Desain UI Tanpa Menulis CSS',
+                'description' => 'Belajar mempercepat styling web dengan utility-first CSS framework Tailwind CSS.',
+                'level' => 'pemula', 'category' => 'Frontend', 'thumbnail' => 'css'
+            ],
+            [
+                'title' => 'Bootstrap 5: Kerangka Kerja CSS Terpopuler',
+                'description' => 'Gunakan komponen siap pakai Bootstrap 5 untuk membangun prototype website dengan super cepat.',
+                'level' => 'pemula', 'category' => 'Frontend', 'thumbnail' => 'css'
+            ],
+            [
+                'title' => 'TypeScript Dasar untuk Developer JavaScript',
+                'description' => 'Tingkatkan kualitas code JS Anda dengan static typing, interfaces, types, dan generic di TypeScript.',
+                'level' => 'menengah', 'category' => 'Frontend', 'thumbnail' => 'js'
+            ],
+            [
+                'title' => 'Unit Testing dengan Jest di React',
+                'description' => 'Belajar menguji component React Anda secara otomatis menggunakan Jest dan React Testing Library.',
+                'level' => 'mahir', 'category' => 'Frontend', 'thumbnail' => 'react'
+            ],
+            [
+                'title' => 'Feature Testing Laravel dengan Pest',
+                'description' => 'Pahami penulisan test case yang ringkas, bersih, dan modern di Laravel menggunakan Pest PHP.',
+                'level' => 'mahir', 'category' => 'Backend', 'thumbnail' => 'laravel'
+            ],
+            [
+                'title' => 'Web Security: Mencegah SQL Injection & XSS',
+                'description' => 'Amankan aplikasi web Anda dari serangan hacker paling umum seperti SQL Injection dan XSS.',
+                'level' => 'mahir', 'category' => 'DevOps', 'thumbnail' => 'php'
+            ],
+            [
+                'title' => 'Deploy Web App ke Vercel & Netlify',
+                'description' => 'Cara termudah dan gratis mempublikasikan aplikasi frontend/static website Anda ke internet.',
+                'level' => 'pemula', 'category' => 'DevOps', 'thumbnail' => 'git'
+            ],
+            [
+                'title' => 'Deploy Laravel ke VPS Ubuntu & Nginx',
+                'description' => 'Belajar setup VPS dari nol, install PHP, Nginx, MySQL, SSL gratis, dan deploy project Laravel.',
+                'level' => 'mahir', 'category' => 'DevOps', 'thumbnail' => 'laravel'
+            ],
+            [
+                'title' => 'Membangun Chat App Realtime dengan Socket.io',
+                'description' => 'Gunakan Node.js dan Socket.io untuk membuat aplikasi pengiriman pesan instan dua arah.',
+                'level' => 'mahir', 'category' => 'Backend', 'thumbnail' => 'node'
+            ],
+            [
+                'title' => 'Docker Dasar untuk Developer',
+                'description' => 'Pahami konsep containerization, Dockerfile, docker-compose, untuk standarisasi lingkungan development.',
+                'level' => 'mahir', 'category' => 'DevOps', 'thumbnail' => 'git'
+            ],
+            [
+                'title' => 'GraphQL API: Alternatif REST API',
+                'description' => 'Belajar membuat query API yang fleksibel menggunakan GraphQL di Node.js.',
+                'level' => 'mahir', 'category' => 'Backend', 'thumbnail' => 'node'
+            ],
+            [
+                'title' => 'Membangun E-Commerce Sederhana dengan MERN Stack',
+                'description' => 'Proyek gabungan: MongoDB, Express, React, dan Node.js untuk toko online lengkap dengan keranjang belanja.',
+                'level' => 'mahir', 'category' => 'Fullstack', 'thumbnail' => 'react'
+            ]
+        ];
+
+        $rifqiCoursesData = [];
+        $youtubeVideos = [
+            ['title' => 'Belajar HTML untuk pemula', 'url' => 'https://www.youtube.com/embed/0oA1Z6UKM5M', 'dur' => '11 menit'],
+            ['title' => 'HTML bagian 2', 'url' => 'https://www.youtube.com/embed/qwKm_7GmgBU', 'dur' => '14 menit'],
+            ['title' => 'CSS bagian 1', 'url' => 'https://www.youtube.com/embed/V-DD30lGAL0', 'dur' => '21 menit']
+        ];
+
+        foreach ($courseTemplates as $index => $tpl) {
+            $prices = [0, 100000, 150000, 200000, 250000, 300000];
+            $price = $prices[$index % count($prices)];
+
+            $videoCount = ($index % 3) + 1;
+            $videos = [];
+            $totalDurSeconds = 0;
+            for ($v = 0; $v < $videoCount; $v++) {
+                $videoTemplate = $youtubeVideos[($index + $v) % count($youtubeVideos)];
+                $videos[] = $videoTemplate;
+                if ($videoTemplate['dur'] === '11 menit') $totalDurSeconds += 11 * 60;
+                elseif ($videoTemplate['dur'] === '14 menit') $totalDurSeconds += 14 * 60;
+                elseif ($videoTemplate['dur'] === '21 menit') $totalDurSeconds += 21 * 60;
+            }
+
+            $totalMinutes = intval($totalDurSeconds / 60);
+            $durationFormatted = $totalMinutes . ' menit';
+
+            $rifqiCoursesData[] = [
+                'title' => $tpl['title'],
+                'description' => $tpl['description'],
+                'price' => $price,
+                'level' => $tpl['level'],
+                'category' => $tpl['category'],
+                'thumbnail' => $tpl['thumbnail'],
+                'total_students' => 0,
+                'rating' => 0.0,
+                'duration' => $durationFormatted,
+                'videos' => $videos
+            ];
+        }
 
         foreach ($rifqiCoursesData as $cData) {
             $course = Course::create([
