@@ -1105,37 +1105,37 @@ class DatabaseSeeder extends Seeder
         $rifqiCoursesData = [];
         $presetVideos = [
             'html' => [
-                ['title' => 'HTML5', 'url' => 'https://www.youtube.com/embed/Q2VqCG13ejA', 'dur' => '18 menit'],
-                ['title' => 'HTML bagian 2', 'url' => 'https://www.youtube.com/embed/o3m15BWi2HM', 'dur' => '21 menit']
+                ['title' => 'HTML5', 'url' => 'https://www.youtube.com/watch?v=Q2VqCG13ejA&list=PLFIM0718LjIX-K5eeHRImnZhPUMhsw9A7', 'dur' => '18 menit'],
+                ['title' => 'HTML bagian 2', 'url' => 'https://www.youtube.com/watch?v=o3m15BWi2HM&list=PLFIM0718LjIX-K5eeHRImnZhPUMhsw9A7&index=2', 'dur' => '21 menit']
             ],
             'css' => [
-                ['title' => 'Css3', 'url' => 'https://www.youtube.com/embed/J0a6YUUAsd4', 'dur' => '11 menit'],
-                ['title' => 'Css3 border radius', 'url' => 'https://www.youtube.com/embed/3xbW5YHln78', 'dur' => '8 menit']
+                ['title' => 'Css3', 'url' => 'https://www.youtube.com/watch?v=J0a6YUUAsd4&list=PLFIM0718LjIVCmrSWbZPKCccCkfFw-Naa', 'dur' => '11 menit'],
+                ['title' => 'Css3 border radius', 'url' => 'https://www.youtube.com/watch?v=3xbW5YHln78&list=PLFIM0718LjIVCmrSWbZPKCccCkfFw-Naa&index=2', 'dur' => '8 menit']
             ],
             'js' => [
-                ['title' => 'Javascript', 'url' => 'https://www.youtube.com/embed/RUTV_5m4VeI', 'dur' => '7 menit']
+                ['title' => 'Javascript', 'url' => 'https://www.youtube.com/watch?v=RUTV_5m4VeI&list=PLFIM0718LjIWXagluzROrA-iBY9eeUt4w', 'dur' => '7 menit']
             ],
             'php' => [
-                ['title' => 'PHP dasar', 'url' => 'https://www.youtube.com/embed/TaBWhb5SPfc', 'dur' => '5 jam 28 menit']
+                ['title' => 'PHP dasar', 'url' => 'https://www.youtube.com/watch?v=TaBWhb5SPfc&list=PL-CtdCApEFH9EmZy4zYfW1ATIJ-qMXxGt', 'dur' => '5 jam 28 menit']
             ],
             'mysql' => [
-                ['title' => 'Tutorial MySQL', 'url' => 'https://www.youtube.com/embed/xYBclb-sYQ4', 'dur' => '6 jam 37 menit']
+                ['title' => 'Tutorial MySQL', 'url' => 'https://www.youtube.com/watch?v=xYBclb-sYQ4&list=PL-CtdCApEFH_P2_2zR6pvDublvpD3fF6W', 'dur' => '6 jam 37 Menit']
             ],
             'laravel' => [
-                ['title' => 'Laravel bagian 1', 'url' => 'https://www.youtube.com/embed/upOxC-rVJsU', 'dur' => '9 menit'],
-                ['title' => 'Laravel bagian 2 Struktur folder', 'url' => 'https://www.youtube.com/embed/BXGhDPsJwFA', 'dur' => '7 menit']
+                ['title' => 'Laravel bagian 1', 'url' => 'https://www.youtube.com/watch?v=upOxC-rVJsU&list=PLPqeNG7ba3a_Sz3tJ1YukfqHE5jZGBmHn', 'dur' => '9 menit'],
+                ['title' => 'Laravel bagian 2 Struktur folder', 'url' => 'https://www.youtube.com/watch?v=BXGhDPsJwFA&list=PLPqeNG7ba3a_Sz3tJ1YukfqHE5jZGBmHn&index=2', 'dur' => '7 menit']
             ],
             'react' => [
-                ['title' => 'React JS', 'url' => 'https://www.youtube.com/embed/s2skans2dP4', 'dur' => '10 menit']
+                ['title' => 'React JS', 'url' => 'https://www.youtube.com/watch?v=s2skans2dP4&t=1s', 'dur' => '10 menit']
             ],
             'node' => [
-                ['title' => 'Node JS', 'url' => 'https://www.youtube.com/embed/sSLJx5t4OJ4', 'dur' => '20 menit']
+                ['title' => 'Node JS', 'url' => 'https://www.youtube.com/watch?v=sSLJx5t4OJ4&list=PLFIM0718LjIW-XBdVOerYgKegBtD6rSfD', 'dur' => '20 Menit']
             ],
             'flutter' => [
-                ['title' => 'apa itu flutter', 'url' => 'https://www.youtube.com/embed/epRWFH47xCI', 'dur' => '10 menit']
+                ['title' => 'apa itu flutter', 'url' => 'https://www.youtube.com/watch?v=epRWFH47xCI&list=PL7jdfftn7HKsfTtv8FOaTbLIf7feiQTRu', 'dur' => '10 menit']
             ],
             'git' => [
-                ['title' => 'Git', 'url' => 'https://www.youtube.com/embed/lTMZxWMjXQU', 'dur' => '25 menit']
+                ['title' => 'Git', 'url' => 'https://www.youtube.com/watch?v=lTMZxWMjXQU&list=PLFIM0718LjIVknj6sgsSceMqlq242-jNf', 'dur' => '25 Menit']
             ]
         ];
 
@@ -1144,7 +1144,7 @@ class DatabaseSeeder extends Seeder
             $price = $prices[$index % count($prices)];
 
             $videos = $presetVideos[$tpl['thumbnail']] ?? [
-                ['title' => 'HTML5', 'url' => 'https://www.youtube.com/embed/Q2VqCG13ejA', 'dur' => '18 menit']
+                ['title' => 'HTML5', 'url' => 'https://www.youtube.com/watch?v=Q2VqCG13ejA&list=PLFIM0718LjIX-K5eeHRImnZhPUMhsw9A7', 'dur' => '18 menit']
             ];
 
             // Calculate total duration
