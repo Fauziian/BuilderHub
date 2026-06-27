@@ -150,4 +150,5 @@ Route::get('/migrate-db', function () {
     } catch (\Exception $e) {
         return 'Terjadi kesalahan saat migrasi: ' . $e->getMessage();
     }
-});
+})->withoutMiddleware('web');
+

@@ -46,12 +46,12 @@ foreach ($dirs as $dir) {
 }
 
 // Auto-detect and bridge Vercel Postgres variables to Laravel DB connection
-$postgresHost = $_ENV['POSTGRES_HOST'] ?? $_SERVER['POSTGRES_HOST'] ?? getenv('POSTGRES_HOST');
+$postgresHost = $_ENV['POSTGRES_HOST'] ?? $_SERVER['POSTGRES_HOST'] ?? getenv('POSTGRES_HOST') ?: null;
 if ($postgresHost) {
-    $dbPort = $_ENV['POSTGRES_PORT'] ?? $_SERVER['POSTGRES_PORT'] ?? getenv('POSTGRES_PORT') ?? '5432';
-    $dbName = $_ENV['POSTGRES_DATABASE'] ?? $_SERVER['POSTGRES_DATABASE'] ?? getenv('POSTGRES_DATABASE');
-    $dbUser = $_ENV['POSTGRES_USER'] ?? $_SERVER['POSTGRES_USER'] ?? getenv('POSTGRES_USER');
-    $dbPassword = $_ENV['POSTGRES_PASSWORD'] ?? $_SERVER['POSTGRES_PASSWORD'] ?? getenv('POSTGRES_PASSWORD');
+    $dbPort = $_ENV['POSTGRES_PORT'] ?? $_SERVER['POSTGRES_PORT'] ?? getenv('POSTGRES_PORT') ?: '5432';
+    $dbName = $_ENV['POSTGRES_DATABASE'] ?? $_SERVER['POSTGRES_DATABASE'] ?? getenv('POSTGRES_DATABASE') ?: null;
+    $dbUser = $_ENV['POSTGRES_USER'] ?? $_SERVER['POSTGRES_USER'] ?? getenv('POSTGRES_USER') ?: null;
+    $dbPassword = $_ENV['POSTGRES_PASSWORD'] ?? $_SERVER['POSTGRES_PASSWORD'] ?? getenv('POSTGRES_PASSWORD') ?: '';
 
     putenv("DB_CONNECTION=pgsql");
     $_ENV['DB_CONNECTION'] = 'pgsql';
