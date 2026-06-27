@@ -144,7 +144,7 @@ Route::get('/migrate-db', function () {
         return response('Akses ditolak. Token tidak valid.', 403);
     }
     try {
-        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        \Illuminate\Support\Facades\Artisan::call('migrate:fresh', ['--force' => true]);
         \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
         return '<pre>Migrasi dan Seeding Berhasil!<br>' . \Illuminate\Support\Facades\Artisan::output() . '</pre>';
     } catch (\Exception $e) {
