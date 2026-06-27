@@ -1103,29 +1103,74 @@ class DatabaseSeeder extends Seeder
         ];
 
         $rifqiCoursesData = [];
-        $youtubeVideos = [
-            ['title' => 'Belajar HTML untuk pemula', 'url' => 'https://www.youtube.com/embed/0oA1Z6UKM5M', 'dur' => '11 menit'],
-            ['title' => 'HTML bagian 2', 'url' => 'https://www.youtube.com/embed/qwKm_7GmgBU', 'dur' => '14 menit'],
-            ['title' => 'CSS bagian 1', 'url' => 'https://www.youtube.com/embed/V-DD30lGAL0', 'dur' => '21 menit']
+        $presetVideos = [
+            'html' => [
+                ['title' => 'HTML5', 'url' => 'https://www.youtube.com/embed/Q2VqCG13ejA', 'dur' => '18 menit'],
+                ['title' => 'HTML bagian 2', 'url' => 'https://www.youtube.com/embed/o3m15BWi2HM', 'dur' => '21 menit']
+            ],
+            'css' => [
+                ['title' => 'Css3', 'url' => 'https://www.youtube.com/embed/J0a6YUUAsd4', 'dur' => '11 menit'],
+                ['title' => 'Css3 border radius', 'url' => 'https://www.youtube.com/embed/3xbW5YHln78', 'dur' => '8 menit']
+            ],
+            'js' => [
+                ['title' => 'Javascript', 'url' => 'https://www.youtube.com/embed/RUTV_5m4VeI', 'dur' => '7 menit']
+            ],
+            'php' => [
+                ['title' => 'PHP dasar', 'url' => 'https://www.youtube.com/embed/TaBWhb5SPfc', 'dur' => '5 jam 28 menit']
+            ],
+            'mysql' => [
+                ['title' => 'Tutorial MySQL', 'url' => 'https://www.youtube.com/embed/xYBclb-sYQ4', 'dur' => '6 jam 37 menit']
+            ],
+            'laravel' => [
+                ['title' => 'Laravel bagian 1', 'url' => 'https://www.youtube.com/embed/upOxC-rVJsU', 'dur' => '9 menit'],
+                ['title' => 'Laravel bagian 2 Struktur folder', 'url' => 'https://www.youtube.com/embed/BXGhDPsJwFA', 'dur' => '7 menit']
+            ],
+            'react' => [
+                ['title' => 'React JS', 'url' => 'https://www.youtube.com/embed/s2skans2dP4', 'dur' => '10 menit']
+            ],
+            'node' => [
+                ['title' => 'Node JS', 'url' => 'https://www.youtube.com/embed/sSLJx5t4OJ4', 'dur' => '20 menit']
+            ],
+            'flutter' => [
+                ['title' => 'apa itu flutter', 'url' => 'https://www.youtube.com/embed/epRWFH47xCI', 'dur' => '10 menit']
+            ],
+            'git' => [
+                ['title' => 'Git', 'url' => 'https://www.youtube.com/embed/lTMZxWMjXQU', 'dur' => '25 menit']
+            ]
         ];
 
         foreach ($courseTemplates as $index => $tpl) {
             $prices = [0, 100000, 150000, 200000, 250000, 300000];
             $price = $prices[$index % count($prices)];
 
-            $videoCount = ($index % 3) + 1;
-            $videos = [];
-            $totalDurSeconds = 0;
-            for ($v = 0; $v < $videoCount; $v++) {
-                $videoTemplate = $youtubeVideos[($index + $v) % count($youtubeVideos)];
-                $videos[] = $videoTemplate;
-                if ($videoTemplate['dur'] === '11 menit') $totalDurSeconds += 11 * 60;
-                elseif ($videoTemplate['dur'] === '14 menit') $totalDurSeconds += 14 * 60;
-                elseif ($videoTemplate['dur'] === '21 menit') $totalDurSeconds += 21 * 60;
+            $videos = $presetVideos[$tpl['thumbnail']] ?? [
+                ['title' => 'HTML5', 'url' => 'https://www.youtube.com/embed/Q2VqCG13ejA', 'dur' => '18 menit']
+            ];
+
+            // Calculate total duration
+            $totalMinutes = 0;
+            foreach ($videos as $vData) {
+                $durStr = strtolower($vData['dur']);
+                if (str_contains($durStr, 'jam')) {
+                    preg_match('/(\d+)\s*jam/', $durStr, $jamMatches);
+                    preg_match('/(\d+)\s*menit/', $durStr, $menitMatches);
+                    $jam = isset($jamMatches[1]) ? intval($jamMatches[1]) : 0;
+                    $menit = isset($menitMatches[1]) ? intval($menitMatches[1]) : 0;
+                    $totalMinutes += ($jam * 60) + $menit;
+                } else {
+                    preg_match('/(\d+)\s*menit/', $durStr, $menitMatches);
+                    $menit = isset($menitMatches[1]) ? intval($menitMatches[1]) : 0;
+                    $totalMinutes += $menit;
+                }
             }
 
-            $totalMinutes = intval($totalDurSeconds / 60);
-            $durationFormatted = $totalMinutes . ' menit';
+            if ($totalMinutes >= 60) {
+                $h = intval($totalMinutes / 60);
+                $m = $totalMinutes % 60;
+                $durationFormatted = $h . ' jam' . ($m > 0 ? ' ' . $m . ' menit' : '');
+            } else {
+                $durationFormatted = $totalMinutes . ' menit';
+            }
 
             $rifqiCoursesData[] = [
                 'title' => $tpl['title'],
@@ -1150,7 +1195,7 @@ class DatabaseSeeder extends Seeder
                 'price' => $cData['price'],
                 'level' => $cData['level'],
                 'category' => $cData['category'],
-                'is_free' => false,
+                'is_free' => ($cData['price'] == 0),
                 'is_published' => true,
                 'total_students' => $cData['total_students'],
                 'rating' => $cData['rating'],
