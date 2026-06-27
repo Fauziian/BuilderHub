@@ -331,7 +331,7 @@ class DatabaseSeeder extends Seeder
                 'tags' => ['Aplikasi Desktop'],
             ],
             [
-                'umkm_id' => $rifqiUmkm->id,
+                'umkm_id' => $budi->id,
                 'title' => 'Website EduTech Kelas Online Coding Pemula',
                 'description' => 'Platform pembelajaran online dengan fitur manajemen materi, video streaming, kuis interaktif, dan pelacakan kemajuan belajar siswa secara real-time.',
                 'budget' => 0,
@@ -361,7 +361,7 @@ class DatabaseSeeder extends Seeder
                 'tags' => ['Sistem Informasi'],
             ],
             [
-                'umkm_id' => $rifqiUmkm->id,
+                'umkm_id' => $siti->id,
                 'title' => 'Aplikasi Desktop Reservasi Tiket Pariwisata Lokal',
                 'description' => 'Aplikasi desktop untuk agen travel yang memudahkan booking tiket destinasi wisata lokal, cetak e-tiket, serta sinkronisasi data ke cloud.',
                 'budget' => 0,
@@ -381,7 +381,7 @@ class DatabaseSeeder extends Seeder
                 'tags' => ['Sistem Informasi'],
             ],
             [
-                'umkm_id' => $rifqiUmkm->id,
+                'umkm_id' => $budi->id,
                 'title' => 'Website Marketplace Jual Beli Properti & Tanah',
                 'description' => 'Membangun website marketplace properti yang mempertemukan pembeli dan agen properti, dilengkapi peta interaktif, filter harga, dan fitur chat langsung.',
                 'budget' => 0,
@@ -401,7 +401,7 @@ class DatabaseSeeder extends Seeder
                 'tags' => ['Aplikasi Mobile'],
             ],
             [
-                'umkm_id' => $rifqiUmkm->id,
+                'umkm_id' => $siti->id,
                 'title' => 'Sistem Informasi Manajemen Salon Kecantikan & Spa',
                 'description' => 'Sistem informasi berbasis web untuk manajemen pemesanan treatment salon, pemilihan terapis, absensi staf, serta laporan keuangan bulanan.',
                 'budget' => 0,
@@ -421,7 +421,7 @@ class DatabaseSeeder extends Seeder
                 'tags' => ['Aplikasi Desktop'],
             ],
             [
-                'umkm_id' => $rifqiUmkm->id,
+                'umkm_id' => $budi->id,
                 'title' => 'Website Event Organizer & Pemesanan Tiket Konser',
                 'description' => 'Website untuk publikasi event, registrasi peserta, pembayaran tiket online dengan QR Code, dan scan e-tiket saat masuk ke area acara.',
                 'budget' => 0,
@@ -444,6 +444,76 @@ class DatabaseSeeder extends Seeder
 
         foreach ($additionalProjects as $projData) {
             Project::create($projData);
+        }
+
+        // 30 projects for rifqiUmkm
+        // 8 past deadlines (expired, from June 27, 2026 backwards)
+        for ($i = 1; $i <= 8; $i++) {
+            $diffDays = $i;
+            $deadlineDate = now()->subDays($diffDays)->toDateString();
+            $budget = 1500000 + ($i * 500000); // Rp 2M to Rp 5.5M
+            $platformFee = $budget * 0.80;
+            $programmerEarning = $budget * 0.20;
+
+            Project::create([
+                'umkm_id' => $rifqiUmkm->id,
+                'title' => "Project UMKM Mandiri " . $i . " (Sistem Kasir / Toko)",
+                'description' => "Pengembangan aplikasi web sederhana untuk membantu usaha mikro lokal mengelola transaksi harian secara efisien dan aman.",
+                'budget' => $budget,
+                'deadline' => $deadlineDate,
+                'status' => 'open',
+                'category' => 'E-Commerce',
+                'tags' => ['Aplikasi Web', 'Laravel', 'MySQL'],
+                'platform_fee' => $platformFee,
+                'programmer_earning' => $programmerEarning,
+            ]);
+        }
+
+        // 23 future/scheduled deadlines (15 days, 25 days, up to 120 days/4 months)
+        $futureDeadlines = [
+            15, 15, 18, 20, 22,
+            25, 25, 28, 30, 35,
+            45, 45, 50, 60, 70,
+            80, 90, 90, 100, 110, 115, 120, 120
+        ];
+
+        foreach ($futureDeadlines as $idx => $days) {
+            $num = $idx + 9;
+            $deadlineDate = now()->addDays($days)->toDateString();
+            
+            if ($days <= 22) {
+                $budget = 1500000 + ($idx * 300000);
+                $difficulty = "Sederhana";
+                $cat = "Landing Page";
+            } elseif ($days <= 35) {
+                $budget = 4000000 + (($idx - 5) * 400000);
+                $difficulty = "Menengah";
+                $cat = "E-Commerce";
+            } elseif ($days <= 70) {
+                $budget = 8000000 + (($idx - 10) * 800000);
+                $difficulty = "Kompleks";
+                $cat = "Mobile App";
+            } else {
+                $budget = 15000000 + (($idx - 15) * 1200000);
+                $difficulty = "Enterprise";
+                $cat = "Sistem Informasi";
+            }
+
+            $platformFee = $budget * 0.80;
+            $programmerEarning = $budget * 0.20;
+
+            Project::create([
+                'umkm_id' => $rifqiUmkm->id,
+                'title' => "Pengembangan Aplikasi " . $difficulty . " Kelompok " . $num,
+                'description' => "Kebutuhan pembuatan sistem dengan skala " . $difficulty . " untuk mendukung efisiensi operasional digitalisasi UMKM daerah.",
+                'budget' => $budget,
+                'deadline' => $deadlineDate,
+                'status' => 'open',
+                'category' => $cat,
+                'tags' => ['Aplikasi Web', 'Database', 'REST API'],
+                'platform_fee' => $platformFee,
+                'programmer_earning' => $programmerEarning,
+            ]);
         }
 
         // Bids
@@ -526,86 +596,316 @@ class DatabaseSeeder extends Seeder
             'duration' => '5+ jam',
         ]);
 
-        // Courses for rifqiProgrammer
-        $rifqiCourse1 = Course::create([
-            'instructor_id' => $rifqiProgrammer->id,
-            'title' => 'Belajar Laravel 11 untuk Pemula',
-            'description' => 'Panduan komprehensif belajar framework Laravel 11 dari nol sampai bisa membuat website dinamis.',
-            'price' => 0,
-            'level' => 'pemula',
-            'category' => 'Web Development',
-            'is_free' => true,
-            'is_published' => true,
-            'total_students' => 120,
-            'rating' => 4.8,
-            'total_videos' => 3,
-            'duration' => '2 jam',
-        ]);
+        // 20 Courses for rifqiProgrammer
+        $rifqiCoursesData = [
+            [
+                'title' => 'HTML & CSS Dasar untuk Desain Web',
+                'description' => 'Mulai belajar membuat website pertama Anda dari dasar HTML5 hingga dasar styling CSS3.',
+                'price' => 100000,
+                'level' => 'pemula',
+                'category' => 'Frontend',
+                'total_students' => 140,
+                'rating' => 4.7,
+                'duration' => '32 menit',
+                'videos' => [
+                    ['title' => 'Belajar HTML untuk pemula', 'url' => 'https://www.youtube.com/embed/0oA1Z6UKM5M', 'dur' => '11 menit'],
+                    ['title' => 'CSS bagian 1', 'url' => 'https://www.youtube.com/embed/V-DD30lGAL0', 'dur' => '21 menit']
+                ]
+            ],
+            [
+                'title' => 'Kuasai Semantik HTML5',
+                'description' => 'Pelajari cara menulis markup HTML yang semantis dan terstruktur untuk mempermudah SEO dan aksesibilitas.',
+                'price' => 120000,
+                'level' => 'pemula',
+                'category' => 'Frontend',
+                'total_students' => 95,
+                'rating' => 4.6,
+                'duration' => '14 menit',
+                'videos' => [
+                    ['title' => 'HTML bagian 2', 'url' => 'https://www.youtube.com/embed/qwKm_7GmgBU', 'dur' => '14 menit']
+                ]
+            ],
+            [
+                'title' => 'Membangun Layout Responsif dengan CSS Grid & Flexbox',
+                'description' => 'Pelajari teknik layouting modern dengan CSS Grid dan Flexbox agar website Anda tampil sempurna di semua perangkat.',
+                'price' => 150000,
+                'level' => 'menengah',
+                'category' => 'Frontend',
+                'total_students' => 110,
+                'rating' => 4.8,
+                'duration' => '21 menit',
+                'videos' => [
+                    ['title' => 'CSS bagian 1', 'url' => 'https://www.youtube.com/embed/V-DD30lGAL0', 'dur' => '21 menit']
+                ]
+            ],
+            [
+                'title' => 'Pemrograman Web Frontend Tingkat Pemula',
+                'description' => 'Panduan komprehensif bagi pemula untuk memahami HTML5 dan CSS dasar sebelum masuk ke dunia JavaScript framework.',
+                'price' => 180000,
+                'level' => 'pemula',
+                'category' => 'Frontend',
+                'total_students' => 210,
+                'rating' => 4.9,
+                'duration' => '46 menit',
+                'videos' => [
+                    ['title' => 'Belajar HTML untuk pemula', 'url' => 'https://www.youtube.com/embed/0oA1Z6UKM5M', 'dur' => '11 menit'],
+                    ['title' => 'HTML bagian 2', 'url' => 'https://www.youtube.com/embed/qwKm_7GmgBU', 'dur' => '14 menit'],
+                    ['title' => 'CSS bagian 1', 'url' => 'https://www.youtube.com/embed/V-DD30lGAL0', 'dur' => '21 menit']
+                ]
+            ],
+            [
+                'title' => 'Konsep Dasar Styling Web Modern',
+                'description' => 'Pelajari bagaimana CSS bekerja di balik layar, termasuk cascading, inheritance, dan specificity.',
+                'price' => 130000,
+                'level' => 'pemula',
+                'category' => 'Frontend',
+                'total_students' => 88,
+                'rating' => 4.5,
+                'duration' => '32 menit',
+                'videos' => [
+                    ['title' => 'Belajar HTML untuk pemula', 'url' => 'https://www.youtube.com/embed/0oA1Z6UKM5M', 'dur' => '11 menit'],
+                    ['title' => 'CSS bagian 1', 'url' => 'https://www.youtube.com/embed/V-DD30lGAL0', 'dur' => '21 menit']
+                ]
+            ],
+            [
+                'title' => 'Struktur Dasar Halaman Web dengan HTML5',
+                'description' => 'Langkah awal menyusun dokumen HTML, tag dasar, list, tabel, dan tautan internal/eksternal.',
+                'price' => 110000,
+                'level' => 'pemula',
+                'category' => 'Frontend',
+                'total_students' => 130,
+                'rating' => 4.6,
+                'duration' => '25 menit',
+                'videos' => [
+                    ['title' => 'Belajar HTML untuk pemula', 'url' => 'https://www.youtube.com/embed/0oA1Z6UKM5M', 'dur' => '11 menit'],
+                    ['title' => 'HTML bagian 2', 'url' => 'https://www.youtube.com/embed/qwKm_7GmgBU', 'dur' => '14 menit']
+                ]
+            ],
+            [
+                'title' => 'Pengembangan UI Web Elegan & Responsif',
+                'description' => 'Gunakan CSS media queries dan teknik desain responsif untuk mempercantik antarmuka web Anda.',
+                'price' => 160000,
+                'level' => 'menengah',
+                'category' => 'Frontend',
+                'total_students' => 74,
+                'rating' => 4.7,
+                'duration' => '21 menit',
+                'videos' => [
+                    ['title' => 'CSS bagian 1', 'url' => 'https://www.youtube.com/embed/V-DD30lGAL0', 'dur' => '21 menit']
+                ]
+            ],
+            [
+                'title' => 'Pengenalan Web Development dari Nol',
+                'description' => 'Kursus dasar yang merangkum teknologi web paling penting: struktur konten (HTML) dan visualisasi (CSS).',
+                'price' => 140000,
+                'level' => 'pemula',
+                'category' => 'Frontend',
+                'total_students' => 155,
+                'rating' => 4.7,
+                'duration' => '46 menit',
+                'videos' => [
+                    ['title' => 'Belajar HTML untuk pemula', 'url' => 'https://www.youtube.com/embed/0oA1Z6UKM5M', 'dur' => '11 menit'],
+                    ['title' => 'HTML bagian 2', 'url' => 'https://www.youtube.com/embed/qwKm_7GmgBU', 'dur' => '14 menit'],
+                    ['title' => 'CSS bagian 1', 'url' => 'https://www.youtube.com/embed/V-DD30lGAL0', 'dur' => '21 menit']
+                ]
+            ],
+            [
+                'title' => 'Teknik Layouting CSS Modern',
+                'description' => 'Pelajari flex direction, wrapping, alignment, serta bagaimana memadukannya dengan struktur HTML bagian 2.',
+                'price' => 170000,
+                'level' => 'menengah',
+                'category' => 'Frontend',
+                'total_students' => 62,
+                'rating' => 4.8,
+                'duration' => '35 menit',
+                'videos' => [
+                    ['title' => 'HTML bagian 2', 'url' => 'https://www.youtube.com/embed/qwKm_7GmgBU', 'dur' => '14 menit'],
+                    ['title' => 'CSS bagian 1', 'url' => 'https://www.youtube.com/embed/V-DD30lGAL0', 'dur' => '21 menit']
+                ]
+            ],
+            [
+                'title' => 'Optimasi Struktur HTML untuk SEO',
+                'description' => 'Optimalkan penulisan kode HTML agar mudah di-crawl oleh mesin pencari seperti Google dan Bing.',
+                'price' => 190000,
+                'level' => 'menengah',
+                'category' => 'Frontend',
+                'total_students' => 80,
+                'rating' => 4.6,
+                'duration' => '25 menit',
+                'videos' => [
+                    ['title' => 'Belajar HTML untuk pemula', 'url' => 'https://www.youtube.com/embed/0oA1Z6UKM5M', 'dur' => '11 menit'],
+                    ['title' => 'HTML bagian 2', 'url' => 'https://www.youtube.com/embed/qwKm_7GmgBU', 'dur' => '14 menit']
+                ]
+            ],
+            [
+                'title' => 'Best Practices Menulis HTML & CSS Bersih',
+                'description' => 'Tips menulis kode HTML/CSS yang efisien, terstandarisasi, dan mudah dipelihara oleh tim developer.',
+                'price' => 200000,
+                'level' => 'menengah',
+                'category' => 'Frontend',
+                'total_students' => 93,
+                'rating' => 4.8,
+                'duration' => '46 menit',
+                'videos' => [
+                    ['title' => 'Belajar HTML untuk pemula', 'url' => 'https://www.youtube.com/embed/0oA1Z6UKM5M', 'dur' => '11 menit'],
+                    ['title' => 'HTML bagian 2', 'url' => 'https://www.youtube.com/embed/qwKm_7GmgBU', 'dur' => '14 menit'],
+                    ['title' => 'CSS bagian 1', 'url' => 'https://www.youtube.com/embed/V-DD30lGAL0', 'dur' => '21 menit']
+                ]
+            ],
+            [
+                'title' => 'Slicing Desain Figma ke HTML/CSS',
+                'description' => 'Ubah desain UI dari Figma menjadi baris kode HTML dan styling CSS responsif yang interaktif.',
+                'price' => 220000,
+                'level' => 'mahir',
+                'category' => 'Frontend',
+                'total_students' => 67,
+                'rating' => 4.9,
+                'duration' => '32 menit',
+                'videos' => [
+                    ['title' => 'Belajar HTML untuk pemula', 'url' => 'https://www.youtube.com/embed/0oA1Z6UKM5M', 'dur' => '11 menit'],
+                    ['title' => 'CSS bagian 1', 'url' => 'https://www.youtube.com/embed/V-DD30lGAL0', 'dur' => '21 menit']
+                ]
+            ],
+            [
+                'title' => 'Mastering Flexbox & CSS Positioning',
+                'description' => 'Pahami position relative, absolute, fixed, sticky, dan cara membangun layout kompleks dengan Flexbox.',
+                'price' => 210000,
+                'level' => 'menengah',
+                'category' => 'Frontend',
+                'total_students' => 58,
+                'rating' => 4.7,
+                'duration' => '21 menit',
+                'videos' => [
+                    ['title' => 'CSS bagian 1', 'url' => 'https://www.youtube.com/embed/V-DD30lGAL0', 'dur' => '21 menit']
+                ]
+            ],
+            [
+                'title' => 'Membangun Form Interaktif & Aksesibel',
+                'description' => 'Bagaimana membuat form login, register, dan kontak yang ramah pengguna serta mudah diisi di HP.',
+                'price' => 230000,
+                'level' => 'menengah',
+                'category' => 'Frontend',
+                'total_students' => 70,
+                'rating' => 4.8,
+                'duration' => '25 menit',
+                'videos' => [
+                    ['title' => 'Belajar HTML untuk pemula', 'url' => 'https://www.youtube.com/embed/0oA1Z6UKM5M', 'dur' => '11 menit'],
+                    ['title' => 'HTML bagian 2', 'url' => 'https://www.youtube.com/embed/qwKm_7GmgBU', 'dur' => '14 menit']
+                ]
+            ],
+            [
+                'title' => 'Dasar-Dasar Pemrograman Web Dinamis',
+                'description' => 'Memahami hubungan antara HTML sebagai tulang punggung, CSS sebagai kulit, dan JS sebagai otot situs web.',
+                'price' => 240000,
+                'level' => 'pemula',
+                'category' => 'Frontend',
+                'total_students' => 115,
+                'rating' => 4.8,
+                'duration' => '46 menit',
+                'videos' => [
+                    ['title' => 'Belajar HTML untuk pemula', 'url' => 'https://www.youtube.com/embed/0oA1Z6UKM5M', 'dur' => '11 menit'],
+                    ['title' => 'HTML bagian 2', 'url' => 'https://www.youtube.com/embed/qwKm_7GmgBU', 'dur' => '14 menit'],
+                    ['title' => 'CSS bagian 1', 'url' => 'https://www.youtube.com/embed/V-DD30lGAL0', 'dur' => '21 menit']
+                ]
+            ],
+            [
+                'title' => 'Pengenalan CSS Custom Properties & Variables',
+                'description' => 'Buat website bertema terang dan gelap (dark mode) menggunakan variabel CSS murni.',
+                'price' => 250000,
+                'level' => 'mahir',
+                'category' => 'Frontend',
+                'total_students' => 45,
+                'rating' => 4.7,
+                'duration' => '21 menit',
+                'videos' => [
+                    ['title' => 'CSS bagian 1', 'url' => 'https://www.youtube.com/embed/V-DD30lGAL0', 'dur' => '21 menit']
+                ]
+            ],
+            [
+                'title' => 'Struktur Konten Web Kompleks',
+                'description' => 'Bagaimana membuat struktur data semantis untuk artikel blog, galeri foto, dan embed video pihak ketiga.',
+                'price' => 260000,
+                'level' => 'menengah',
+                'category' => 'Frontend',
+                'total_students' => 60,
+                'rating' => 4.6,
+                'duration' => '35 menit',
+                'videos' => [
+                    ['title' => 'HTML bagian 2', 'url' => 'https://www.youtube.com/embed/qwKm_7GmgBU', 'dur' => '14 menit'],
+                    ['title' => 'CSS bagian 1', 'url' => 'https://www.youtube.com/embed/V-DD30lGAL0', 'dur' => '21 menit']
+                ]
+            ],
+            [
+                'title' => 'Membangun Landing Page Portofolio Pribadi',
+                'description' => 'Praktik langsung membuat portofolio karir programmer Anda sendiri menggunakan HTML5 dan CSS modern.',
+                'price' => 280000,
+                'level' => 'mahir',
+                'category' => 'Frontend',
+                'total_students' => 88,
+                'rating' => 4.9,
+                'duration' => '46 menit',
+                'videos' => [
+                    ['title' => 'Belajar HTML untuk pemula', 'url' => 'https://www.youtube.com/embed/0oA1Z6UKM5M', 'dur' => '11 menit'],
+                    ['title' => 'HTML bagian 2', 'url' => 'https://www.youtube.com/embed/qwKm_7GmgBU', 'dur' => '14 menit'],
+                    ['title' => 'CSS bagian 1', 'url' => 'https://www.youtube.com/embed/V-DD30lGAL0', 'dur' => '21 menit']
+                ]
+            ],
+            [
+                'title' => 'Arsitektur CSS Skala Besar (BEM & Sass)',
+                'description' => 'Cara menjaga agar file CSS Anda tetap rapi, modular, dan tidak tumpang tindih untuk proyek berskala besar.',
+                'price' => 290000,
+                'level' => 'mahir',
+                'category' => 'Frontend',
+                'total_students' => 52,
+                'rating' => 4.8,
+                'duration' => '21 menit',
+                'videos' => [
+                    ['title' => 'CSS bagian 1', 'url' => 'https://www.youtube.com/embed/V-DD30lGAL0', 'dur' => '21 menit']
+                ]
+            ],
+            [
+                'title' => 'Fullstack Web App React + Laravel 11',
+                'description' => 'Bangun aplikasi inventory real-time menggunakan React.js di frontend dan Laravel 11 API di backend.',
+                'price' => 300000,
+                'level' => 'mahir',
+                'category' => 'Fullstack',
+                'total_students' => 99,
+                'rating' => 4.9,
+                'duration' => '46 menit',
+                'videos' => [
+                    ['title' => 'Belajar HTML untuk pemula', 'url' => 'https://www.youtube.com/embed/0oA1Z6UKM5M', 'dur' => '11 menit'],
+                    ['title' => 'HTML bagian 2', 'url' => 'https://www.youtube.com/embed/qwKm_7GmgBU', 'dur' => '14 menit'],
+                    ['title' => 'CSS bagian 1', 'url' => 'https://www.youtube.com/embed/V-DD30lGAL0', 'dur' => '21 menit']
+                ]
+            ]
+        ];
 
-        $rifqiCourse2 = Course::create([
-            'instructor_id' => $rifqiProgrammer->id,
-            'title' => 'Mastering Vue.js 3 & Composition API',
-            'description' => 'Pelajari Vue.js 3 secara mendalam dengan Composition API, Pinia State Management, dan Vue Router.',
-            'price' => 150000,
-            'level' => 'menengah',
-            'category' => 'Frontend',
-            'is_free' => false,
-            'is_published' => true,
-            'total_students' => 85,
-            'rating' => 4.9,
-            'total_videos' => 4,
-            'duration' => '4 jam',
-        ]);
+        foreach ($rifqiCoursesData as $cData) {
+            $course = Course::create([
+                'instructor_id' => $rifqiProgrammer->id,
+                'title' => $cData['title'],
+                'description' => $cData['description'],
+                'price' => $cData['price'],
+                'level' => $cData['level'],
+                'category' => $cData['category'],
+                'is_free' => false,
+                'is_published' => true,
+                'total_students' => $cData['total_students'],
+                'rating' => $cData['rating'],
+                'total_videos' => count($cData['videos']),
+                'duration' => $cData['duration'],
+            ]);
 
-        $rifqiCourse3 = Course::create([
-            'instructor_id' => $rifqiProgrammer->id,
-            'title' => 'Membangun REST API Aman dengan Laravel Passport',
-            'description' => 'Langkah demi langkah membangun REST API yang aman menggunakan OAuth2 server bawaan Laravel Passport.',
-            'price' => 200000,
-            'level' => 'mahir',
-            'category' => 'Backend',
-            'is_free' => false,
-            'is_published' => true,
-            'total_students' => 50,
-            'rating' => 4.7,
-            'total_videos' => 3,
-            'duration' => '3 jam',
-        ]);
-
-        $rifqiCourse4 = Course::create([
-            'instructor_id' => $rifqiProgrammer->id,
-            'title' => 'Flutter & Dart: Zero to Hero Mobile App',
-            'description' => 'Mulai karir Anda sebagai Mobile App Developer dengan menguasai Flutter framework dari dasar hingga state management.',
-            'price' => 250000,
-            'level' => 'menengah',
-            'category' => 'Mobile',
-            'is_free' => false,
-            'is_published' => true,
-            'total_students' => 64,
-            'rating' => 4.6,
-            'total_videos' => 4,
-            'duration' => '6 jam',
-        ]);
-
-        $rifqiCourse5 = Course::create([
-            'instructor_id' => $rifqiProgrammer->id,
-            'title' => 'Fullstack Web App React + Laravel 11',
-            'description' => 'Bangun aplikasi inventory real-time menggunakan React.js di frontend dan Laravel 11 API di backend.',
-            'price' => 350000,
-            'level' => 'mahir',
-            'category' => 'Fullstack',
-            'is_free' => false,
-            'is_published' => true,
-            'total_students' => 40,
-            'rating' => 4.9,
-            'total_videos' => 5,
-            'duration' => '8 jam',
-        ]);
-
-        // Add videos for rifqiCourse1
-        CourseVideo::create(['course_id' => $rifqiCourse1->id, 'title' => 'Instalasi Laravel 11', 'video_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ', 'duration' => '30 menit', 'order' => 1]);
-        CourseVideo::create(['course_id' => $rifqiCourse1->id, 'title' => 'Routing & Controller', 'video_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ', 'duration' => '45 menit', 'order' => 2]);
-        CourseVideo::create(['course_id' => $rifqiCourse1->id, 'title' => 'Blade Templating', 'video_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ', 'duration' => '45 menit', 'order' => 3]);
+            foreach ($cData['videos'] as $vIdx => $vData) {
+                CourseVideo::create([
+                    'course_id' => $course->id,
+                    'title' => $vData['title'],
+                    'video_url' => $vData['url'],
+                    'duration' => $vData['dur'],
+                    'order' => $vIdx + 1,
+                ]);
+            }
+        }
 
         // Course Videos for course1
         CourseVideo::create(['course_id' => $course1->id, 'title' => 'Pengenalan HTML & CSS Dasar', 'video_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ', 'duration' => '45 menit', 'order' => 1]);
