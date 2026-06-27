@@ -258,7 +258,6 @@
             </div>
             <small style="color:var(--text3);font-size:.72rem;display:block;margin-top:2px">Unggah foto fisik lokasi tempat usaha Anda, maks. 2MB</small>
             @error('business_photo')<div class="field-error">⚠ {{ $message }}</div>@enderror
-          </div>')<div class="field-error">⚠ {{ $message }}</div>@enderror
           </div>
 
           <div style="background:var(--blue-light);border:1px solid #BFDBFE;border-radius:var(--radius-sm);padding:.6rem .85rem;font-size:.78rem;color:#1E40AF;margin-bottom:1rem">
