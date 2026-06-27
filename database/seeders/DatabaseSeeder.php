@@ -118,7 +118,7 @@ class DatabaseSeeder extends Seeder
                 'city' => 'Bandung',
                 'bio' => 'Saya adalah seorang Programmer profesional yang siap membangun berbagai project digital seperti website, landing page, dan aplikasi mobile.',
                 'is_verified' => true,
-                'is_top_programmer' => false,
+                'is_top_programmer' => true,
                 'rating' => 0.0,
                 'total_projects' => 0,
                 'total_earnings' => 0,
@@ -136,6 +136,57 @@ class DatabaseSeeder extends Seeder
                 'issuer' => 'Lembaga Sertifikasi Informatika',
                 'issue_date' => '2025-05-20',
                 'certificate_file' => 'verification/certificates/dummy.pdf',
+                'status' => 'approved',
+            ]
+        );
+
+        Certificate::firstOrCreate(
+            ['programmer_id' => $rifqiProgrammer->id, 'name' => 'Sertifikat Web Developer Expert (Dicoding)'],
+            [
+                'issuer' => 'Dicoding Indonesia',
+                'issue_date' => '2024-08-15',
+                'certificate_file' => 'verification/certificates/dummy.pdf',
+                'status' => 'approved',
+            ]
+        );
+
+        Certificate::firstOrCreate(
+            ['programmer_id' => $rifqiProgrammer->id, 'name' => 'Sertifikat Back-End Developer (Alibaba Cloud)'],
+            [
+                'issuer' => 'Alibaba Cloud Academy',
+                'issue_date' => '2024-11-10',
+                'certificate_file' => 'verification/certificates/dummy.pdf',
+                'status' => 'approved',
+            ]
+        );
+
+        // Portfolios for rifqiProgrammer
+        Portfolio::firstOrCreate(
+            ['programmer_id' => $rifqiProgrammer->id, 'title' => 'Website Landing Page UMKM Hijab Bandung'],
+            [
+                'description' => 'Website e-commerce landing page modern dengan optimasi SEO untuk produk hijab lokal.',
+                'tags' => ['HTML', 'CSS', 'JavaScript', 'TailwindCSS'],
+                'project_url' => 'https://hijabbandung.com',
+                'status' => 'approved',
+            ]
+        );
+
+        Portfolio::firstOrCreate(
+            ['programmer_id' => $rifqiProgrammer->id, 'title' => 'Sistem ERP Toko Material Sinar Abadi'],
+            [
+                'description' => 'Aplikasi internal web POS dan Inventory Management berbasis Laravel dan Livewire.',
+                'tags' => ['Laravel', 'Livewire', 'MySQL', 'Bootstrap'],
+                'project_url' => 'https://sinarabadi.co.id',
+                'status' => 'approved',
+            ]
+        );
+
+        Portfolio::firstOrCreate(
+            ['programmer_id' => $rifqiProgrammer->id, 'title' => 'Aplikasi Manajemen Laundry Online'],
+            [
+                'description' => 'Sistem manajemen tracking laundry berbasis React dan Node.js dengan notifikasi WhatsApp.',
+                'tags' => ['React', 'Node.js', 'Express', 'MongoDB'],
+                'project_url' => 'https://laundryonline.web.id',
                 'status' => 'approved',
             ]
         );
@@ -474,6 +525,87 @@ class DatabaseSeeder extends Seeder
             'total_videos' => 4,
             'duration' => '5+ jam',
         ]);
+
+        // Courses for rifqiProgrammer
+        $rifqiCourse1 = Course::create([
+            'instructor_id' => $rifqiProgrammer->id,
+            'title' => 'Belajar Laravel 11 untuk Pemula',
+            'description' => 'Panduan komprehensif belajar framework Laravel 11 dari nol sampai bisa membuat website dinamis.',
+            'price' => 0,
+            'level' => 'pemula',
+            'category' => 'Web Development',
+            'is_free' => true,
+            'is_published' => true,
+            'total_students' => 120,
+            'rating' => 4.8,
+            'total_videos' => 3,
+            'duration' => '2 jam',
+        ]);
+
+        $rifqiCourse2 = Course::create([
+            'instructor_id' => $rifqiProgrammer->id,
+            'title' => 'Mastering Vue.js 3 & Composition API',
+            'description' => 'Pelajari Vue.js 3 secara mendalam dengan Composition API, Pinia State Management, dan Vue Router.',
+            'price' => 150000,
+            'level' => 'menengah',
+            'category' => 'Frontend',
+            'is_free' => false,
+            'is_published' => true,
+            'total_students' => 85,
+            'rating' => 4.9,
+            'total_videos' => 4,
+            'duration' => '4 jam',
+        ]);
+
+        $rifqiCourse3 = Course::create([
+            'instructor_id' => $rifqiProgrammer->id,
+            'title' => 'Membangun REST API Aman dengan Laravel Passport',
+            'description' => 'Langkah demi langkah membangun REST API yang aman menggunakan OAuth2 server bawaan Laravel Passport.',
+            'price' => 200000,
+            'level' => 'mahir',
+            'category' => 'Backend',
+            'is_free' => false,
+            'is_published' => true,
+            'total_students' => 50,
+            'rating' => 4.7,
+            'total_videos' => 3,
+            'duration' => '3 jam',
+        ]);
+
+        $rifqiCourse4 = Course::create([
+            'instructor_id' => $rifqiProgrammer->id,
+            'title' => 'Flutter & Dart: Zero to Hero Mobile App',
+            'description' => 'Mulai karir Anda sebagai Mobile App Developer dengan menguasai Flutter framework dari dasar hingga state management.',
+            'price' => 250000,
+            'level' => 'menengah',
+            'category' => 'Mobile',
+            'is_free' => false,
+            'is_published' => true,
+            'total_students' => 64,
+            'rating' => 4.6,
+            'total_videos' => 4,
+            'duration' => '6 jam',
+        ]);
+
+        $rifqiCourse5 = Course::create([
+            'instructor_id' => $rifqiProgrammer->id,
+            'title' => 'Fullstack Web App React + Laravel 11',
+            'description' => 'Bangun aplikasi inventory real-time menggunakan React.js di frontend dan Laravel 11 API di backend.',
+            'price' => 350000,
+            'level' => 'mahir',
+            'category' => 'Fullstack',
+            'is_free' => false,
+            'is_published' => true,
+            'total_students' => 40,
+            'rating' => 4.9,
+            'total_videos' => 5,
+            'duration' => '8 jam',
+        ]);
+
+        // Add videos for rifqiCourse1
+        CourseVideo::create(['course_id' => $rifqiCourse1->id, 'title' => 'Instalasi Laravel 11', 'video_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ', 'duration' => '30 menit', 'order' => 1]);
+        CourseVideo::create(['course_id' => $rifqiCourse1->id, 'title' => 'Routing & Controller', 'video_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ', 'duration' => '45 menit', 'order' => 2]);
+        CourseVideo::create(['course_id' => $rifqiCourse1->id, 'title' => 'Blade Templating', 'video_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ', 'duration' => '45 menit', 'order' => 3]);
 
         // Course Videos for course1
         CourseVideo::create(['course_id' => $course1->id, 'title' => 'Pengenalan HTML & CSS Dasar', 'video_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ', 'duration' => '45 menit', 'order' => 1]);
