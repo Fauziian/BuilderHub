@@ -23,6 +23,15 @@ putenv('APP_STORAGE=/tmp');
 $_ENV['APP_STORAGE'] = '/tmp';
 $_SERVER['APP_STORAGE'] = '/tmp';
 
+// Bypass bootstrap cache files by redirecting them to /tmp
+putenv('APP_PACKAGES_CACHE=/tmp/packages.php');
+$_ENV['APP_PACKAGES_CACHE'] = '/tmp/packages.php';
+$_SERVER['APP_PACKAGES_CACHE'] = '/tmp/packages.php';
+
+putenv('APP_SERVICES_CACHE=/tmp/services.php');
+$_ENV['APP_SERVICES_CACHE'] = '/tmp/services.php';
+$_SERVER['APP_SERVICES_CACHE'] = '/tmp/services.php';
+
 // Ensure storage subdirectories exist in /tmp
 $dirs = [
     '/tmp/framework/views',
