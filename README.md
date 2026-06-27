@@ -11,12 +11,14 @@ BuilderHub mengimplementasikan sistem multi-role yang terintegrasi penuh:
 ### 1. 💼 UMKM (Usaha Mikro, Kecil, Menengah)
 * **Posting Project Tanpa Harga**: UMKM dapat memposting deskripsi kebutuhan project tanpa mencantumkan harga/budget di awal (estimasi budget diserahkan kepada ahlinya).
 * **Fitur Chat & Negosiasi**: Berdiskusi langsung mengenai detail teknis dan negosiasi harga sebelum menyetujui penawaran.
-* **Persetujuan Penawaran**: Memilih programmer terbaik berdasarkan rating, portofolio, harga penawaran, dan durasi pengerjaan.
+* **Persetujuan Penawaran & Pembayaran Rekber**: Memilih programmer terbaik, menyetujui penawaran, dan menyetorkan dana 100% ke Rekber (Held by Admin) agar pengerjaan dapat dimulai secara aman.
+* **Tinjauan & Penyelesaian**: Memantau progress pengerjaan. Tombol **"Selesaikan"** akan otomatis muncul setelah progress mencapai 100%. UMKM mengkliknya setelah meninjau berkas untuk mencairkan bagi hasil dana.
 
 ### 2. 💻 Programmer
 * **Penawaran Biaya & Waktu**: Mengajukan penawaran harga (bid) dan waktu pengerjaan secara mandiri pada project yang dibuka.
 * **Validasi Sisa Hari (Deadline Constraint)**: Durasi pengerjaan yang diajukan programmer **tidak boleh melebihi sisa waktu menuju deadline** yang diinginkan UMKM.
 * **Ubah Penawaran (Re-Estimation)**: Jika UMKM merasa penawaran terlalu mahal, programmer dapat mengubah estimasi harga dan waktu langsung dari dashboard mereka selama statusnya masih menunggu persetujuan.
+* **Pembaruan Progress & Deliverables**: Memperbarui progress pengerjaan secara bertahap hingga 100% dan mengunggah hasil pekerjaan (berkas ZIP, repository GitHub, dan tautan hosting).
 * **Sistem Course & Portofolio**: Membuat materi pembelajaran/kursus untuk dibagikan kepada Pelajar dan mengelola portofolio profesional untuk meningkatkan kredibilitas.
 
 ### 3. 🎓 Pelajar (Student)
@@ -25,7 +27,19 @@ BuilderHub mengimplementasikan sistem multi-role yang terintegrasi penuh:
 
 ### 4. ⚙️ Administrator
 * **Validasi & Moderasi Project**: Memeriksa pengajuan project baru dari UMKM untuk disetujui (ACC & Publikasikan) atau ditolak (Tolak & Hapus) demi menjaga kualitas platform.
-* **Manajemen Pengguna**: Mengelola status verifikasi programmer, portofolio, dan kursus secara keseluruhan.
+* **Manajemen Pengguna & Verifikasi**: Mengelola status verifikasi programmer, portofolio, sertifikat, dan kursus secara keseluruhan.
+* **Manajemen Kas & Revenue Platform**: Memantau pendapatan total platform yang mencakup dana project berjalan (100% budget Rekber), komisi resmi project selesai (80%), serta komisi kursus berbayar (20%).
+
+---
+
+## 💰 Skema Keuangan & Pembagian Pendapatan (Revenue Split)
+
+Platform BuilderHub menerapkan transparansi penuh pada setiap transaksi:
+
+| Kategori Transaksi | Programmer (Mitra) | Platform (BuilderHub) | Alur Rekber (Escrow) |
+| :--- | :---: | :---: | :--- |
+| **Project UMKM** | **20%** | **80%** | Dana disimpan 100% di Rekber Admin saat project **berjalan**, lalu dibagi hasil 20/80 saat UMKM mengonfirmasi **selesai**. |
+| **Course (Kelas)** | **80%** | **20%** | Pembelian course berbayar langsung dibagi hasil: 80% ke pemateri dan 20% komisi platform. |
 
 ---
 
