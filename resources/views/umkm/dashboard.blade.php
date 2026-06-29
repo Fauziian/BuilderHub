@@ -189,12 +189,15 @@
       </div>
       
       @php
-        $pendingBidsCount = $projects->sum(function($p) {
-            return $p->bids->where('status', 'pending')->count();
-        });
+        $pendingBidsCount = $projects->filter(function($p) {
+            return $p->bids->where('status', 'pending')->count() > 0 
+                || ($p->status === 'open' && $p->assigned_programmer_id && $p->escrow_status === 'unpaid');
+        })->count();
         $inProgressCount = $projects->where('status', 'in_progress')->count();
         $completedCount = $projects->where('status', 'completed')->count();
-        $openCount = $projects->where('status', 'open')->count();
+        $openCount = $projects->filter(function($p) {
+            return $p->status === 'open' && !$p->assigned_programmer_id;
+        })->count();
         $pendingCount = $projects->where('status', 'pending')->count();
         $overdueCount = $projects->filter(function($p) {
             return $p->deadline && now()->startOfDay()->gt($p->deadline->startOfDay()) 
@@ -209,14 +212,14 @@
         <button type="button" class="btn btn-sm filter-pill" onclick="setProjectFilter('has-pending-bids')" id="pill-has-pending-bids" style="@if($unseenBidsCount > 0) border-color: var(--orange) !important; color: var(--orange) !important; background: var(--orange-light) !important; @endif">
           👥 Penawaran Masuk ({{ $pendingBidsCount }}) @if($unseenBidsCount > 0) <span style="display:inline-block;width:8px;height:8px;background:var(--red);border-radius:50%;margin-left:4px;animation:badgePulse 1.5s ease-in-out infinite"></span> @endif
         </button>
-
+ 
         <button type="button" class="btn btn-sm filter-pill" onclick="setProjectFilter('pending')" id="pill-pending">⏳ Menunggu ACC ({{ $pendingCount }})</button>
         <button type="button" class="btn btn-sm filter-pill" onclick="setProjectFilter('open')" id="pill-open">🔓 Dibuka ({{ $openCount }})</button>
         
         <button type="button" class="btn btn-sm filter-pill" onclick="setProjectFilter('overdue')" id="pill-overdue" style="background:#FEF2F2 !important;color:#DC2626 !important;border-color:rgba(239,68,68,0.2) !important">
           ⚠️ Deadline ({{ $overdueCount }})
         </button>
-
+ 
         <button type="button" class="btn btn-sm filter-pill" onclick="setProjectFilter('in_progress')" id="pill-in_progress">⚙️ Berjalan ({{ $inProgressCount }})</button>
         <button type="button" class="btn btn-sm filter-pill" onclick="setProjectFilter('completed')" id="pill-completed">🏆 Selesai ({{ $completedCount }})</button>
       </div>
@@ -225,7 +228,7 @@
         Menampilkan <span id="umkmFilteredCount">0</span> dari <span id="umkmTotalCount">0</span> project
       </div>
     </div>
-
+ 
     @forelse($projects as $project)
     @php
       $projectHasUnseenBids = $project->bids->where('status', 'pending')->where('is_seen_by_umkm', false)->count() > 0;
@@ -233,8 +236,8 @@
     <div class="card umkm-project-card" style="margin-bottom:1rem; transition: all 0.3s ease; @if($projectHasUnseenBids) border: 1.5px solid var(--orange) !important; box-shadow: 0 4px 20px rgba(245,158,11,0.18) !important; @endif" 
          data-title="{{ strtolower($project->title) }}" 
          data-desc="{{ strtolower($project->description) }}" 
-         data-status="{{ $project->status }}"
-         data-has-pending-bids="{{ $project->bids->where('status', 'pending')->count() > 0 ? 'true' : 'false' }}"
+         data-status="{{ ($project->status === 'open' && $project->assigned_programmer_id) ? 'awaiting_payment' : $project->status }}"
+         data-has-pending-bids="{{ ($project->bids->where('status', 'pending')->count() > 0 || ($project->status === 'open' && $project->assigned_programmer_id && $project->escrow_status === 'unpaid')) ? 'true' : 'false' }}"
          data-has-unseen-bids="{{ $projectHasUnseenBids ? 'true' : 'false' }}"
          data-is-overdue="{{ ($project->deadline && now()->startOfDay()->gt($project->deadline->startOfDay()) && !$project->assigned_programmer_id && $project->status === 'open') ? 'true' : 'false' }}">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem">

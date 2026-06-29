@@ -38,10 +38,11 @@ class UmkmController extends Controller
         $projects = $projects->sortBy(function ($project) {
             $hasUnseenBids = $project->bids->where('status', 'pending')->where('is_seen_by_umkm', false)->count() > 0;
             $hasPendingBids = $project->bids->where('status', 'pending')->count() > 0;
+            $isAwaitingPayment = $project->status === 'open' && $project->assigned_programmer_id && $project->escrow_status === 'unpaid';
 
             if ($hasUnseenBids) {
                 $priority = 1;
-            } elseif ($hasPendingBids) {
+            } elseif ($hasPendingBids || $isAwaitingPayment) {
                 $priority = 2;
             } else {
                 switch ($project->status) {
