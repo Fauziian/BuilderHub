@@ -140,6 +140,7 @@ class ChatController extends Controller
                 'contact_role'      => strtoupper($contact->role === 'course' ? 'pelajar' : $contact->role),
                 'last_message'      => $lastMsg ? $lastMsg->message : 'Belum ada pesan.',
                 'last_message_time' => $lastMsg ? $lastMsg->created_at->diffForHumans() : '',
+                'last_message_timestamp' => $lastMsg ? $lastMsg->created_at->timestamp : 0,
                 'unread_count'      => $unreadCount,
                 'context_label'     => $contextLabel,
                 'project_id'        => $contextProjectId,
@@ -147,9 +148,9 @@ class ChatController extends Controller
             ];
         }
 
-        // Urutkan thread yang memiliki pesan terbaru di atas
+        // Urutkan thread yang memiliki pesan terbaru di atas (timestamp descending)
         usort($threads, function($a, $b) {
-            return strcmp($b['last_message_time'], $a['last_message_time']);
+            return $b['last_message_timestamp'] <=> $a['last_message_timestamp'];
         });
 
         return response()->json($threads);
