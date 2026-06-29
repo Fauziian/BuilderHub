@@ -82,12 +82,15 @@
       } else {
           $elements[] = 1;
           
-          if ($current <= 3) {
+          if ($current < 3) {
               $x = 2;
               $y = 3;
+          } elseif ($current >= $last - 1) {
+              $x = $last - 2;
+              $y = $last - 1;
           } else {
-              $x = min($current - 1, $last - 2);
-              $y = $x + 1;
+              $x = $current;
+              $y = $current + 1;
           }
           
           $elements[] = $x;
