@@ -68,7 +68,7 @@
       </a>
     @endif
 
-    {{-- Page numbers (Professional sliding window with fixed ellipsis position) --}}
+    {{-- Page numbers (Smart sliding window with dynamic ellipsis placement) --}}
     @php
       $current = $paginator->currentPage();
       $last = $paginator->lastPage();
@@ -80,23 +80,28 @@
               $elements[] = $i;
           }
       } else {
-          $elements[] = 1;
-          
-          if ($current < 3) {
+          if ($current <= 3) {
               $x = 2;
-              $y = 3;
           } elseif ($current >= $last - 1) {
               $x = $last - 2;
-              $y = $last - 1;
           } else {
-              $x = $current;
-              $y = $current + 1;
+              $x = $current - 1;
           }
+          $y = $x + 1;
           
-          $elements[] = $x;
-          $elements[] = $y;
-          $elements[] = '...';
-          $elements[] = $last;
+          if ($x < $last - 2) {
+              $elements[] = 1;
+              $elements[] = $x;
+              $elements[] = $y;
+              $elements[] = '...';
+              $elements[] = $last;
+          } else {
+              $elements[] = 1;
+              $elements[] = '...';
+              $elements[] = $x;
+              $elements[] = $y;
+              $elements[] = $last;
+          }
       }
     @endphp
 
