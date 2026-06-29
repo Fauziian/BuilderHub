@@ -75,26 +75,24 @@
       
       $elements = [];
       
-      if ($last <= 5) {
+      if ($last <= 4) {
           for ($i = 1; $i <= $last; $i++) {
               $elements[] = $i;
           }
       } else {
           if ($current <= 3) {
               $x = 2;
-          } elseif ($current >= $last - 2) {
-              $x = $last - 3;
+          } elseif ($current >= $last - 1) {
+              $x = $last - 2;
           } else {
               $x = $current - 1;
           }
           $y = $x + 1;
-          $z = $x + 2;
           
-          if ($x < $last - 3) {
+          if ($x < $last - 2) {
               $elements[] = 1;
               $elements[] = $x;
               $elements[] = $y;
-              $elements[] = $z;
               $elements[] = '...';
               $elements[] = $last;
           } else {
@@ -102,7 +100,6 @@
               $elements[] = '...';
               $elements[] = $x;
               $elements[] = $y;
-              $elements[] = $z;
               $elements[] = $last;
           }
       }
