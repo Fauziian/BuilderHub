@@ -186,27 +186,64 @@
           <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:1.1rem;color:var(--text3)">🔍</span>
           <input type="text" id="umkmSearchProject" placeholder="Cari judul atau deskripsi project Anda..." oninput="filterUmkmProjects()" style="width:100%;padding:10px 16px 10px 42px;border:1.5px solid var(--border);border-radius:12px;font-size:.9rem;background:var(--bg);color:var(--text);font-family:inherit" />
         </div>
-        <div style="min-width:180px">
-          <select id="umkmFilterStatus" onchange="filterUmkmProjects()" style="width:100%;padding:10px 16px;border:1.5px solid var(--border);border-radius:12px;font-size:.9rem;background:var(--bg);color:var(--text);font-family:inherit">
-            <option value="">🟢 Semua Status</option>
-            <option value="pending">⏳ Menunggu ACC</option>
-            <option value="open">🔓 Dibuka / Estimasi</option>
-            <option value="in_progress">⚙️ Berjalan</option>
-            <option value="completed">🏆 Selesai</option>
-          </select>
-        </div>
       </div>
+      
+      @php
+        $pendingBidsCount = $projects->sum(function($p) {
+            return $p->bids->where('status', 'pending')->count();
+        });
+        $inProgressCount = $projects->where('status', 'in_progress')->count();
+        $completedCount = $projects->where('status', 'completed')->count();
+        $openCount = $projects->where('status', 'open')->count();
+        $pendingCount = $projects->where('status', 'pending')->count();
+        $overdueCount = $projects->filter(function($p) {
+            return $p->deadline && now()->startOfDay()->gt($p->deadline->startOfDay()) 
+                && !$p->assigned_programmer_id 
+                && $p->status === 'open';
+        })->count();
+      @endphp
+      
+      <div style="display:flex;gap:.5rem;margin-top:1.1rem;flex-wrap:wrap">
+        <button type="button" class="btn btn-sm filter-pill active" onclick="setProjectFilter('all')" id="pill-all">Semua ({{ $projects->count() }})</button>
+        
+        <button type="button" class="btn btn-sm filter-pill" onclick="setProjectFilter('has-pending-bids')" id="pill-has-pending-bids" style="@if($unseenBidsCount > 0) border-color: var(--orange) !important; color: var(--orange) !important; background: var(--orange-light) !important; @endif">
+          👥 Penawaran Masuk ({{ $pendingBidsCount }}) @if($unseenBidsCount > 0) <span style="display:inline-block;width:8px;height:8px;background:var(--red);border-radius:50%;margin-left:4px;animation:badgePulse 1.5s ease-in-out infinite"></span> @endif
+        </button>
+
+        <button type="button" class="btn btn-sm filter-pill" onclick="setProjectFilter('pending')" id="pill-pending">⏳ Menunggu ACC ({{ $pendingCount }})</button>
+        <button type="button" class="btn btn-sm filter-pill" onclick="setProjectFilter('open')" id="pill-open">🔓 Dibuka ({{ $openCount }})</button>
+        
+        <button type="button" class="btn btn-sm filter-pill" onclick="setProjectFilter('overdue')" id="pill-overdue" style="background:#FEF2F2 !important;color:#DC2626 !important;border-color:rgba(239,68,68,0.2) !important">
+          ⚠️ Deadline ({{ $overdueCount }})
+        </button>
+
+        <button type="button" class="btn btn-sm filter-pill" onclick="setProjectFilter('in_progress')" id="pill-in_progress">⚙️ Berjalan ({{ $inProgressCount }})</button>
+        <button type="button" class="btn btn-sm filter-pill" onclick="setProjectFilter('completed')" id="pill-completed">🏆 Selesai ({{ $completedCount }})</button>
+      </div>
+      
       <div id="umkmProjectsSearchResultText" style="font-size:.82rem;color:var(--text3);margin-top:.75rem;display:none;font-weight:600">
         Menampilkan <span id="umkmFilteredCount">0</span> dari <span id="umkmTotalCount">0</span> project
       </div>
     </div>
 
     @forelse($projects as $project)
-    <div class="card umkm-project-card" style="margin-bottom:1rem" data-title="{{ strtolower($project->title) }}" data-desc="{{ strtolower($project->description) }}" data-status="{{ $project->status }}">
+    @php
+      $projectHasUnseenBids = $project->bids->where('status', 'pending')->where('is_seen_by_umkm', false)->count() > 0;
+    @endphp
+    <div class="card umkm-project-card" style="margin-bottom:1rem; transition: all 0.3s ease; @if($projectHasUnseenBids) border: 1.5px solid var(--orange) !important; box-shadow: 0 4px 20px rgba(245,158,11,0.18) !important; @endif" 
+         data-title="{{ strtolower($project->title) }}" 
+         data-desc="{{ strtolower($project->description) }}" 
+         data-status="{{ $project->status }}"
+         data-has-pending-bids="{{ $project->bids->where('status', 'pending')->count() > 0 ? 'true' : 'false' }}"
+         data-has-unseen-bids="{{ $projectHasUnseenBids ? 'true' : 'false' }}"
+         data-is-overdue="{{ ($project->deadline && now()->startOfDay()->gt($project->deadline->startOfDay()) && !$project->assigned_programmer_id && $project->status === 'open') ? 'true' : 'false' }}">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem">
         <div>
           <span style="font-size:1rem;font-weight:700">{{ $project->title }}</span>
           <span class="badge badge-{{ $project->status === 'open' ? 'open' : ($project->status === 'in_progress' ? 'running' : 'done') }}" style="margin-left:.5rem">{{ $project->status_label }}</span>
+          @if($projectHasUnseenBids)
+            <span class="badge" style="background:var(--orange-light);color:var(--orange);font-weight:700;border:1px solid rgba(245,158,11,0.3);margin-left:.5rem;animation:badgePulse 1.5s ease-in-out infinite">🔥 Penawaran Baru!</span>
+          @endif
         </div>
         <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:.25rem">
           <div style="font-size:1rem;font-weight:800">{{ $project->budget > 0 ? 'Rp ' . number_format($project->budget, 0, ',', '.') : 'Menunggu Estimasi' }}</div>
@@ -714,6 +751,28 @@
 input[list]::-webkit-calendar-picker-indicator {
   display: none !important;
 }
+.filter-pill {
+  background: var(--bg2);
+  color: var(--text2);
+  border: 1.5px solid var(--border);
+  border-radius: 99px;
+  padding: 6px 16px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.filter-pill:hover {
+  background: var(--bg3);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.filter-pill.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  box-shadow: 0 4px 12px rgba(16,185,129,0.2);
+}
 </style>
 <script>
 function showUTab(name){
@@ -893,9 +952,25 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Real-time filtering project UMKM
+let currentProjectFilter = 'all';
+
+function setProjectFilter(filter) {
+  currentProjectFilter = filter;
+  
+  // Update active states on pills
+  document.querySelectorAll('.filter-pill').forEach(pill => {
+    pill.classList.remove('active');
+  });
+  const activePill = document.getElementById('pill-' + filter);
+  if (activePill) {
+    activePill.classList.add('active');
+  }
+  
+  filterUmkmProjects();
+}
+
 function filterUmkmProjects() {
   const query = document.getElementById('umkmSearchProject').value.toLowerCase().trim();
-  const status = document.getElementById('umkmFilterStatus').value;
   const cards = document.querySelectorAll('.umkm-project-card');
   const resultText = document.getElementById('umkmProjectsSearchResultText');
   const filteredCountEl = document.getElementById('umkmFilteredCount');
@@ -907,11 +982,26 @@ function filterUmkmProjects() {
     const title = card.getAttribute('data-title') || '';
     const desc = card.getAttribute('data-desc') || '';
     const cardStatus = card.getAttribute('data-status') || '';
+    const hasPendingBids = card.getAttribute('data-has-pending-bids') === 'true';
+    const hasUnseenBids = card.getAttribute('data-has-unseen-bids') === 'true';
+    const isOverdue = card.getAttribute('data-is-overdue') === 'true';
     
     const matchesQuery = title.includes(query) || desc.includes(query);
-    const matchesStatus = status === '' || cardStatus === status;
     
-    if (matchesQuery && matchesStatus) {
+    let matchesFilter = false;
+    if (currentProjectFilter === 'all') {
+      matchesFilter = true;
+    } else if (currentProjectFilter === 'has-pending-bids') {
+      matchesFilter = hasPendingBids;
+    } else if (currentProjectFilter === 'has-unseen-bids') {
+      matchesFilter = hasUnseenBids;
+    } else if (currentProjectFilter === 'overdue') {
+      matchesFilter = isOverdue;
+    } else {
+      matchesFilter = cardStatus === currentProjectFilter;
+    }
+    
+    if (matchesQuery && matchesFilter) {
       card.style.display = 'block';
       visibleCount++;
     } else {
@@ -922,7 +1012,7 @@ function filterUmkmProjects() {
   totalCountEl.textContent = cards.length;
   filteredCountEl.textContent = visibleCount;
   
-  if (query !== '' || status !== '') {
+  if (query !== '' || currentProjectFilter !== 'all') {
     resultText.style.display = 'block';
   } else {
     resultText.style.display = 'none';

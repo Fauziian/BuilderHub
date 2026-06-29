@@ -23,9 +23,46 @@ class UmkmController extends Controller
     {
         $this->checkAccess();
         $user = Auth::user();
+        
         $projects = Project::where('umkm_id', $user->id)
             ->with(['bids.programmer', 'programmer'])
-            ->latest()->get();
+            ->get();
+
+        // Sort projects using a premium custom logic:
+        // 1. Projects with unseen/new bids go first (priority 1)
+        // 2. Projects with active pending bids go second (priority 2)
+        // 3. Projects with status 'open' or 'pending' (waiting for bids / admin ACC) go third (priority 3)
+        // 4. Projects with status 'in_progress' go fourth (priority 4)
+        // 5. Projects with status 'completed' go last (priority 5)
+        // 6. Tie-breaker: latest created_at desc
+        $projects = $projects->sortBy(function ($project) {
+            $hasUnseenBids = $project->bids->where('status', 'pending')->where('is_seen_by_umkm', false)->count() > 0;
+            $hasPendingBids = $project->bids->where('status', 'pending')->count() > 0;
+
+            if ($hasUnseenBids) {
+                $priority = 1;
+            } elseif ($hasPendingBids) {
+                $priority = 2;
+            } else {
+                switch ($project->status) {
+                    case 'pending':
+                    case 'open':
+                        $priority = 3;
+                        break;
+                    case 'in_progress':
+                        $priority = 4;
+                        break;
+                    case 'completed':
+                    default:
+                        $priority = 5;
+                        break;
+                }
+            }
+
+            $timeOffset = 9999999999 - ($project->created_at ? $project->created_at->timestamp : 0);
+            return sprintf('%d_%d', $priority, $timeOffset);
+        })->values();
+
         $totalBudget = $projects->where('status', 'completed')->sum('budget');
         $programmers = \App\Models\User::where('role', 'programmer')->latest()->get();
 

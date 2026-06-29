@@ -835,7 +835,7 @@ function toggleNotifDropdown() {
 }
 
 function loadNotifications() {
-  fetch(window.APP_URL + '/api/notifications', {
+  fetch(window.APP_URL + '/web-api/notifications', {
     headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
   }).then(r => r.json()).then(data => {
     notifData = data.notifications || [];
@@ -881,7 +881,7 @@ function updateBadge(count) {
 
 function markNotifRead(id, el, event) {
   const token = document.querySelector('meta[name="csrf-token"]')?.content || '';
-  fetch(window.APP_URL + '/api/notifications/' + id + '/read', {
+  fetch(window.APP_URL + '/web-api/notifications/' + id + '/read', {
     method: 'POST',
     headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json' }
   }).catch(() => {});
@@ -892,7 +892,7 @@ function markNotifRead(id, el, event) {
 
 function markAllNotifRead() {
   const token = document.querySelector('meta[name="csrf-token"]')?.content || '';
-  fetch(window.APP_URL + '/api/notifications/mark-read', {
+  fetch(window.APP_URL + '/web-api/notifications/mark-read', {
     method: 'POST',
     headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json' }
   }).then(() => {
@@ -919,7 +919,7 @@ document.addEventListener('click', function(e) {
 
 // Poll notifikasi badge setiap 30 detik
 function pollNotifBadge() {
-  fetch(window.APP_URL + '/api/notifications', {
+  fetch(window.APP_URL + '/web-api/notifications', {
     headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
   }).then(r => r.json()).then(data => {
     updateBadge(data.unread_count);

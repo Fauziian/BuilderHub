@@ -68,67 +68,53 @@
       </a>
     @endif
 
-    {{-- Page numbers (Custom sliding window logic starting from current page) --}}
+    {{-- Page numbers (Professional sliding window with fixed ellipsis position) --}}
     @php
       $current = $paginator->currentPage();
       $last = $paginator->lastPage();
       
-      $pages = [];
-      $maxConsecutive = 3;
-      for ($i = 0; $i < $maxConsecutive; $i++) {
-          $p = $current + $i;
-          if ($p <= $last) {
-              $pages[] = $p;
-          }
-      }
+      $elements = [];
       
-      $showEllipsis = false;
-      $showLastPage = false;
-      
-      if (count($pages) > 0) {
-          $lastConsecutive = end($pages);
-          if ($lastConsecutive < $last) {
-              if ($last - $lastConsecutive > 1) {
-                  $showEllipsis = true;
-                  $showLastPage = true;
-              } else {
-                  $pages[] = $last;
-              }
+      if ($last <= 4) {
+          for ($i = 1; $i <= $last; $i++) {
+              $elements[] = $i;
           }
+      } else {
+          $elements[] = 1;
+          
+          if ($current <= 3) {
+              $x = 2;
+              $y = 3;
+          } else {
+              $x = min($current - 1, $last - 2);
+              $y = $x + 1;
+          }
+          
+          $elements[] = $x;
+          $elements[] = $y;
+          $elements[] = '...';
+          $elements[] = $last;
       }
     @endphp
 
-    {{-- Render computed consecutive pages --}}
-    @foreach ($pages as $page)
-      @if ($page == $current)
+    {{-- Render page elements --}}
+    @foreach ($elements as $element)
+      @if ($element === '...')
+        <span style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;font-size:.82rem;color:#9CA3AF">…</span>
+      @elseif ($element == $current)
         <span aria-current="page"
           style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;background:#4F46E5;color:#fff;font-size:.85rem;font-weight:700;box-shadow:0 2px 8px rgba(79,70,229,.4);cursor:default">
-          {{ $page }}
+          {{ $element }}
         </span>
       @else
-        <a href="{{ $paginator->url($page) }}"
+        <a href="{{ $paginator->url($element) }}"
           style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid #E5E7EB;background:#fff;color:#374151;font-size:.85rem;font-weight:500;text-decoration:none;transition:all .15s"
           onmouseover="this.style.background='#EEF2FF';this.style.borderColor='#4F46E5';this.style.color='#4F46E5'"
           onmouseout="this.style.background='#fff';this.style.borderColor='#E5E7EB';this.style.color='#374151'">
-          {{ $page }}
+          {{ $element }}
         </a>
       @endif
     @endforeach
-
-    {{-- Render Ellipsis if needed --}}
-    @if ($showEllipsis)
-      <span style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;font-size:.82rem;color:#9CA3AF">…</span>
-    @endif
-
-    {{-- Render Last Page if needed --}}
-    @if ($showLastPage)
-      <a href="{{ $paginator->url($last) }}"
-        style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid #E5E7EB;background:#fff;color:#374151;font-size:.85rem;font-weight:500;text-decoration:none;transition:all .15s"
-        onmouseover="this.style.background='#EEF2FF';this.style.borderColor='#4F46E5';this.style.color='#4F46E5'"
-        onmouseout="this.style.background='#fff';this.style.borderColor='#E5E7EB';this.style.color='#374151'">
-        {{ $last }}
-      </a>
-    @endif
 
     {{-- Selanjutnya › --}}
     @if ($paginator->hasMorePages())

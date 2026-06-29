@@ -33,14 +33,14 @@ Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard'
 // Messenger / Central Chat system (for all roles)
 Route::middleware('auth')->group(function () {
     Route::get('/messages', [ChatController::class, 'index'])->name('messages.index');
-    Route::get('/api/chat/threads', [ChatController::class, 'getThreads'])->name('chat.threads');
-    Route::get('/api/chat/messages/{contact}', [ChatController::class, 'getMessages'])->name('chat.messages');
-    Route::post('/api/chat/send', [ChatController::class, 'sendMessage'])->name('chat.send');
+    Route::get('/web-api/chat/threads', [ChatController::class, 'getThreads'])->name('chat.threads');
+    Route::get('/web-api/chat/messages/{contact}', [ChatController::class, 'getMessages'])->name('chat.messages');
+    Route::post('/web-api/chat/send', [ChatController::class, 'sendMessage'])->name('chat.send');
 
     // Notifikasi bell global (semua role)
-    Route::get('/api/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
-    Route::post('/api/notifications/mark-read', [\App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('notifications.mark-read');
-    Route::post('/api/notifications/{notification}/read', [\App\Http\Controllers\NotificationController::class, 'markRead'])->name('notifications.read');
+    Route::get('/web-api/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/web-api/notifications/mark-read', [\App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('notifications.mark-read');
+    Route::post('/web-api/notifications/{notification}/read', [\App\Http\Controllers\NotificationController::class, 'markRead'])->name('notifications.read');
 });
 
 // Programmer routes

@@ -226,7 +226,7 @@
   async function loadMessages() {
     if (!activeContactId) return;
     try {
-      const response = await fetch(window.APP_URL + `/api/chat/messages/${activeContactId}`);
+      const response = await fetch(window.APP_URL + `/web-api/chat/messages/${activeContactId}`);
       const msgs = await response.json();
       const listEl = document.getElementById('messagesList');
       
